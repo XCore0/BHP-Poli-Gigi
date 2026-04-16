@@ -1,6 +1,5 @@
-      <!-- Main Scrollable Content -->
-      <div class="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8 hide-scrollbar">
-        <div class="max-w-[1400px] mx-auto space-y-6">
+      <div class="w-full p-4 sm:p-6 lg:p-8">
+        <div class="max-w-[1400px] mx-auto space-y-6 w-full">
 
           <!-- Header Banner -->
           <div

@@ -1,5 +1,4 @@
-      <!-- Main Scrollable Content -->
-      <div class="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8 hide-scrollbar flex flex-col justify-between">
+      <div class="w-full p-4 sm:p-6 lg:p-8">
         <div class="max-w-[1400px] mx-auto space-y-6 w-full mb-8">
 
           <!-- Header Banner -->
@@ -145,13 +144,5 @@
             </div>
 
           </div>
-
-        </div>
-
-        <!-- Footer inside the reliable scroll container -->
-        <div class="w-full py-4 mt-auto text-center opacity-70">
-          <p class="font-plex text-xs font-medium text-slate-500 mb-0.5">© 2026 Sistem Informasi Manajemen BHP Poli Gigi</p>
-          <p class="font-plex text-[10px] tracking-wide text-slate-400">Versi 1.0 • Developed by Team Terserahhh</p>
-        </div>
 
       </div>

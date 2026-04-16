@@ -3,8 +3,9 @@ $active_page = $active_page ?? '';
 $active_submenu = $active_submenu ?? '';
 ?>
     <!-- ======================== SIDEBAR ======================== -->
-    <aside
-      class="hidden lg:flex relative w-[279px] h-full flex-col overflow-hidden shadow-2xl flex-shrink-0 sidebar-gradient z-20">
+    <div id="sidebarOverlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[40] transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden"></div>
+    <aside id="sidebarMenu"
+      class="fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 z-[50] lg:static lg:translate-x-0 w-[279px] h-full flex flex-col overflow-hidden shadow-2xl flex-shrink-0 sidebar-gradient lg:z-20">
       <!-- Scrollable content area -->
       <div class="flex flex-col px-4 py-6 gap-0 flex-1 overflow-y-auto sidebar-scroll relative z-10">
 

@@ -20,7 +20,7 @@
 
     <!-- CENTER: Page title + description -->
     <div class="flex items-center flex-1 px-6 lg:px-8 bg-white/80 min-w-0 gap-4">
-      <button
+      <button onclick="toggleMobileMenu()"
         class="lg:hidden text-slate-500 hover:text-brand-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100 text-xl">
         <i class="fa-solid fa-bars"></i>
       </button>
