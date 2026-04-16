@@ -75,10 +75,10 @@
       <!-- Dropdown menu -->
       <div id="user-dropdown"
         class="hidden absolute right-6 top-[72px] bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[180px] z-50">
-        <a href="#"
+        <a href="index.php?page=profil"
           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-plex"><i
             class="fas fa-user text-slate-400 w-4"></i> Profil Saya</a>
-        <a href="#"
+        <a href="index.php?page=pengaturan"
           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-plex"><i
             class="fas fa-cog text-slate-400 w-4"></i> Pengaturan</a>
         <div class="my-1 border-t border-gray-100"></div>

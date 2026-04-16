@@ -22,6 +22,12 @@ if ($page == 'data_bhp') {
 } elseif ($page == 'dashboard') {
     $page_title = 'Dashboard';
     $page_desc = 'Ringkasan informasi dan aktivitas Poliklinik Gigi';
+} elseif ($page == 'profil') {
+    $page_title = 'Profil Saya';
+    $page_desc = 'Kelola informasi pribadi dan credential akun Anda';
+} elseif ($page == 'pengaturan') {
+    $page_title = 'Pengaturan Akun';
+    $page_desc = 'Konfigurasi preferensi akses dan keamanan sistem';
 }
 ?>
 <!DOCTYPE html>
