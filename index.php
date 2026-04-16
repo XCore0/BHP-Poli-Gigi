@@ -148,6 +148,36 @@ if ($page == 'data_bhp') {
     .submenu.open {
       max-height: 200px;
     }
+
+    /* View Transitions for SPA */
+    ::view-transition-old(main-content),
+    ::view-transition-new(main-content) {
+      animation-duration: 0.5s;
+      animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+      animation-fill-mode: both;
+    }
+
+    ::view-transition-old(main-content) {
+      animation-name: fadeOutUp;
+    }
+
+    ::view-transition-new(main-content) {
+      animation-name: fadeInUp;
+    }
+
+    @keyframes fadeOutUp {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-10px) scale(0.98); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    main {
+      view-transition-name: main-content;
+    }
   </style>
 </head>
 
@@ -215,6 +245,89 @@ if ($page == 'data_bhp') {
         if (chevron) chevron.style.transform = "rotate(0deg)";
       }
     });
+
+    // --- Single Page Application (SPA) Logic ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Small fade-in on initial load to prevent CSS flash (FOUC)
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity 0.4s ease';
+      setTimeout(() => {
+        document.body.style.opacity = '1';
+      }, 50);
+    });
+
+    document.addEventListener('click', async (e) => {
+      const link = e.target.closest('a');
+      // Only intercept internal links
+      if (!link || !link.href || !link.href.includes(window.location.origin) || link.target === '_blank' || link.hasAttribute('download')) return;
+      
+      e.preventDefault();
+      const url = link.href;
+      
+      // Update history
+      history.pushState(null, '', url);
+      
+      await fetchAndRenderPage(url);
+    });
+
+    window.addEventListener('popstate', () => {
+      fetchAndRenderPage(location.href);
+    });
+
+    async function fetchAndRenderPage(url) {
+      try {
+        const resp = await fetch(url);
+        const text = await resp.text();
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(text, 'text/html');
+        
+        // Use View Transitions API if supported for "Smart Animate" effect
+        if (document.startViewTransition) {
+          document.startViewTransition(() => updatePageContent(newDoc));
+        } else {
+          updatePageContent(newDoc); // Fallback
+        }
+      } catch(err) {
+        window.location = url; // Fallback to normal navigation on error
+      }
+    }
+
+    function updatePageContent(newDoc) {
+      // 1. Update Title
+      document.title = newDoc.title;
+      
+      // 2. Update Header
+      const currentHeaderWrapper = document.querySelector('header');
+      const newHeaderWrapper = newDoc.querySelector('header');
+      if (currentHeaderWrapper && newHeaderWrapper) {
+          currentHeaderWrapper.innerHTML = newHeaderWrapper.innerHTML;
+      }
+      
+      // 3. Update Sidebar Active States
+      const currentSidebar = document.querySelector('aside');
+      const newSidebar = newDoc.querySelector('aside');
+      if (currentSidebar && newSidebar) {
+          currentSidebar.innerHTML = newSidebar.innerHTML;
+      }
+      
+      // 4. Update Main Content (This triggers the View Transition)
+      const currentMain = document.querySelector('main');
+      const newMain = newDoc.querySelector('main');
+      if (currentMain && newMain) {
+         currentMain.innerHTML = newMain.innerHTML;
+         
+         // Re-run any scripts in the new main content if needed.
+         // (Not strictly necessary if contents are simply static HTML PHP includes
+         // but good practice if inline scripts ever get added later).
+         Array.from(currentMain.querySelectorAll("script")).forEach(oldScript => {
+            const newScript = document.createElement("script");
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+         });
+      }
+    }
+    // --- End SPA Logic ---
   </script>
 </body>
 

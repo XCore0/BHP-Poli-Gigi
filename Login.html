@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,69 +11,68 @@
     * {
       font-family: 'Inter', -apple-system, Roboto, Helvetica, sans-serif;
     }
-    
+
     .gradient-green {
       background: radial-gradient(102.49% 131.25% at 0% 0%, #006B47 0%, #1A9F70 100%);
     }
-    
+
     .gradient-light {
       background: linear-gradient(160deg, #F0FDF4 8.49%, #F8FFFE 50%, #EDFCF2 91.51%);
     }
-    
+
     .gradient-btn-green {
       background: linear-gradient(135deg, #15803D 0%, #34D399 99.97%);
       box-shadow: 0 10px 15px -3px rgba(0, 201, 80, 0.25), 0 4px 6px -4px rgba(0, 201, 80, 0.25);
     }
-    
+
     .gradient-btn-admin {
       background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);
       border: 1.094px solid #A4F4CF;
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     }
-    
+
     .gradient-btn-dokter {
       background: linear-gradient(135deg, #F0FDFA 0%, #ECFEFF 100%);
       border: 1.094px solid #96F7E4;
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     }
-    
+
     .gradient-btn-kepala {
       background: linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 100%);
       border: 1.094px solid #FEE685;
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
     }
-    
+
     .card-blur {
       background: rgba(255, 255, 255, 0.85);
       border: 1.094px solid rgba(255, 255, 255, 0.6);
       box-shadow: 0 25px 50px -12px rgba(0, 166, 62, 0.1);
     }
-    
+
     .feature-card {
       border: 1.094px solid rgba(255, 255, 255, 0.15);
       background: rgba(255, 255, 255, 0.1);
     }
-    
+
     .logo-card {
       background: rgba(255, 255, 255, 0.15);
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     }
-    
+
     .input-field {
       border: 1.094px solid #E5E7EB;
       background: rgba(249, 250, 251, 0.8);
     }
-    
+
     .input-field:focus {
       outline: none;
-      ring: 2px;
-      ring-color: rgba(0, 107, 71, 0.3);
+      box-shadow: 0 0 0 2px rgba(0, 107, 71, 0.3);
     }
-    
+
     .accent-bar {
       background: linear-gradient(90deg, #006B47 0%, #07FFA7 100%);
     }
-    
+
     .blur-right {
       position: absolute;
       top: 0;
@@ -85,7 +85,7 @@
       opacity: 0.4;
       pointer-events: none;
     }
-    
+
     @media (max-width: 1024px) {
       .blur-right {
         width: 20rem;
@@ -94,141 +94,191 @@
     }
   </style>
 </head>
+
 <body class="m-0 p-0 bg-white">
   <div class="min-h-screen flex flex-col lg:flex-row">
-    
+
     <!-- Left Panel - Green Brand Side -->
-    <div class="relative gradient-green flex flex-col justify-between overflow-hidden lg:w-1/2 min-h-screen lg:min-h-screen">
-      
+    <div
+      class="relative gradient-green flex flex-col justify-between overflow-hidden lg:w-1/2 min-h-screen lg:min-h-screen">
+
       <!-- SVG Background -->
-      <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 893 1080" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 893 1080" fill="none"
+        xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
         <g clip-path="url(#clip-bg)">
-          <path d="M822.5 366.432C991.223 366.432 1128 244.317 1128 93.6816C1128 -56.954 991.223 -179.068 822.5 -179.068C653.777 -179.068 517 -56.954 517 93.6816C517 244.317 653.777 366.432 822.5 366.432Z" fill="white" fill-opacity="0.06"/>
-          <path d="M446.5 887.136C628.202 887.136 775.5 731.718 775.5 540C775.5 348.282 628.202 192.864 446.5 192.864C264.798 192.864 117.5 348.282 117.5 540C117.5 731.718 264.798 887.136 446.5 887.136Z" stroke="white" stroke-opacity="0.07" stroke-width="0.978143"/>
-          <path d="M446.5 787.954C576.287 787.954 681.5 676.941 681.5 540C681.5 403.058 576.287 292.045 446.5 292.045C316.713 292.045 211.5 403.058 211.5 540C211.5 676.941 316.713 787.954 446.5 787.954Z" stroke="white" stroke-opacity="0.05" stroke-width="0.978143"/>
-          <path d="M446.5 688.772C524.372 688.772 587.5 622.165 587.5 540C587.5 457.835 524.372 391.227 446.5 391.227C368.628 391.227 305.5 457.835 305.5 540C305.5 622.165 368.628 688.772 446.5 688.772Z" stroke="white" stroke-opacity="0.04" stroke-width="0.978143"/>
-          <path d="M0 862.895C148.833 825.702 297.667 825.702 446.5 862.895C595.333 900.088 744.167 900.088 893 862.895V1210.03H0V862.895Z" fill="white" fill-opacity="0.035"/>
+          <path
+            d="M822.5 366.432C991.223 366.432 1128 244.317 1128 93.6816C1128 -56.954 991.223 -179.068 822.5 -179.068C653.777 -179.068 517 -56.954 517 93.6816C517 244.317 653.777 366.432 822.5 366.432Z"
+            fill="white" fill-opacity="0.06" />
+          <path
+            d="M446.5 887.136C628.202 887.136 775.5 731.718 775.5 540C775.5 348.282 628.202 192.864 446.5 192.864C264.798 192.864 117.5 348.282 117.5 540C117.5 731.718 264.798 887.136 446.5 887.136Z"
+            stroke="white" stroke-opacity="0.07" stroke-width="0.978143" />
+          <path
+            d="M446.5 787.954C576.287 787.954 681.5 676.941 681.5 540C681.5 403.058 576.287 292.045 446.5 292.045C316.713 292.045 211.5 403.058 211.5 540C211.5 676.941 316.713 787.954 446.5 787.954Z"
+            stroke="white" stroke-opacity="0.05" stroke-width="0.978143" />
+          <path
+            d="M446.5 688.772C524.372 688.772 587.5 622.165 587.5 540C587.5 457.835 524.372 391.227 446.5 391.227C368.628 391.227 305.5 457.835 305.5 540C305.5 622.165 368.628 688.772 446.5 688.772Z"
+            stroke="white" stroke-opacity="0.04" stroke-width="0.978143" />
+          <path
+            d="M0 862.895C148.833 825.702 297.667 825.702 446.5 862.895C595.333 900.088 744.167 900.088 893 862.895V1210.03H0V862.895Z"
+            fill="white" fill-opacity="0.035" />
         </g>
         <defs>
-          <clip-path id="clip-bg"><rect width="893" height="1080" fill="white"/></clip-path>
+          <clip-path id="clip-bg">
+            <rect width="893" height="1080" fill="white" />
+          </clip-path>
         </defs>
       </svg>
-      
+
       <!-- Content -->
       <div class="relative z-10 flex flex-col items-center justify-center flex-1 px-8 py-16 lg:py-20 text-center">
-        
+
         <!-- Logo Icon -->
         <div class="logo-card flex items-center justify-center w-28 h-28 rounded-[28px] mb-10">
           <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path opacity="0.95" d="M18.4134 4.33252C15.3806 4.33252 11.9145 6.06554 9.96488 8.88171C8.01523 11.6979 7.58197 15.1639 8.23186 18.4133C8.88174 21.6628 9.74825 23.829 10.3981 26.4286C11.048 29.0281 11.4813 32.0609 12.1312 35.7436C12.781 39.4262 13.8642 44.4087 15.5972 46.1417C16.4637 47.0082 17.5469 47.6581 18.8466 47.6581C20.1464 47.6581 21.0129 46.7916 21.6628 45.4918C22.3127 44.1921 22.7459 42.2424 23.1792 40.0761C23.6124 37.9098 24.0457 35.5269 24.9122 34.2272C25.3455 33.5773 25.7787 33.144 25.9953 33.144C26.212 33.144 26.6452 33.5773 27.0785 34.2272C27.945 35.5269 28.3783 37.9098 28.8115 40.0761C29.2448 42.2424 29.678 44.1921 30.3279 45.4918C30.9778 46.7916 31.8443 47.6581 33.1441 47.6581C34.4438 47.6581 35.527 47.0082 36.3935 46.1417C38.1265 44.4087 39.2097 39.4262 39.8595 35.7436C40.5094 32.0609 40.9427 29.0281 41.5926 26.4286C42.2424 23.829 43.109 21.6628 43.7588 18.4133C44.4087 15.1639 43.9755 11.6979 42.0258 8.88171C40.0762 6.06554 36.6101 4.33252 33.5773 4.33252C31.6277 4.33252 29.8946 5.19903 28.5949 6.06554C27.7284 6.71543 26.8619 7.14868 25.9953 7.14868C25.1288 7.14868 24.2623 6.71543 23.3958 6.06554C22.096 5.19903 20.363 4.33252 18.4134 4.33252Z" fill="white"/>
-            <path opacity="0.45" d="M19.4965 9.74805C18.1968 10.3979 16.6804 11.9143 15.8139 13.864C15.164 15.1637 14.9473 16.6801 15.164 17.9799" stroke="white" stroke-width="2.59954" stroke-linecap="round"/>
+            <path opacity="0.95"
+              d="M18.4134 4.33252C15.3806 4.33252 11.9145 6.06554 9.96488 8.88171C8.01523 11.6979 7.58197 15.1639 8.23186 18.4133C8.88174 21.6628 9.74825 23.829 10.3981 26.4286C11.048 29.0281 11.4813 32.0609 12.1312 35.7436C12.781 39.4262 13.8642 44.4087 15.5972 46.1417C16.4637 47.0082 17.5469 47.6581 18.8466 47.6581C20.1464 47.6581 21.0129 46.7916 21.6628 45.4918C22.3127 44.1921 22.7459 42.2424 23.1792 40.0761C23.6124 37.9098 24.0457 35.5269 24.9122 34.2272C25.3455 33.5773 25.7787 33.144 25.9953 33.144C26.212 33.144 26.6452 33.5773 27.0785 34.2272C27.945 35.5269 28.3783 37.9098 28.8115 40.0761C29.2448 42.2424 29.678 44.1921 30.3279 45.4918C30.9778 46.7916 31.8443 47.6581 33.1441 47.6581C34.4438 47.6581 35.527 47.0082 36.3935 46.1417C38.1265 44.4087 39.2097 39.4262 39.8595 35.7436C40.5094 32.0609 40.9427 29.0281 41.5926 26.4286C42.2424 23.829 43.109 21.6628 43.7588 18.4133C44.4087 15.1639 43.9755 11.6979 42.0258 8.88171C40.0762 6.06554 36.6101 4.33252 33.5773 4.33252C31.6277 4.33252 29.8946 5.19903 28.5949 6.06554C27.7284 6.71543 26.8619 7.14868 25.9953 7.14868C25.1288 7.14868 24.2623 6.71543 23.3958 6.06554C22.096 5.19903 20.363 4.33252 18.4134 4.33252Z"
+              fill="white" />
+            <path opacity="0.45"
+              d="M19.4965 9.74805C18.1968 10.3979 16.6804 11.9143 15.8139 13.864C15.164 15.1637 14.9473 16.6801 15.164 17.9799"
+              stroke="white" stroke-width="2.59954" stroke-linecap="round" />
           </svg>
         </div>
-        
+
         <!-- Brand Name -->
         <div class="mb-4">
           <h1 class="text-5xl md:text-6xl font-extrabold text-white leading-tight tracking-tight">Poli Gigi</h1>
-          <h2 class="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight" style="color: #A4F4CF;">Klinik Pratama</h2>
+          <h2 class="text-5xl md:text-6xl font-extrabold leading-tight tracking-tight" style="color: #A4F4CF;">Klinik
+            Pratama</h2>
         </div>
-        
+
         <!-- Subtitle -->
         <p class="text-base font-medium max-w-md leading-relaxed mb-10" style="color: rgba(208, 250, 229, 0.8);">
           Platform manajemen inventaris bahan habis pakai klinik yang modern, efisien, dan terintegrasi.
         </p>
-        
+
         <!-- Feature Cards -->
         <div class="flex flex-col gap-4 w-full max-w-sm">
           <!-- Feature 1 -->
           <div class="feature-card flex items-center gap-4 px-5 py-3.5 rounded-2xl">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              class="flex-shrink-0">
               <g clip-path="url(#clip-inv)">
-                <path d="M9.16503 18.105C9.41835 18.2512 9.70571 18.3282 9.99822 18.3282C10.2907 18.3282 10.5781 18.2512 10.8314 18.105L16.6637 14.7723C16.9168 14.6261 17.127 14.4161 17.2732 14.1631C17.4194 13.9101 17.4966 13.6231 17.4969 13.3308V6.66537C17.4966 6.37315 17.4194 6.08615 17.2732 5.83315C17.127 5.58016 16.9168 5.37007 16.6637 5.22396L10.8314 1.89122C10.5781 1.74497 10.2907 1.66797 9.99822 1.66797C9.70571 1.66797 9.41835 1.74497 9.16503 1.89122L3.33274 5.22396C3.07967 5.37007 2.86947 5.58016 2.72324 5.83315C2.577 6.08615 2.49986 6.37315 2.49956 6.66537V13.3308C2.49986 13.6231 2.577 13.9101 2.72324 14.1631C2.86947 14.4161 3.07967 14.6261 3.33274 14.7723L9.16503 18.105Z" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9.99821 18.3299V9.99805" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2.74118 5.83252L9.99822 9.99844L17.2553 5.83252" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M6.24889 3.55762L13.7475 7.84852" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                  d="M9.16503 18.105C9.41835 18.2512 9.70571 18.3282 9.99822 18.3282C10.2907 18.3282 10.5781 18.2512 10.8314 18.105L16.6637 14.7723C16.9168 14.6261 17.127 14.4161 17.2732 14.1631C17.4194 13.9101 17.4966 13.6231 17.4969 13.3308V6.66537C17.4966 6.37315 17.4194 6.08615 17.2732 5.83315C17.127 5.58016 16.9168 5.37007 16.6637 5.22396L10.8314 1.89122C10.5781 1.74497 10.2907 1.66797 9.99822 1.66797C9.70571 1.66797 9.41835 1.74497 9.16503 1.89122L3.33274 5.22396C3.07967 5.37007 2.86947 5.58016 2.72324 5.83315C2.577 6.08615 2.49986 6.37315 2.49956 6.66537V13.3308C2.49986 13.6231 2.577 13.9101 2.72324 14.1631C2.86947 14.4161 3.07967 14.6261 3.33274 14.7723L9.16503 18.105Z"
+                  stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M9.99821 18.3299V9.99805" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M2.74118 5.83252L9.99822 9.99844L17.2553 5.83252" stroke="#A4F4CF" stroke-width="1.66637"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M6.24889 3.55762L13.7475 7.84852" stroke="#A4F4CF" stroke-width="1.66637"
+                  stroke-linecap="round" stroke-linejoin="round" />
               </g>
               <defs>
-                <clip-path id="clip-inv"><rect width="19.9964" height="19.9964" fill="white"/></clip-path>
+                <clip-path id="clip-inv">
+                  <rect width="19.9964" height="19.9964" fill="white" />
+                </clip-path>
               </defs>
             </svg>
-            <span class="text-base font-medium text-left" style="color: rgba(255, 255, 255, 0.85);">Pantau stok BHP secara real-time</span>
+            <span class="text-base font-medium text-left" style="color: rgba(255, 255, 255, 0.85);">Pantau stok BHP
+              secara real-time</span>
           </div>
-          
+
           <!-- Feature 2 -->
           <div class="feature-card flex items-center gap-4 px-5 py-3.5 rounded-2xl">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              class="flex-shrink-0">
               <g clip-path="url(#clip-usage)">
-                <path d="M18.3301 9.99835H16.2638C15.8996 9.99757 15.5453 10.1161 15.2549 10.3358C14.9645 10.5554 14.754 10.8642 14.6557 11.2148L12.6977 18.1802C12.6851 18.2235 12.6588 18.2615 12.6227 18.2885C12.5867 18.3156 12.5428 18.3302 12.4978 18.3302C12.4527 18.3302 12.4088 18.3156 12.3728 18.2885C12.3367 18.2615 12.3104 18.2235 12.2978 18.1802L7.69862 1.81648C7.686 1.77321 7.65969 1.7352 7.62363 1.70816C7.58758 1.68112 7.54373 1.6665 7.49866 1.6665C7.45359 1.6665 7.40974 1.68112 7.37368 1.70816C7.33762 1.7352 7.31131 1.77321 7.29869 1.81648L5.34071 8.7819C5.24278 9.13113 5.03358 9.43888 4.74487 9.65842C4.45616 9.87796 4.1037 9.99731 3.741 9.99835H1.66637" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                  d="M18.3301 9.99835H16.2638C15.8996 9.99757 15.5453 10.1161 15.2549 10.3358C14.9645 10.5554 14.754 10.8642 14.6557 11.2148L12.6977 18.1802C12.6851 18.2235 12.6588 18.2615 12.6227 18.2885C12.5867 18.3156 12.5428 18.3302 12.4978 18.3302C12.4527 18.3302 12.4088 18.3156 12.3728 18.2885C12.3367 18.2615 12.3104 18.2235 12.2978 18.1802L7.69862 1.81648C7.686 1.77321 7.65969 1.7352 7.62363 1.70816C7.58758 1.68112 7.54373 1.6665 7.49866 1.6665C7.45359 1.6665 7.40974 1.68112 7.37368 1.70816C7.33762 1.7352 7.31131 1.77321 7.29869 1.81648L5.34071 8.7819C5.24278 9.13113 5.03358 9.43888 4.74487 9.65842C4.45616 9.87796 4.1037 9.99731 3.741 9.99835H1.66637"
+                  stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
               </g>
               <defs>
-                <clip-path id="clip-usage"><rect width="19.9964" height="19.9964" fill="white"/></clip-path>
+                <clip-path id="clip-usage">
+                  <rect width="19.9964" height="19.9964" fill="white" />
+                </clip-path>
               </defs>
             </svg>
-            <span class="text-base font-medium text-left" style="color: rgba(255, 255, 255, 0.85);">Rekam pemakaian dokter per pasien</span>
+            <span class="text-base font-medium text-left" style="color: rgba(255, 255, 255, 0.85);">Rekam pemakaian
+              dokter per pasien</span>
           </div>
-          
+
           <!-- Feature 3 -->
           <div class="feature-card flex items-center gap-4 px-5 py-3.5 rounded-2xl">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-              <path d="M12.4978 1.6665H7.49867C7.03851 1.6665 6.66548 2.03953 6.66548 2.49969V4.16606C6.66548 4.62621 7.03851 4.99924 7.49867 4.99924H12.4978C12.9579 4.99924 13.331 4.62621 13.331 4.16606V2.49969C13.331 2.03953 12.9579 1.6665 12.4978 1.6665Z" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M13.3309 3.33252H14.9973C15.4393 3.33252 15.8631 3.50808 16.1756 3.82059C16.4881 4.13309 16.6637 4.55694 16.6637 4.99889V16.6635C16.6637 17.1054 16.4881 17.5293 16.1756 17.8418C15.8631 18.1543 15.4393 18.3298 14.9973 18.3298H4.9991C4.55715 18.3298 4.13331 18.1543 3.8208 17.8418C3.5083 17.5293 3.33273 17.1054 3.33273 16.6635V4.99889C3.33273 4.55694 3.5083 4.13309 3.8208 3.82059C4.13331 3.50808 4.55715 3.33252 4.9991 3.33252H6.66547" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9.99821 9.16504H13.331" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M9.99821 13.3311H13.331" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M6.66548 9.16504H6.67381" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M6.66548 13.3311H6.67381" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              class="flex-shrink-0">
+              <path
+                d="M12.4978 1.6665H7.49867C7.03851 1.6665 6.66548 2.03953 6.66548 2.49969V4.16606C6.66548 4.62621 7.03851 4.99924 7.49867 4.99924H12.4978C12.9579 4.99924 13.331 4.62621 13.331 4.16606V2.49969C13.331 2.03953 12.9579 1.6665 12.4978 1.6665Z"
+                stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M13.3309 3.33252H14.9973C15.4393 3.33252 15.8631 3.50808 16.1756 3.82059C16.4881 4.13309 16.6637 4.55694 16.6637 4.99889V16.6635C16.6637 17.1054 16.4881 17.5293 16.1756 17.8418C15.8631 18.1543 15.4393 18.3298 14.9973 18.3298H4.9991C4.55715 18.3298 4.13331 18.1543 3.8208 17.8418C3.5083 17.5293 3.33273 17.1054 3.33273 16.6635V4.99889C3.33273 4.55694 3.5083 4.13309 3.8208 3.82059C4.13331 3.50808 4.55715 3.33252 4.9991 3.33252H6.66547"
+                stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M9.99821 9.16504H13.331" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M9.99821 13.3311H13.331" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M6.66548 9.16504H6.67381" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M6.66548 13.3311H6.67381" stroke="#A4F4CF" stroke-width="1.66637" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
-            <span class="text-base font-medium text-left" style="color: rgba(255, 255, 255, 0.85);">Laporan otomatis & notifikasi stok</span>
+            <span class="text-base font-medium text-left" style="color: rgba(255, 255, 255, 0.85);">Laporan otomatis &
+              notifikasi stok</span>
           </div>
         </div>
       </div>
-      
+
       <!-- Footer -->
       <div class="relative z-10 pb-6 text-center">
         <p class="text-sm font-medium" style="color: rgba(255, 255, 255, 0.45);">© 2025 Poli Gigi Inventory System</p>
       </div>
     </div>
-    
+
     <!-- Right Panel - Login Form -->
     <div class="flex-1 flex items-center justify-center px-4 py-12 lg:py-16 gradient-light relative">
-      
+
       <!-- Decorative Blur -->
       <div class="blur-right"></div>
-      
+
       <!-- Form Container -->
       <div class="w-full max-w-[540px] relative z-10">
-        
+
         <!-- Card -->
         <div class="card-blur rounded-3xl overflow-hidden">
-          
+
           <!-- Top Accent Bar -->
           <div class="accent-bar h-2 w-full"></div>
-          
+
           <!-- Form Content -->
           <div class="px-10 pt-16 pb-10">
-            
+
             <!-- Heading -->
             <div class="mb-14">
               <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1.5">Selamat Datang</h2>
               <p class="text-base text-gray-600 font-normal">Masuk ke akun Anda untuk melanjutkan</p>
             </div>
-            
+
             <!-- Form -->
             <form class="space-y-8">
-              
+
               <!-- Email Field -->
               <div class="space-y-2">
                 <label class="block text-base font-semibold text-gray-800">Email</label>
                 <div class="relative">
                   <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M16.6637 3.33252H3.33275C2.41244 3.33252 1.66638 4.07858 1.66638 4.99889V14.9971C1.66638 15.9174 2.41244 16.6635 3.33275 16.6635H16.6637C17.584 16.6635 18.3301 15.9174 18.3301 14.9971V4.99889C18.3301 4.07858 17.584 3.33252 16.6637 3.33252Z" stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M18.3301 5.83252L10.8564 10.5817C10.5992 10.7428 10.3018 10.8283 9.99823 10.8283C9.69468 10.8283 9.39727 10.7428 9.14005 10.5817L1.66638 5.83252" stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path
+                        d="M16.6637 3.33252H3.33275C2.41244 3.33252 1.66638 4.07858 1.66638 4.99889V14.9971C1.66638 15.9174 2.41244 16.6635 3.33275 16.6635H16.6637C17.584 16.6635 18.3301 15.9174 18.3301 14.9971V4.99889C18.3301 4.07858 17.584 3.33252 16.6637 3.33252Z"
+                        stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
+                      <path
+                        d="M18.3301 5.83252L10.8564 10.5817C10.5992 10.7428 10.3018 10.8283 9.99823 10.8283C9.69468 10.8283 9.39727 10.7428 9.14005 10.5817L1.66638 5.83252"
+                        stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </div>
-                  <input type="email" placeholder="nama@klinik.com" class="input-field w-full h-[52px] pl-12 pr-4 rounded-2xl text-base text-gray-800 placeholder-gray-400 transition-all">
+                  <input type="email" placeholder="nama@klinik.com"
+                    class="input-field w-full h-[52px] pl-12 pr-4 rounded-2xl text-base text-gray-800 placeholder-gray-400 transition-all">
                 </div>
               </div>
-              
+
               <!-- Password Field -->
               <div class="space-y-2">
                 <label class="block text-base font-semibold text-gray-800">Password</label>
@@ -236,53 +286,71 @@
                   <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <g clip-path="url(#clip-lock)">
-                        <path d="M15.8305 9.16504H4.16588C3.24557 9.16504 2.49951 9.9111 2.49951 10.8314V16.6637C2.49951 17.584 3.24557 18.3301 4.16588 18.3301H15.8305C16.7508 18.3301 17.4968 17.584 17.4968 16.6637V10.8314C17.4968 9.9111 16.7508 9.16504 15.8305 9.16504Z" stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M5.83228 9.16516V5.83243C5.83228 4.72755 6.27118 3.66794 7.05245 2.88667C7.83371 2.10541 8.89333 1.6665 9.9982 1.6665C11.1031 1.6665 12.1627 2.10541 12.9439 2.88667C13.7252 3.66794 14.1641 4.72755 14.1641 5.83243V9.16516" stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path
+                          d="M15.8305 9.16504H4.16588C3.24557 9.16504 2.49951 9.9111 2.49951 10.8314V16.6637C2.49951 17.584 3.24557 18.3301 4.16588 18.3301H15.8305C16.7508 18.3301 17.4968 17.584 17.4968 16.6637V10.8314C17.4968 9.9111 16.7508 9.16504 15.8305 9.16504Z"
+                          stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                          d="M5.83228 9.16516V5.83243C5.83228 4.72755 6.27118 3.66794 7.05245 2.88667C7.83371 2.10541 8.89333 1.6665 9.9982 1.6665C11.1031 1.6665 12.1627 2.10541 12.9439 2.88667C13.7252 3.66794 14.1641 4.72755 14.1641 5.83243V9.16516"
+                          stroke="#99A1AF" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round" />
                       </g>
                       <defs>
-                        <clip-path id="clip-lock"><rect width="19.9964" height="19.9964" fill="white"/></clip-path>
+                        <clip-path id="clip-lock">
+                          <rect width="19.9964" height="19.9964" fill="white" />
+                        </clip-path>
                       </defs>
                     </svg>
                   </div>
-                  <input type="password" placeholder="Masukkan password" class="input-field w-full h-[52px] pl-12 pr-4 rounded-2xl text-base text-gray-800 placeholder-gray-400 transition-all">
+                  <input type="password" placeholder="Masukkan password"
+                    class="input-field w-full h-[52px] pl-12 pr-4 rounded-2xl text-base text-gray-800 placeholder-gray-400 transition-all">
                 </div>
               </div>
-              
+
               <!-- Submit Button -->
-              <button type="submit" class="gradient-btn-green w-full h-[52px] flex items-center justify-center gap-2 rounded-2xl text-white text-base font-bold transition-opacity hover:opacity-90 active:scale-95">
+              <button type="submit"
+                class="gradient-btn-green w-full h-[52px] flex items-center justify-center gap-2 rounded-2xl text-white text-base font-bold transition-opacity hover:opacity-90 active:scale-95">
                 Masuk ke Sistem
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.16589 9.99805H15.8305" stroke="white" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9.99817 4.16602L15.8305 9.99831L9.99817 15.8306" stroke="white" stroke-width="1.66637" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4.16589 9.99805H15.8305" stroke="white" stroke-width="1.66637" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="M9.99817 4.16602L15.8305 9.99831L9.99817 15.8306" stroke="white" stroke-width="1.66637"
+                    stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </button>
             </form>
-            
+
             <!-- Demo Quick Access -->
             <div class="mt-8 pt-7 border-t border-gray-200">
-              <p class="text-xs font-bold text-gray-400 text-center tracking-widest uppercase mb-4">Demo Quick Access</p>
+              <p class="text-xs font-bold text-gray-400 text-center tracking-widest uppercase mb-4">Demo Quick Access
+              </p>
               <div class="flex items-center justify-center gap-4">
                 <!-- Admin -->
-                <button class="gradient-btn-admin flex-1 h-[46px] flex items-center justify-center rounded-2xl text-sm font-bold transition-all hover:opacity-80 active:scale-95" style="color: #008236;">
+                <button
+                  class="gradient-btn-admin flex-1 h-[46px] flex items-center justify-center rounded-2xl text-sm font-bold transition-all hover:opacity-80 active:scale-95"
+                  style="color: #008236;">
                   Admin
                 </button>
                 <!-- Dokter -->
-                <button class="gradient-btn-dokter flex-1 h-[46px] flex items-center justify-center rounded-2xl text-sm font-bold transition-all hover:opacity-80 active:scale-95" style="color: #00786F;">
+                <button
+                  class="gradient-btn-dokter flex-1 h-[46px] flex items-center justify-center rounded-2xl text-sm font-bold transition-all hover:opacity-80 active:scale-95"
+                  style="color: #00786F;">
                   Dokter
                 </button>
                 <!-- Kepala -->
-                <button class="gradient-btn-kepala flex-1 h-[46px] flex items-center justify-center rounded-2xl text-sm font-bold transition-all hover:opacity-80 active:scale-95" style="color: #BB4D00;">
+                <button
+                  class="gradient-btn-kepala flex-1 h-[46px] flex items-center justify-center rounded-2xl text-sm font-bold transition-all hover:opacity-80 active:scale-95"
+                  style="color: #BB4D00;">
                   Kepala
                 </button>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- Footer Tagline -->
         <p class="text-center text-sm font-medium text-gray-500 mt-6">Klinik Poli Gigi · Sistem Inventaris BHP v2.0</p>
       </div>
     </div>
   </div>
 </body>
+
 </html>
