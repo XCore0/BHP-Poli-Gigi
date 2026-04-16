@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dokter Header</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- IBM Plex Sans + Bricolage Grotesque -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&family=Bricolage+Grotesque:wght@700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome 5 -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            ibm: ["IBM Plex Sans", "sans-serif"],
+            bricolage: ["Bricolage Grotesque", "sans-serif"],
+          },
+          colors: {
+            brand: {
+              dark: "#006B47",
+              mid: "#1A9F70",
+              light: "#34D399",
+              teal: "#0D9488",
+              mint: "#6EE7B7",
+              neon: "#07FFA7",
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-stretch min-h-screen">
+
+  <!-- ======================== HEADER ======================== -->
+  <header class="w-full h-20 flex items-stretch shadow-sm" style="background: rgba(255,255,255,0.80); backdrop-filter: blur(8px);">
+
+    <!-- LEFT: Logo area (matches sidebar width) -->
+    <div class="flex items-center gap-4 px-8 shrink-0" style="width: 279px; background: #006B47; border-bottom: 1px solid #fff;">
+
+      <!-- Icon badge -->
+      <div
+        class="flex items-center justify-center w-10 h-10 rounded-xl shadow-lg shrink-0"
+        style="background: linear-gradient(135deg, #34D399 0%, #0D9488 100%);"
+      >
+        <i class="fas fa-tooth text-white text-xl"></i>
+      </div>
+
+      <!-- Clinic name -->
+      <div class="flex flex-col gap-0">
+        <span
+          class="text-white font-bricolage font-bold text-xl leading-[25px] tracking-[-0.2px]"
+        >
+          POLI GIGI
+        </span>
+        <span
+          class="font-bricolage font-bold text-[10px] leading-5 tracking-[0.5px]"
+          style="color: #6EE7B7;"
+        >
+          KLINIK PRATAMA
+        </span>
+      </div>
+    </div>
+
+    <!-- CENTER: Page title + description -->
+    <div class="flex items-center flex-1 px-8 bg-white/80 min-w-0">
+
+      <!-- Gradient left border -->
+      <div
+        class="w-1 self-stretch shrink-0 mr-4"
+        style="background: linear-gradient(180deg, #006B47 0%, #07FFA7 100%);"
+      ></div>
+
+      <!-- Title & description -->
+      <div class="flex flex-col gap-0.5 min-w-0">
+        <h1 class="font-ibm font-bold text-[18px] leading-[22.5px] text-[#101828] truncate">
+          Judul
+        </h1>
+        <p class="font-ibm font-medium text-sm leading-5 text-[#99A1AF] truncate">
+          Deskripsi
+        </p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Notifications + User dropdown -->
+    <div class="flex items-center gap-6 px-8 bg-white/80 shrink-0">
+
+      <!-- Bell notification -->
+      <div class="relative flex items-center justify-center cursor-pointer">
+        <i class="far fa-bell text-[#9CA3AF] text-xl"></i>
+        <!-- Red dot -->
+        <span
+          class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-red-500"
+        ></span>
+      </div>
+
+      <!-- Divider -->
+      <div class="w-px h-8 bg-gray-200"></div>
+
+      <!-- User dropdown -->
+      <button
+        class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        onclick="toggleDropdown()"
+      >
+        <!-- Avatar -->
+        <div
+          class="w-9 h-9 rounded-full flex items-center justify-center font-ibm font-semibold text-sm text-white shrink-0"
+          style="background: linear-gradient(135deg, #a8edea 0%, #5b9bd5 100%); color: #1e4a7a;"
+        >
+          T
+        </div>
+
+        <!-- Name & role -->
+        <div class="flex flex-col items-start gap-0 text-left hidden sm:flex">
+          <span class="font-ibm font-semibold text-sm text-[#101828] leading-5 whitespace-nowrap">
+            Team Terserahhh
+          </span>
+          <span class="font-ibm font-medium text-xs leading-4 text-blue-500 whitespace-nowrap">
+            Dokter
+          </span>
+        </div>
+
+        <!-- Chevron -->
+        <i id="user-chevron" class="fas fa-chevron-down text-[#9CA3AF] text-xs transition-transform duration-200"></i>
+      </button>
+
+      <!-- Dropdown menu (hidden by default) -->
+      <div
+        id="user-dropdown"
+        class="hidden absolute right-6 top-[72px] bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[180px] z-50"
+      >
+        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-ibm">
+          <i class="fas fa-user text-gray-400 w-4"></i>
+          Profil Saya
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-ibm">
+          <i class="fas fa-cog text-gray-400 w-4"></i>
+          Pengaturan
+        </a>
+        <div class="my-1 border-t border-gray-100"></div>
+        <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-ibm">
+          <i class="fas fa-sign-out-alt text-red-400 w-4"></i>
+          Keluar
+        </a>
+      </div>
+    </div>
+  </header>
+  <!-- ======================== END HEADER ======================== -->
+
+  <!-- Demo content placeholder -->
+  <main class="flex-1 flex items-center justify-center">
+    <p class="text-gray-400 font-ibm text-sm">Konten halaman di sini</p>
+  </main>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("user-dropdown");
+      const chevron = document.getElementById("user-chevron");
+      dropdown.classList.toggle("hidden");
+      chevron.style.transform = dropdown.classList.contains("hidden")
+        ? "rotate(0deg)"
+        : "rotate(180deg)";
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (e) {
+      const dropdown = document.getElementById("user-dropdown");
+      const btn = e.target.closest("button");
+      if (!btn && !dropdown.classList.contains("hidden")) {
+        dropdown.classList.add("hidden");
+        document.getElementById("user-chevron").style.transform = "rotate(0deg)";
+      }
+    });
+  </script>
+</body>
+</html>
