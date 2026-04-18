@@ -32,7 +32,7 @@ $active_submenu = $active_submenu ?? '';
         <?php $is_bhp_open = ($active_submenu == 'bhp'); ?>
         <div class="mb-1">
           <button onclick="toggleSubmenu('bhp')"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl w-full text-left transition-all duration-200 group border border-transparent hover:bg-white/5">
+            class="flex items-center gap-4 px-4 py-3.5 rounded-xl w-full text-left transition-all duration-200 group <?php echo ($is_bhp_open) ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
             <div class="w-5 flex justify-center flex-shrink-0">
               <i class="fa-solid fa-boxes-stacked text-[18px] transition-colors <?php echo $is_bhp_open ? 'text-white' : 'text-white/80 group-hover:text-white'; ?>"></i>
             </div>
@@ -55,38 +55,7 @@ $active_submenu = $active_submenu ?? '';
           </div>
         </div>
 
-        <!-- ---- Manajemen Pengguna ---- -->
-        <?php $is_users = ($active_page == 'pengguna'); ?>
-        <div class="mb-1">
-          <a href="index.php?page=pengguna"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_users ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
-            <div class="w-5 flex justify-center flex-shrink-0">
-              <i class="fas fa-users-cog text-[17.6px] transition-colors <?php echo $is_users ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
-            </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_users ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Manajemen Pengguna</span>
-          </a>
-        </div>
-
-        <!-- ---- Section: Transaksi ---- -->
-        <div class="py-4">
-          <div class="px-4">
-            <span class="text-white/70 font-plex text-[11px] font-bold tracking-[1.2px] uppercase">Transaksi</span>
-          </div>
-        </div>
-
-        <!-- ---- Stock Masuk ---- -->
-        <?php $is_stock = ($active_page == 'stock'); ?>
-        <div class="mb-1">
-          <a href="index.php?page=stock"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_stock ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
-            <div class="w-5 flex justify-center flex-shrink-0">
-              <i class="fas fa-dolly text-[17.6px] transition-colors <?php echo $is_stock ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
-            </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_stock ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Stock Masuk</span>
-          </a>
-        </div>
-
-        <!-- ---- Laporan ---- -->
+        <!-- ---- Laporan Pemakaian ---- -->
         <?php $is_laporan = ($active_page == 'laporan'); ?>
         <div class="mb-1">
           <a href="index.php?page=laporan"
@@ -94,26 +63,26 @@ $active_submenu = $active_submenu ?? '';
             <div class="w-5 flex justify-center flex-shrink-0">
               <i class="fas fa-chart-bar text-[17.6px] transition-colors <?php echo $is_laporan ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
             </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_laporan ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Laporan</span>
+            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_laporan ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Laporan Pemakaian</span>
           </a>
         </div>
 
-        <!-- ---- Section: Sistem ---- -->
+        <!-- ---- Section: Pengaturan ---- -->
         <div class="py-4">
           <div class="px-4">
-            <span class="text-white/70 font-plex text-[11px] font-bold tracking-[1.2px] uppercase">Sistem</span>
+            <span class="text-white/70 font-plex text-[11px] font-bold tracking-[1.2px] uppercase">Pengaturan</span>
           </div>
         </div>
 
-        <!-- ---- Log Aktivitas ---- -->
-        <?php $is_log = ($active_page == 'log'); ?>
+        <!-- ---- Pengguna ---- -->
+        <?php $is_pengguna = ($active_page == 'pengguna'); ?>
         <div class="mb-1">
-          <a href="index.php?page=log"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_log ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
+          <a href="index.php?page=pengguna"
+            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_pengguna ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
             <div class="w-5 flex justify-center flex-shrink-0">
-              <i class="fas fa-clipboard-list text-[17.6px] transition-colors <?php echo $is_log ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
+              <i class="fas fa-users text-[17.6px] transition-colors <?php echo $is_pengguna ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
             </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_log ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Log Aktivitas</span>
+            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_pengguna ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Pengguna</span>
           </a>
         </div>
 

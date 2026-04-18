@@ -21,14 +21,7 @@ $active_submenu = $active_submenu ?? '';
           </a>
         </div>
 
-        <!-- ---- Section: Laporan & Monitoring ---- -->
-        <div class="py-4">
-          <div class="px-4">
-            <span class="text-white/70 font-plex text-[11px] font-bold tracking-[1.2px] uppercase">Monitoring</span>
-          </div>
-        </div>
-
-        <!-- ---- Laporan Pemakaian ---- -->
+        <!-- ---- Laporan ---- -->
         <?php $is_laporan = ($active_page == 'laporan'); ?>
         <div class="mb-1">
           <a href="index.php?page=laporan"
@@ -36,38 +29,19 @@ $active_submenu = $active_submenu ?? '';
             <div class="w-5 flex justify-center flex-shrink-0">
               <i class="fas fa-chart-bar text-[17.6px] transition-colors <?php echo $is_laporan ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
             </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_laporan ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Laporan Pemakaian</span>
+            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_laporan ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Laporan</span>
           </a>
         </div>
 
-        <!-- ---- Stok BHP ---- -->
-        <?php $is_stok = ($active_page == 'stok'); ?>
+        <!-- ---- Log Aktivitas ---- -->
+        <?php $is_log = ($active_page == 'log'); ?>
         <div class="mb-1">
-          <a href="index.php?page=stok"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_stok ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
+          <a href="index.php?page=log"
+            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_log ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
             <div class="w-5 flex justify-center flex-shrink-0">
-              <i class="fas fa-boxes text-[17.6px] transition-colors <?php echo $is_stok ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
+              <i class="fas fa-clipboard-list text-[17.6px] transition-colors <?php echo $is_log ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
             </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_stok ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Stok BHP</span>
-          </a>
-        </div>
-
-        <!-- ---- Section: Persetujuan ---- -->
-        <div class="py-4">
-          <div class="px-4">
-            <span class="text-white/70 font-plex text-[11px] font-bold tracking-[1.2px] uppercase">Persetujuan</span>
-          </div>
-        </div>
-
-        <!-- ---- Permintaan Pengadaan ---- -->
-        <?php $is_pengadaan = ($active_page == 'pengadaan'); ?>
-        <div class="mb-1">
-          <a href="index.php?page=pengadaan"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_pengadaan ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
-            <div class="w-5 flex justify-center flex-shrink-0">
-              <i class="fas fa-file-signature text-[17.6px] transition-colors <?php echo $is_pengadaan ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
-            </div>
-            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_pengadaan ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Permintaan Pengadaan</span>
+            <span class="font-plex text-base leading-6 transition-colors <?php echo $is_log ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Log Aktivitas</span>
           </a>
         </div>
 

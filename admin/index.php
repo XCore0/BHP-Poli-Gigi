@@ -118,6 +118,9 @@ if ($page == 'dashboard') {
 
 <body class="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans text-slate-800">
 
+  <!-- LOADER -->
+  <?php include __DIR__ . '/../components/loader.php'; ?>
+
   <!-- ======================== HEADER ======================== -->
   <?php include __DIR__ . '/../components/header.php'; ?>
   <!-- ======================== END HEADER ======================== -->
