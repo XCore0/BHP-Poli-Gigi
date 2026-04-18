@@ -3,28 +3,53 @@
 
           <!-- Header Banner -->
           <div
-            class="hero-gradient rounded-2xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div
-              class="absolute right-0 top-0 opacity-10 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/overlapping-circles.png')] pointer-events-none">
+            class="relative w-full rounded-2xl overflow-hidden mb-2"
+            style="background: radial-gradient(ellipse at 0% 0%, #006B47 0%, #1A9F70 60%, #1DB879 100%);"
+          >
+            <!-- Decorative circle shapes (background) -->
+            <div class="absolute inset-0 pointer-events-none select-none overflow-hidden">
+              <!-- Shape A (Top Right) -->
+              <div class="absolute -top-[150px] -right-[50px] md:-top-[250px] md:-right-[100px] w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-white opacity-5"></div>
+              <!-- Shape B (Bottom Right) -->
+              <div class="absolute -bottom-[150px] -right-[50px] md:-bottom-[300px] md:-right-[150px] w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-white opacity-10"></div>
+              <!-- Shape C (Bottom Curve) -->
+              <div class="absolute -bottom-[400px] left-[50px] md:-bottom-[850px] md:left-[100px] w-[600px] h-[600px] md:w-[1000px] md:h-[1000px] rounded-full bg-white opacity-5"></div>
             </div>
 
-            <div class="relative z-10 flex gap-5 md:gap-6 items-center w-full">
-              <div
-                class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm flex items-center justify-center shrink-0 shadow-inner">
-                <i class="fa-solid fa-box-open text-2xl sm:text-3xl text-white drop-shadow-md"></i>
+            <!-- Content -->
+            <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 px-6 py-6 sm:px-8 sm:py-7">
+              <!-- Left: Icon + Text -->
+              <div class="flex items-center gap-4 sm:gap-5 min-w-0">
+                <!-- Icon badge -->
+                <div
+                  class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex-shrink-0"
+                  style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);"
+                >
+                  <i class="fas fa-box-open text-white text-xl sm:text-2xl"></i>
+                </div>
+
+                <!-- Texts -->
+                <div class="flex flex-col gap-1 min-w-0">
+                  <h1 class="font-display font-bold text-white text-xl sm:text-2xl lg:text-3xl leading-tight">
+                    Data Bahan Habis Pakai
+                  </h1>
+                  <p class="font-plex font-medium text-white/90 text-[13px] sm:text-[14px] leading-relaxed hidden sm:block max-w-2xl">
+                    Pantau stok, penggunaan, dan ketersediaan bahan habis pakai secara real-time
+                    untuk memastikan operasional tetap berjalan lancar.
+                  </p>
+                </div>
               </div>
-              <div class="flex-1">
-                <h1 class="text-2xl sm:text-3xl font-display font-bold tracking-tight mb-1">Data Bahan Habis Pakai</h1>
-                <p class="text-brand-100 font-medium text-sm sm:text-base max-w-2xl opacity-90 leading-relaxed">
-                  Pantau stok, penggunaan, dan ketersediaan bahan habis pakai secara real-time untuk memastikan
-                  operasional tetap berjalan lancar.
-                </p>
+
+              <!-- Right: CTA Button -->
+              <div class="flex-shrink-0 w-full sm:w-auto">
+                <button
+                  class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-plex font-bold text-[14px] transition-all duration-200 hover:bg-slate-50 active:scale-95 whitespace-nowrap shadow-sm"
+                  style="background: #fff; color: #006B47; border: none;"
+                >
+                  <span class="text-base font-bold leading-none">+</span> Tambah BHP Baru
+                </button>
               </div>
             </div>
-            <button
-              class="relative z-10 w-full md:w-auto bg-white text-brand-700 px-5 py-3 rounded-xl font-bold shadow-[0_4px_14px_0_rgba(255,255,255,0.39)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 whitespace-nowrap">
-              <i class="fa-solid fa-plus text-sm"></i> Tambah BHP Baru
-            </button>
           </div>
 
           <!-- Filters and Table Container -->

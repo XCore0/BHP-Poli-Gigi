@@ -5,6 +5,17 @@ $page_desc = '';
 $active_page = $page;
 $active_submenu = '';
 
+// Role config for Dokter
+$role_name = 'Team Terserahhh';
+$role_label = 'Dokter';
+$role_avatar_initial = 'T';
+$role_avatar_bg = 'linear-gradient(135deg, #a8edea 0%, #5b9bd5 100%)';
+$role_avatar_color = '#1e4a7a';
+$role_label_color = 'text-brand-600';
+
+// Base path for this role's files
+$role_base = __DIR__ . '/dokter';
+
 if ($page == 'data_bhp') {
     $active_submenu = 'bhp';
     $page_title = 'Data Bahan Habis Pakai';
@@ -283,14 +294,14 @@ if ($page == 'data_bhp') {
   <!-- END INITIAL LOADER -->
 
   <!-- ======================== HEADER ======================== -->
-  <?php include 'components/header.php'; ?>
+  <?php include __DIR__ . '/components/header.php'; ?>
   <!-- ======================== END HEADER ======================== -->
 
   <!-- Container for Sidebar + Main Content -->
   <div class="flex flex-1 overflow-hidden relative w-full h-full">
 
     <!-- ======================== SIDEBAR ======================== -->
-    <?php include 'components/sidebar.php'; ?>
+    <?php include $role_base . '/components/sidebar.php'; ?>
     <!-- ======================== END SIDEBAR ======================== -->
 
     <!-- Main Content Area -->
@@ -298,7 +309,7 @@ if ($page == 'data_bhp') {
 
       <div class="flex-1 flex flex-col">
         <?php
-        $content_file = "contents/$page.php";
+        $content_file = $role_base . "/contents/$page.php";
         if (file_exists($content_file)) {
             include $content_file;
         } else {
@@ -308,7 +319,7 @@ if ($page == 'data_bhp') {
       </div>
       
       <!-- FOOTER -->
-      <?php include 'components/footer.php'; ?>
+      <?php include __DIR__ . '/components/footer.php'; ?>
     </main>
   </div> <!-- Close Container for Sidebar + Main Content -->
 
