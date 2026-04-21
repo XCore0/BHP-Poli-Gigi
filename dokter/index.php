@@ -36,6 +36,9 @@ if ($page == 'data_bhp') {
 } elseif ($page == 'pengaturan') {
     $page_title = 'Pengaturan Akun';
     $page_desc = 'Konfigurasi preferensi akses dan keamanan sistem';
+} elseif ($page == 'stock') {
+    $page_title = 'Stok Masuk';
+    $page_desc = 'Catat penerimaan barang baru dari supplier atau hasil pengadaan';
 }
 ?>
 <!DOCTYPE html>

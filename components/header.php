@@ -72,7 +72,7 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-plex"><i
             class="fas fa-cog text-slate-400 w-4"></i> Pengaturan</a>
         <div class="my-1 border-t border-gray-100"></div>
-        <a href="#"
+        <a href="/BHP Poli Gigi/Login.html"
           class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-plex"><i
             class="fas fa-sign-out-alt text-red-400 w-4"></i> Keluar</a>
       </div>

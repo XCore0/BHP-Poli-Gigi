@@ -43,6 +43,7 @@
               <!-- Right: CTA Button -->
               <div class="flex-shrink-0 w-full sm:w-auto">
                 <button
+                  onclick="document.getElementById('modalTambahBHP').classList.remove('hidden')"
                   class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-plex font-bold text-[14px] transition-all duration-200 hover:bg-slate-50 active:scale-95 whitespace-nowrap shadow-sm"
                   style="background: #fff; color: #006B47; border: none;"
                 >
@@ -254,5 +255,95 @@
             </div>
           </div>
 
+        </div>
+      </div>
+
+      <!-- Modal Tambah BHP Baru -->
+      <div id="modalTambahBHP" class="fixed inset-0 z-[99] hidden flex items-center justify-center font-plex">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="document.getElementById('modalTambahBHP').classList.add('hidden')"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl m-4 overflow-hidden flex flex-col">
+          
+          <!-- Banner Header in Modal -->
+          <div class="p-6" style="background: linear-gradient(135deg, #006B47 0%, #10B981 100%);">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white">
+                  <i class="fas fa-box-open shadow-sm"></i>
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-white mb-0.5">Tambah Barang Baru</h2>
+                <p class="text-[13px] text-emerald-50">Isi formulir di bawah ini untuk menambahkan data barang ke inventaris.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white relative px-6 py-6">
+            <!-- Form Grid -->
+            <div class="flex flex-col gap-5">
+              <!-- Row 1 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-[12px] font-bold text-slate-600 mb-2">Kode Barang</label>
+                  <input type="text" placeholder="BHP-0001" class="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 transition-colors">
+                </div>
+                <div>
+                  <label class="block text-[12px] font-bold text-slate-600 mb-2">Kategori</label>
+                  <div class="relative">
+                    <select class="w-full h-11 pl-4 pr-10 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 appearance-none transition-colors">
+                      <option value="" disabled selected>Pilih kategori</option>
+                      <option value="1">Alat Pelindung</option>
+                      <option value="2">Cairan Disinfektan</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2 -->
+              <div>
+                <label class="block text-[12px] font-bold text-slate-600 mb-2">Nama BHP</label>
+                <div class="relative">
+                  <i class="fa-solid fa-box absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                  <input type="text" placeholder="Masukkan nama barang lengkap" class="w-full h-11 pl-10 pr-4 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 transition-colors">
+                </div>
+              </div>
+
+              <!-- Row 3 -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                  <label class="block text-[12px] font-bold text-slate-600 mb-2">Stok Awal</label>
+                  <input type="number" value="0" class="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 transition-colors">
+                </div>
+                <div>
+                  <label class="block text-[12px] font-bold text-slate-600 mb-2">Satuan</label>
+                  <div class="relative">
+                    <select class="w-full h-11 pl-4 pr-10 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 appearance-none transition-colors">
+                      <option value="Pc">Pc</option>
+                      <option value="Box">Box</option>
+                      <option value="Botol">Botol</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[12px] font-bold text-slate-600 mb-2">Peringatan Stok</label>
+                  <input type="text" value="5" placeholder="Batas minimum" class="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 transition-colors">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Modal -->
+          <div class="px-6 py-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50">
+            <button onclick="document.getElementById('modalTambahBHP').classList.add('hidden')" class="h-10 px-6 rounded-lg font-bold text-[13px] text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+              Batal
+            </button>
+            <button class="h-10 px-6 rounded-lg font-bold text-[13px] text-white bg-brand-500 shadow-sm shadow-brand-500/30 hover:bg-brand-600 transition-colors flex items-center gap-2">
+              <i class="fas fa-save text-[11px]"></i> Simpan Barang
+            </button>
+          </div>
+          
         </div>
       </div>
