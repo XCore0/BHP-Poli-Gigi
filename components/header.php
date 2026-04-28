@@ -7,6 +7,50 @@ $role_avatar_bg = $role_avatar_bg ?? 'linear-gradient(135deg, #a8edea 0%, #5b9bd
 $role_avatar_color = $role_avatar_color ?? '#1e4a7a';
 $role_label_color = $role_label_color ?? 'text-brand-600';
 ?>
+
+<!-- ======================== LOGOUT MODAL ======================== -->
+<div id="logout-modal" class="fixed inset-0 z-[999] hidden items-center justify-center px-4"
+  style="background: rgba(15,23,42,0.55); backdrop-filter: blur(4px);">
+  <div id="logout-modal-card"
+    class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden"
+    style="animation: none;">
+
+    <!-- Accent top bar -->
+    <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #DC2626 0%, #F97316 100%);"></div>
+
+    <!-- Content -->
+    <div class="px-8 pt-8 pb-7 text-center">
+
+      <!-- Icon -->
+      <div class="mx-auto mb-5 w-16 h-16 rounded-2xl flex items-center justify-center"
+        style="background: #FEF2F2; border: 1.5px solid #FECACA;">
+        <i class="fas fa-right-from-bracket text-2xl" style="color: #DC2626;"></i>
+      </div>
+
+      <!-- Text -->
+      <h3 class="font-display font-bold text-slate-800 text-xl mb-2">Keluar dari Sistem?</h3>
+      <p class="font-plex text-sm text-slate-500 leading-relaxed mb-7">
+        Sesi Anda akan diakhiri dan Anda perlu login kembali untuk mengakses sistem.
+      </p>
+
+      <!-- Buttons -->
+      <div class="flex items-center gap-3">
+        <button onclick="closeLogoutModal()"
+          class="flex-1 h-11 border border-slate-200 rounded-xl text-sm font-plex font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+          Batal
+        </button>
+        <button id="btn-logout-confirm" onclick="logoutConfirmed()"
+          class="flex-1 h-11 rounded-xl text-sm font-plex font-bold text-white flex items-center justify-center gap-2 transition-all"
+          style="background: linear-gradient(135deg, #DC2626 0%, #F97316 100%); box-shadow: 0 4px 12px rgba(220,38,38,0.3);">
+          <i id="btn-logout-icon" class="fas fa-right-from-bracket text-sm"></i>
+          <span id="btn-logout-text">Ya, Keluar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ======================== END LOGOUT MODAL ======================== -->
+
   <!-- ======================== HEADER ======================== -->
   <header class="w-full h-20 flex items-stretch shadow-sm z-30 shrink-0"
     style="background: rgba(255,255,255,0.80); backdrop-filter: blur(8px);">
@@ -72,10 +116,74 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-plex"><i
             class="fas fa-cog text-slate-400 w-4"></i> Pengaturan</a>
         <div class="my-1 border-t border-gray-100"></div>
-        <a href="/BHP Poli Gigi/Login.html"
-          class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-plex"><i
-            class="fas fa-sign-out-alt text-red-400 w-4"></i> Keluar</a>
+        <!-- Logout: gunakan onclick showLogoutModal() — BUKAN href langsung, untuk mencegah double-log via SPA -->
+        <button onclick="showLogoutModal()"
+          class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-plex text-left">
+          <i class="fas fa-sign-out-alt text-red-400 w-4"></i> Keluar
+        </button>
       </div>
     </div>
   </header>
   <!-- ======================== END HEADER ======================== -->
+
+<style>
+  @keyframes logoutModalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  }
+  @keyframes logoutModalOut {
+    from { opacity: 1; transform: translateY(0)    scale(1);    }
+    to   { opacity: 0; transform: translateY(12px) scale(0.97); }
+  }
+</style>
+
+<script>
+  /* ─── Logout Modal ─────────────────────────────────────── */
+  function showLogoutModal() {
+    const modal = document.getElementById('logout-modal');
+    const card  = document.getElementById('logout-modal-card');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    card.style.animation = 'logoutModalIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards';
+    // Reset tombol jika sebelumnya pernah menekan
+    document.getElementById('btn-logout-confirm').disabled = false;
+    document.getElementById('btn-logout-icon').className = 'fas fa-right-from-bracket text-sm';
+    document.getElementById('btn-logout-text').textContent = 'Ya, Keluar';
+  }
+
+  function closeLogoutModal() {
+    const modal = document.getElementById('logout-modal');
+    const card  = document.getElementById('logout-modal-card');
+    card.style.animation = 'logoutModalOut 0.25s ease forwards';
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }, 240);
+  }
+
+  function logoutConfirmed() {
+    const btn  = document.getElementById('btn-logout-confirm');
+    const icon = document.getElementById('btn-logout-icon');
+    const text = document.getElementById('btn-logout-text');
+    // Disable tombol langsung — mencegah double-klik dan double-log
+    btn.disabled = true;
+    btn.style.opacity = '0.75';
+    icon.className = 'fas fa-spinner fa-spin text-sm';
+    text.textContent = 'Keluar...';
+    // Navigasi langsung (bypass SPA interceptor) — hanya SATU request ke logout.php
+    window.location.href = '/be-poli/logout.php';
+  }
+
+  // Tutup modal saat klik backdrop
+  document.getElementById('logout-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeLogoutModal();
+  });
+
+  // Tutup modal dengan Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('logout-modal');
+      if (!modal.classList.contains('hidden')) closeLogoutModal();
+    }
+  });
+</script>

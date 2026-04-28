@@ -54,6 +54,10 @@ $active_submenu = $active_submenu ?? '';
                 class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'kategori_bhp') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
                 Kategori BHP
               </a>
+              <a href="index.php?page=satuan_bhp"
+                class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'satuan_bhp') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
+                Satuan BHP
+              </a>
             </div>
           </div>
         </div>
