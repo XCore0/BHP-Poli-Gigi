@@ -336,7 +336,7 @@ if (!function_exists('stokStatus')) {
 </style>
 
 <script>
-  const BHP_URL = '/be-poli/process/bhp_process.php';
+  const BHP_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
   /* ── Modal ───────────────────────────────────── */
   function openBhpModal(id = '', kode = '', nama = '', jumlah = 0, Pemakaian = 5, id_kat = '', id_sat = '') {

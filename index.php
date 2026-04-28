@@ -1,7 +1,7 @@
 <?php
 /**
  * Entry Point - Poli Gigi Klinik Pratama
- * Saat project dibuka (http://localhost/be-poli/),
+ * Saat project dibuka (http://localhost/BHP-Poli-Gigi/),
  * langsung diarahkan ke halaman Login.
  */
 
@@ -19,17 +19,17 @@ $auth = new Auth();
 if ($auth->isLoggedIn()) {
     switch ($auth->getRole()) {
         case 'admin':
-            header('Location: /be-poli/admin/index.php');
+            header('Location: /BHP-Poli-Gigi/admin/index.php');
             exit();
         case 'dokter':
-            header('Location: /be-poli/dokter/index.php');
+            header('Location: /BHP-Poli-Gigi/dokter/index.php');
             exit();
         case 'kepala_klinik':
-            header('Location: /be-poli/kepala_klinik/index.php');
+            header('Location: /BHP-Poli-Gigi/kepala_klinik/index.php');
             exit();
     }
 }
 
 // Belum login → ke halaman Login
-header('Location: /be-poli/Login.php');
+header('Location: /BHP-Poli-Gigi/Login.php');
 exit();

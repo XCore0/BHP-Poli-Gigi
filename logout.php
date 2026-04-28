@@ -9,5 +9,5 @@ use App\Classes\Auth;
 $auth = new Auth();
 $auth->logout();
 
-header('Location: /be-poli/Login.php');
+header('Location: /BHP-Poli-Gigi/Login.php');
 exit();

@@ -687,7 +687,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     data.append('action', 'add');
 
     try {
-      const res  = await fetch('/be-poli/process/user_process.php', { method: 'POST', body: data });
+      const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
       const json = await res.json();
       if (json.success) {
         showToast(json.message, 'success');
@@ -711,7 +711,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     data.append('action', 'toggle_status');
     data.append('id', id);
     try {
-      const res  = await fetch('/be-poli/process/user_process.php', { method: 'POST', body: data });
+      const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
       const json = await res.json();
       if (json.success) {
         const isAktif   = json.new_status === 'aktif';
@@ -736,7 +736,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     data.append('action', 'delete');
     data.append('id', id);
     try {
-      const res  = await fetch('/be-poli/process/user_process.php', { method: 'POST', body: data });
+      const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
       const json = await res.json();
       if (json.success) {
         const row = document.getElementById('row-' + id);

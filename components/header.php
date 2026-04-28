@@ -171,7 +171,7 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
     icon.className = 'fas fa-spinner fa-spin text-sm';
     text.textContent = 'Keluar...';
     // Navigasi langsung (bypass SPA interceptor) — hanya SATU request ke logout.php
-    window.location.href = '/be-poli/logout.php';
+    window.location.href = '/BHP-Poli-Gigi/logout.php';
   }
 
   // Tutup modal saat klik backdrop

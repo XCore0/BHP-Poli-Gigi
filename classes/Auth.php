@@ -122,7 +122,7 @@ class Auth
      *
      * @param string $loginUrl Path ke halaman login
      */
-    public function requireLogin(string $loginUrl = '/be-poli/Login.php'): void
+    public function requireLogin(string $loginUrl = '/BHP-Poli-Gigi/Login.php'): void
     {
         if (!$this->isLoggedIn()) {
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
@@ -137,7 +137,7 @@ class Auth
      * @param string|array $roles Role yang diizinkan
      * @param string $redirectUrl URL redirect jika ditolak
      */
-    public function requireRole($roles, string $redirectUrl = '/be-poli/Login.php'): void
+    public function requireRole($roles, string $redirectUrl = '/BHP-Poli-Gigi/Login.php'): void
     {
         $this->requireLogin($redirectUrl);
         $user = $this->getCurrentUser();

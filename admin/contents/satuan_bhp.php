@@ -182,7 +182,7 @@ function satBadgeColor(int $i): array {
 </style>
 
 <script>
-const SATUAN_PROCESS_URL = '/be-poli/process/bhp_process.php';
+const SATUAN_PROCESS_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
 /* ── Modal open / close ──────────────────────── */
 function openSatuanModal(id = '', nama = '') {

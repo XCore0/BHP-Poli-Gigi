@@ -18,7 +18,7 @@ class AuthController
     public function handleLogin(): void
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /be-poli/Login.php');
+            header('Location: /BHP-Poli-Gigi/Login.php');
             exit();
         }
 
@@ -29,7 +29,7 @@ class AuthController
 
         if (!$result['success']) {
             $_SESSION['login_error'] = $result['message'];
-            header('Location: /be-poli/Login.php');
+            header('Location: /BHP-Poli-Gigi/Login.php');
             exit();
         }
 
@@ -37,17 +37,17 @@ class AuthController
         $role = $result['role'];
         switch ($role) {
             case 'admin':
-                header('Location: /be-poli/admin/index.php');
+                header('Location: /BHP-Poli-Gigi/admin/index.php');
                 break;
             case 'dokter':
-                header('Location: /be-poli/dokter/index.php');
+                header('Location: /BHP-Poli-Gigi/dokter/index.php');
                 break;
             case 'kepala_klinik':
-                header('Location: /be-poli/kepala_klinik/index.php');
+                header('Location: /BHP-Poli-Gigi/kepala_klinik/index.php');
                 break;
             default:
                 $_SESSION['login_error'] = 'Role pengguna tidak dikenali.';
-                header('Location: /be-poli/Login.php');
+                header('Location: /BHP-Poli-Gigi/Login.php');
         }
         exit();
     }

@@ -55,13 +55,13 @@ if ($page == 'dashboard') {
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <script src="/be-poli/assets/js/tailwind-config.js"></script>
+  <script src="/BHP-Poli-Gigi/assets/js/tailwind-config.js"></script>
   <style type="text/tailwindcss">
     @layer base {
       body { @apply bg-slate-50 text-slate-800 antialiased m-0 p-0; }
     }
   </style>
-  <link rel="stylesheet" href="/be-poli/assets/css/style.css">
+  <link rel="stylesheet" href="/BHP-Poli-Gigi/assets/css/style.css">
 </head>
 
 <body class="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans text-slate-800">
@@ -99,7 +99,7 @@ if ($page == 'dashboard') {
     </main>
   </div>
 
-  <script src="/be-poli/assets/js/main.js"></script>
+  <script src="/BHP-Poli-Gigi/assets/js/main.js"></script>
 </body>
 
 </html>

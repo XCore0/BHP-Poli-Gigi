@@ -183,7 +183,7 @@ $kategoriList = $mgr->getAllKategori();
 </style>
 
 <script>
-const KAT_URL = '/be-poli/process/bhp_process.php';
+const KAT_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
 function openKategoriModal(id='', nama='', kode='') {
   document.getElementById('kategoriId').value     = id;
