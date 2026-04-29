@@ -1,5 +1,14 @@
 <?php
+/**
+ * Admin Dashboard - dilindungi oleh session Auth
+ */
 require_once __DIR__ . '/../vendor/autoload.php';
+use App\Classes\Auth;
+
+$auth = new Auth();
+$auth->requireRole('dokter', '/BHP-Poli-Gigi/Login.php');
+
+$currentUser = $auth->getCurrentUser();
 
 $page = $_GET['page'] ?? 'dashboard';
 $page_title = 'Poli Gigi';
@@ -8,9 +17,9 @@ $active_page = $page;
 $active_submenu = '';
 
 // Role config for Dokter
-$role_name = 'Team Terserahhh';
+$role_name = $currentUser['nama'] ?? 'Dokter';
 $role_label = 'Dokter';
-$role_avatar_initial = 'T';
+$role_avatar_initial = strtoupper(substr($currentUser['nama'] ?? 'D', 0, 1));
 $role_avatar_bg = 'linear-gradient(135deg, #a8edea 0%, #5b9bd5 100%)';
 $role_avatar_color = '#1e4a7a';
 $role_label_color = 'text-brand-600';

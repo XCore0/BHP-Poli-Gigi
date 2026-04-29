@@ -1,4 +1,14 @@
 <?php
+/**
+ * Admin Dashboard - dilindungi oleh session Auth
+ */
+require_once __DIR__ . '/../vendor/autoload.php';
+use App\Classes\Auth;
+
+$auth = new Auth();
+$auth->requireRole('kepala_klinik', '/BHP-Poli-Gigi/Login.php');
+
+$currentUser = $auth->getCurrentUser();
 $page = $_GET['page'] ?? 'dashboard';
 $page_title = 'Poli Gigi';
 $page_desc = '';
@@ -6,9 +16,9 @@ $active_page = $page;
 $active_submenu = '';
 
 // Role config for Kepala Klinik
-$role_name = 'Kepala Klinik';
+$role_name = $currentUser['nama'] ?? 'Kepala Klinik';
 $role_label = 'Kepala Klinik';
-$role_avatar_initial = 'K';
+$role_avatar_initial = strtoupper(substr($currentUser['nama'] ?? 'KK', 0, 2));
 $role_avatar_bg = 'linear-gradient(135deg, #fde68a 0%, #f59e0b 100%)';
 $role_avatar_color = '#78350f';
 $role_label_color = 'text-amber-600';
