@@ -29,8 +29,9 @@ class BhpController
 
         try {
             $auth = new Auth();
-            if (!$auth->isLoggedIn() || $auth->getRole() !== 'admin') {
-                echo json_encode(['success' => false, 'message' => 'Akses ditolak. Pastikan Anda sudah login sebagai admin.']);
+            $allowedRoles = ['admin', 'dokter'];
+            if (!$auth->isLoggedIn() || !in_array($auth->getRole(), $allowedRoles)) {
+                echo json_encode(['success' => false, 'message' => 'Akses ditolak. Pastikan Anda sudah login sebagai admin atau dokter.']);
                 exit();
             }
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
