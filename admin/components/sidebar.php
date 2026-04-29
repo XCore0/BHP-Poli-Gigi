@@ -41,7 +41,7 @@ $active_submenu = $active_submenu ?? '';
           </button>
 
           <!-- Submenu -->
-          <div id="bhp-submenu" class="submenu <?php echo $is_bhp_open ? 'open' : ''; ?>">
+          <div id="bhp-submenu" class="submenu <?php echo $is_bhp_open ? 'open' : ''; ?>" style="<?php echo $is_bhp_open ? 'max-height:300px;' : ''; ?>">
             <div class="ml-[25px] pl-4 py-1 mt-1 mb-2 flex flex-col gap-1.5 border-l-[1.5px] border-white/20">
               <a href="index.php?page=data_bhp"
                 class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'data_bhp') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
@@ -50,6 +50,10 @@ $active_submenu = $active_submenu ?? '';
               <a href="index.php?page=kategori_bhp"
                 class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'kategori_bhp') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
                 Kategori BHP
+              </a>
+              <a href="index.php?page=satuan_bhp"
+                class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'satuan_bhp') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
+                Satuan BHP
               </a>
             </div>
           </div>

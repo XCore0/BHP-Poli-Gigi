@@ -1,0 +1,96 @@
+* {
+  font-family: 'Inter', -apple-system, Roboto, Helvetica, sans-serif;
+}
+
+.gradient-green {
+  background: radial-gradient(102.49% 131.25% at 0% 0%, #006B47 0%, #1A9F70 100%);
+}
+
+.gradient-light {
+  background: linear-gradient(160deg, #F0FDF4 8.49%, #F8FFFE 50%, #EDFCF2 91.51%);
+}
+
+.gradient-btn-green {
+  background: linear-gradient(135deg, #15803D 0%, #34D399 99.97%);
+  box-shadow: 0 10px 15px -3px rgba(0, 201, 80, 0.25), 0 4px 6px -4px rgba(0, 201, 80, 0.25);
+}
+
+.card-blur {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.094px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 25px 50px -12px rgba(0, 166, 62, 0.1);
+}
+
+.feature-card {
+  border: 1.094px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logo-card {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.input-field {
+  border: 1.094px solid #E5E7EB;
+  background: rgba(249, 250, 251, 0.8);
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #006B47;
+  box-shadow: 0 0 0 3px rgba(0, 107, 71, 0.15);
+  background: #fff;
+}
+
+.input-field.error-field {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.accent-bar {
+  background: linear-gradient(90deg, #006B47 0%, #07FFA7 100%);
+}
+
+.blur-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  background: radial-gradient(113.14% 113.14% at 80% 20%, rgba(134, 239, 172, 0.45) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(36px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.btn-login {
+  transition: all 0.2s ease;
+}
+
+.btn-login:hover { opacity: 0.92; transform: translateY(-1px); }
+.btn-login:active { transform: scale(0.98); }
+
+.error-box {
+  background: rgba(254, 242, 242, 0.9);
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+  animation: shakeIn 0.4s ease;
+}
+
+@keyframes shakeIn {
+  0% { transform: translateX(-6px); opacity: 0; }
+  30% { transform: translateX(6px); }
+  60% { transform: translateX(-3px); }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Toggle password visibility */
+.eye-btn { cursor: pointer; transition: color 0.2s; }
+.eye-btn:hover { color: #006B47; }
+
+@media (max-width: 1024px) {
+  .blur-right { width: 20rem; height: 20rem; }
+}

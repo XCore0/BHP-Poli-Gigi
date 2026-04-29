@@ -31,6 +31,9 @@ if ($page == 'dashboard') {
 } elseif ($page == 'pengaturan') {
     $page_title = 'Pengaturan Akun';
     $page_desc = 'Konfigurasi preferensi akses dan keamanan sistem';
+} elseif ($page == 'log') {
+    $page_title = 'Log Aktivitas';
+    $page_desc = 'Pantau seluruh aktivitas pengguna di sistem';
 }
 ?>
 <!DOCTYPE html>
@@ -52,57 +55,13 @@ if ($page == 'dashboard') {
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Bricolage Grotesque', 'sans-serif'],
-            plex: ['IBM Plex Sans', 'sans-serif'],
-          },
-          colors: {
-            brand: { 50: '#ECFDF5', 100: '#D1FAE5', 200: '#A7F3D0', 300: '#6EE7B7', 400: '#34D399', 500: '#10B981', 600: '#059669', 700: '#047857', 800: '#064E3B', 900: '#006B47' },
-          },
-          boxShadow: {
-            card: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
-            glass: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-          }
-        }
-      }
-    }
-  </script>
-
+  <script src="/BHP-Poli-Gigi/assets/js/tailwind-config.js"></script>
   <style type="text/tailwindcss">
     @layer base {
       body { @apply bg-slate-50 text-slate-800 antialiased m-0 p-0; }
     }
-    @layer utilities {
-      .sidebar-gradient { background: #006B47; border-bottom: 1px solid #ffffff; }
-      .hide-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-      .hide-scrollbar::-webkit-scrollbar-track { background: transparent; }
-      .hide-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    }
-    .nav-link { transition: all 0.3s ease; position: relative; overflow: hidden; }
-    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
-    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    .chevron-icon { transition: transform 0.25s ease; }
-    .chevron-icon.open { transform: rotate(180deg); }
-    .submenu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
-    .submenu.open { max-height: 200px; }
-    ::view-transition-old(main-content), ::view-transition-new(main-content) {
-      animation-duration: 0.5s;
-      animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
-      animation-fill-mode: both;
-    }
-    ::view-transition-old(main-content) { animation-name: fadeOutUp; }
-    ::view-transition-new(main-content) { animation-name: fadeInUp; }
-    @keyframes fadeOutUp { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-10px) scale(0.98); } }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    main { view-transition-name: main-content; }
-    @keyframes fill-progress { 0% { width: 0%; opacity: 0.8; } 100% { width: 100%; opacity: 1; } }
   </style>
+  <link rel="stylesheet" href="/BHP-Poli-Gigi/assets/css/style.css">
 </head>
 
 <body class="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans text-slate-800">
@@ -140,91 +99,7 @@ if ($page == 'dashboard') {
     </main>
   </div>
 
-  <script>
-    function toggleMobileMenu() {
-      const sidebar = document.getElementById("sidebarMenu");
-      const overlay = document.getElementById("sidebarOverlay");
-      if(sidebar && overlay) {
-        if(sidebar.classList.contains("-translate-x-full")) {
-          sidebar.classList.remove("-translate-x-full");
-          overlay.classList.remove("opacity-0", "pointer-events-none");
-          overlay.classList.add("opacity-100");
-        } else {
-          sidebar.classList.add("-translate-x-full");
-          overlay.classList.remove("opacity-100");
-          overlay.classList.add("opacity-0", "pointer-events-none");
-        }
-      }
-    }
-    function closeMobileMenu() {
-      const sidebar = document.getElementById("sidebarMenu");
-      const overlay = document.getElementById("sidebarOverlay");
-      if (sidebar && !sidebar.classList.contains("-translate-x-full")) {
-        sidebar.classList.add("-translate-x-full");
-        if(overlay) { overlay.classList.remove("opacity-100"); overlay.classList.add("opacity-0", "pointer-events-none"); }
-      }
-    }
-    function toggleSubmenu(id) {
-      const submenu = document.getElementById(id + "-submenu");
-      const chevron = document.getElementById(id + "-chevron");
-      if (submenu && chevron) { submenu.classList.toggle("open"); chevron.classList.toggle("open"); }
-    }
-    function toggleDropdown(e) {
-      if (e) e.stopPropagation();
-      const dropdown = document.getElementById("user-dropdown");
-      const chevron = document.getElementById("user-chevron");
-      if (dropdown) {
-        dropdown.classList.toggle("hidden");
-        if (chevron) { chevron.style.transform = dropdown.classList.contains("hidden") ? "rotate(0deg)" : "rotate(180deg)"; }
-      }
-    }
-    document.addEventListener("click", function (e) {
-      const dropdown = document.getElementById("user-dropdown");
-      const btn = e.target.closest("button[onclick='toggleDropdown(event)']");
-      if (!btn && dropdown && !dropdown.classList.contains("hidden")) {
-        dropdown.classList.add("hidden");
-        const chevron = document.getElementById("user-chevron");
-        if (chevron) chevron.style.transform = "rotate(0deg)";
-      }
-    });
-    document.addEventListener('click', async (e) => {
-      const link = e.target.closest('a');
-      if (!link || !link.href || !link.href.includes(window.location.origin) || link.target === '_blank' || link.hasAttribute('download')) return;
-      if (typeof closeMobileMenu === 'function') closeMobileMenu();
-      e.preventDefault();
-      const url = link.href;
-      history.pushState(null, '', url);
-      await fetchAndRenderPage(url);
-    });
-    window.addEventListener('popstate', () => { fetchAndRenderPage(location.href); });
-    async function fetchAndRenderPage(url) {
-      try {
-        const resp = await fetch(url);
-        const text = await resp.text();
-        const parser = new DOMParser();
-        const newDoc = parser.parseFromString(text, 'text/html');
-        if (document.startViewTransition) { document.startViewTransition(() => updatePageContent(newDoc)); }
-        else { updatePageContent(newDoc); }
-      } catch(err) { window.location = url; }
-    }
-    function updatePageContent(newDoc) {
-      document.title = newDoc.title;
-      const currentH = document.querySelector('header'); const newH = newDoc.querySelector('header');
-      if (currentH && newH) currentH.innerHTML = newH.innerHTML;
-      const currentS = document.querySelector('aside'); const newS = newDoc.querySelector('aside');
-      if (currentS && newS) currentS.innerHTML = newS.innerHTML;
-      const currentM = document.querySelector('main'); const newM = newDoc.querySelector('main');
-      if (currentM && newM) {
-        currentM.innerHTML = newM.innerHTML;
-        Array.from(currentM.querySelectorAll("script")).forEach(oldScript => {
-          const newScript = document.createElement("script");
-          Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-          newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-          oldScript.parentNode.replaceChild(newScript, oldScript);
-        });
-      }
-    }
-  </script>
+  <script src="/BHP-Poli-Gigi/assets/js/main.js"></script>
 </body>
 
 </html>
