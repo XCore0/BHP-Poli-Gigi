@@ -54,15 +54,16 @@ function stokStatus(int $jumlah, int $Pemakaian): array
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="bhpKategori" class="text-sm font-semibold text-slate-700">Kategori</label>
-          <div class="relative">
-            <select id="bhpKategori" name="id_kategori"
-              class="w-full h-11 pl-4 pr-10 border border-slate-200 rounded-xl text-sm text-slate-500 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer shadow-sm bg-white">
-              <option value="">Pilih kategori</option>
+          <div class="relative group">
+            <i class="fa-solid fa-tags absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
+            <select id="bhpKategori" name="id_kategori" onchange="this.classList.toggle('text-slate-700',this.value!=='');this.classList.toggle('text-slate-400',this.value==='');"
+              class="w-full h-11 pl-9 pr-10 border border-slate-200 rounded-xl text-sm text-slate-400 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer shadow-sm bg-white hover:border-slate-300">
+              <option value="">Pilih kategori...</option>
               <?php foreach ($kategoriList as $kat): ?>
-                <option value="<?php echo $kat['id_kategori']; ?>"><?php echo htmlspecialchars($kat['Nama_kategori']); ?></option>
+                <option value="<?php echo $kat['id_kategori']; ?>"><?php echo htmlspecialchars($kat['Nama_kategori']); ?> (<?php echo htmlspecialchars($kat['Kode_kategori'] ?? '-'); ?>)</option>
               <?php endforeach; ?>
             </select>
-            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
           </div>
         </div>
       </div>
@@ -89,15 +90,16 @@ function stokStatus(int $jumlah, int $Pemakaian): array
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="bhpSatuan" class="text-sm font-semibold text-slate-700">Satuan</label>
-          <div class="relative">
-            <select id="bhpSatuan" name="id_satuan"
-              class="w-full h-11 pl-4 pr-10 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer shadow-sm bg-white">
-              <option value="">Pilih satuan</option>
+          <div class="relative group">
+            <i class="fa-solid fa-ruler absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
+            <select id="bhpSatuan" name="id_satuan" onchange="this.classList.toggle('text-slate-700',this.value!=='');this.classList.toggle('text-slate-400',this.value==='');"
+              class="w-full h-11 pl-9 pr-10 border border-slate-200 rounded-xl text-sm text-slate-400 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer shadow-sm bg-white hover:border-slate-300">
+              <option value="">Pilih satuan...</option>
               <?php foreach ($satuanList as $sat): ?>
                 <option value="<?php echo $sat['id_satuan']; ?>"><?php echo htmlspecialchars($sat['Nama_satuan']); ?></option>
               <?php endforeach; ?>
             </select>
-            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
           </div>
         </div>
       </div>
@@ -338,6 +340,12 @@ function stokStatus(int $jumlah, int $Pemakaian): array
 <script>
   const BHP_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
+  /* ── Helper: sync dropdown text color ──────── */
+  function syncSelectColor(el) {
+    el.classList.toggle('text-slate-700', el.value !== '');
+    el.classList.toggle('text-slate-400', el.value === '');
+  }
+
   /* ── Modal ───────────────────────────────────── */
   function openBhpModal(id = '', kode = '', nama = '', jumlah = 0, Pemakaian = 5, id_kat = '', id_sat = '') {
     document.getElementById('bhpId').value = id;
@@ -345,8 +353,14 @@ function stokStatus(int $jumlah, int $Pemakaian): array
     document.getElementById('bhpNama').value = nama;
     document.getElementById('bhpJumlah').value = jumlah;
     document.getElementById('bhpPemakaian').value = Pemakaian;
-    document.getElementById('bhpKategori').value = id_kat;
-    document.getElementById('bhpSatuan').value = id_sat;
+
+    const katSel = document.getElementById('bhpKategori');
+    const satSel = document.getElementById('bhpSatuan');
+    katSel.value = id_kat;
+    satSel.value = id_sat;
+    syncSelectColor(katSel);
+    syncSelectColor(satSel);
+
     document.getElementById('bhpAction').value = id ? 'edit_bhp' : 'add_bhp';
     document.getElementById('bhpModalTitle').textContent = id ? 'Edit Data BHP' : 'Tambah Barang Baru';
     const m = document.getElementById('modalBhp');
@@ -359,6 +373,14 @@ function stokStatus(int $jumlah, int $Pemakaian): array
     m.classList.add('hidden');
     m.classList.remove('flex');
     document.getElementById('formBhp').reset();
+
+    // Reset dropdown colors to placeholder state
+    const katSel = document.getElementById('bhpKategori');
+    const satSel = document.getElementById('bhpSatuan');
+    katSel.classList.add('text-slate-400');
+    katSel.classList.remove('text-slate-700');
+    satSel.classList.add('text-slate-400');
+    satSel.classList.remove('text-slate-700');
   }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeBhpModal();
