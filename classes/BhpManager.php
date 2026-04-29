@@ -90,7 +90,39 @@ class BhpManager
         return (int) $this->db->query('SELECT COUNT(*) FROM kategori_bhp')->fetchColumn();
     }
 
-    /** Tambah kategori (dengan kode opsional) */
+    /**
+     * Generate kode kategori otomatis berdasarkan nama kategori.
+     * Contoh: "Alat Pelindung" -> "AP-001", "Bahan Tambal Gigi" -> "BTG-012"
+     */
+    public function generateKodeKategori(string $namaKategori): string
+    {
+        // Ambil inisial dari setiap kata dalam nama kategori
+        $words = preg_split('/\s+/', trim($namaKategori));
+        $prefix = '';
+        foreach ($words as $word) {
+            $word = trim($word);
+            if ($word !== '') {
+                $prefix .= strtoupper(mb_substr($word, 0, 1));
+            }
+        }
+
+        // Fallback: jika nama hanya 1 kata, ambil 2-3 huruf pertama
+        if (strlen($prefix) < 2) {
+            $prefix = strtoupper(mb_substr(trim($namaKategori), 0, min(3, mb_strlen(trim($namaKategori)))));
+        }
+
+        // Generate nomor acak unik
+        do {
+            $num  = str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+            $kode = $prefix . '-' . $num;
+            $chk  = $this->db->prepare('SELECT id_kategori FROM kategori_bhp WHERE Kode_kategori = ?');
+            $chk->execute([$kode]);
+        } while ($chk->fetch());
+
+        return $kode;
+    }
+
+    /** Tambah kategori (dengan kode opsional, auto-generate jika kosong) */
     public function addKategori(string $nama, string $kode = ''): array
     {
         $nama = trim($nama);
@@ -99,9 +131,15 @@ class BhpManager
         $chk = $this->db->prepare('SELECT id_kategori FROM kategori_bhp WHERE LOWER(Nama_kategori) = LOWER(?)');
         $chk->execute([$nama]);
         if ($chk->fetch()) return ['success' => false, 'message' => "Kategori \"$nama\" sudah ada."];
+
+        // Auto-generate kode jika tidak diisi
+        if ($kode === '') {
+            $kode = $this->generateKodeKategori($nama);
+        }
+
         $stmt = $this->db->prepare('INSERT INTO kategori_bhp (Kode_kategori, Nama_kategori) VALUES (?, ?)');
-        $stmt->execute([$kode ?: null, $nama]);
-        return ['success' => true, 'message' => "Kategori \"$nama\" berhasil ditambahkan.", 'id' => (int)$this->db->lastInsertId()];
+        $stmt->execute([$kode, $nama]);
+        return ['success' => true, 'message' => "Kategori \"$nama\" berhasil ditambahkan.", 'id' => (int)$this->db->lastInsertId(), 'kode' => $kode];
     }
 
     /** Edit kategori (dengan kode opsional) */

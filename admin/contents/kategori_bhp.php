@@ -27,18 +27,18 @@ $kategoriList = $mgr->getAllKategori();
     <form id="formKategori" class="px-7 py-6 space-y-4">
       <input type="hidden" id="kategoriId" name="id" value="">
       <input type="hidden" id="kategoriAction" name="action" value="add_kategori">
-      <!-- Row: Kode + Nama -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1.5">
-          <label for="kodeKategori" class="text-sm font-semibold text-slate-700">Kode Kategori</label>
-          <input id="kodeKategori" name="kode_kategori" type="text" placeholder="cth: AP - 001"
-            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label for="namaKategori" class="text-sm font-semibold text-slate-700">Nama Kategori <span class="text-red-500">*</span></label>
-          <input id="namaKategori" name="nama_kategori" type="text" placeholder="cth: Alat Pelindung"
-            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" required />
-        </div>
+      <!-- Row: Nama Kategori (full width) -->
+      <div class="flex flex-col gap-1.5">
+        <label for="namaKategori" class="text-sm font-semibold text-slate-700">Nama Kategori <span class="text-red-500">*</span></label>
+        <input id="namaKategori" name="nama_kategori" type="text" placeholder="cth: Alat Pelindung"
+          class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" required />
+      </div>
+      <!-- Kode Kategori (readonly saat tambah, editable saat edit) -->
+      <div class="flex flex-col gap-1.5">
+        <label for="kodeKategori" class="text-sm font-semibold text-slate-700">Kode Kategori</label>
+        <input id="kodeKategori" name="kode_kategori" type="text" placeholder="Otomatis dari nama kategori"
+          class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm bg-slate-50 cursor-not-allowed" readonly />
+        <p id="kodeKategoriHint" class="text-xs text-slate-400 mt-0.5"><i class="fas fa-info-circle mr-1"></i>Kode akan di-generate otomatis berdasarkan nama, contoh: <strong>AP-001</strong></p>
       </div>
       <div class="flex justify-end gap-3 pt-1">
         <button type="button" onclick="closeKategoriModal()"
@@ -134,14 +134,14 @@ $kategoriList = $mgr->getAllKategori();
             ];
             foreach ($kategoriList as $i => $kat):
               $col = $katColors[$i % count($katColors)];
-              // Generate simple kode dari inisial
-              $words = explode(' ', $kat['Nama_kategori']);
-              $kode  = '';
-              foreach ($words as $w) $kode .= strtoupper(substr($w,0,1));
-              $kode .= ' - ' . str_pad($kat['id_kategori'], 3, '0', STR_PAD_LEFT);
+              $kode = $kat['Kode_kategori'] ?? '-';
             ?>
             <tr class="hover:bg-slate-50 transition-colors group kategori-row" data-nama="<?php echo strtolower(htmlspecialchars($kat['Nama_kategori'])); ?>">
-              <td class="py-5 px-6 font-bold text-slate-700"><?php echo htmlspecialchars($kode); ?></td>
+              <td class="py-5 px-6">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide bg-slate-100 text-slate-600 border border-slate-200">
+                  <?php echo htmlspecialchars($kode); ?>
+                </span>
+              </td>
               <td class="py-5 px-6">
                 <span class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold <?php echo $col['bg'].' '.$col['text'].' border '.$col['border']; ?>">
                   <?php echo htmlspecialchars($kat['Nama_kategori']); ?>
@@ -149,7 +149,7 @@ $kategoriList = $mgr->getAllKategori();
               </td>
               <td class="py-5 px-6 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  <button onclick="editKategori(<?php echo $kat['id_kategori']; ?>, '<?php echo htmlspecialchars($kat['Nama_kategori'], ENT_QUOTES); ?>')"
+                  <button onclick="editKategori(<?php echo $kat['id_kategori']; ?>, '<?php echo htmlspecialchars($kat['Nama_kategori'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($kat['Kode_kategori'] ?? '', ENT_QUOTES); ?>')"
                     class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-blue-100/50 bg-white shadow-sm" title="Edit">
                     <i class="fa-solid fa-pen-to-square text-[13px]"></i>
                   </button>
@@ -187,11 +187,27 @@ $kategoriList = $mgr->getAllKategori();
 const KAT_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
 function openKategoriModal(id='', nama='', kode='') {
+  const kodeInput = document.getElementById('kodeKategori');
+  const kodeHint  = document.getElementById('kodeKategoriHint');
   document.getElementById('kategoriId').value     = id;
   document.getElementById('namaKategori').value   = nama;
-  document.getElementById('kodeKategori').value   = kode;
+  kodeInput.value = kode;
   document.getElementById('kategoriAction').value = id ? 'edit_kategori' : 'add_kategori';
   document.getElementById('kategoriModalTitle').textContent = id ? 'Edit Kategori' : 'Tambah Kategori Baru';
+
+  // Saat tambah: readonly + hint. Saat edit: bisa diubah manual.
+  if (id) {
+    kodeInput.readOnly = false;
+    kodeInput.classList.remove('bg-slate-50','cursor-not-allowed');
+    kodeInput.placeholder = 'Masukkan kode kategori';
+    kodeHint.classList.add('hidden');
+  } else {
+    kodeInput.readOnly = true;
+    kodeInput.classList.add('bg-slate-50','cursor-not-allowed');
+    kodeInput.placeholder = 'Otomatis dari nama kategori';
+    kodeHint.classList.remove('hidden');
+  }
+
   const m = document.getElementById('modalKategori');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
@@ -203,6 +219,27 @@ function closeKategoriModal() {
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeKategoriModal(); });
 
 function editKategori(id, nama, kode='') { openKategoriModal(id, nama, kode); }
+
+// ── Auto-generate kode preview saat mengetik nama kategori ──
+function generateKodePreview(nama) {
+  nama = nama.trim();
+  if (!nama) return '';
+  const words = nama.split(/\s+/).filter(w => w.length > 0);
+  let prefix = '';
+  if (words.length >= 2) {
+    words.forEach(w => prefix += w.charAt(0).toUpperCase());
+  } else {
+    prefix = nama.substring(0, Math.min(3, nama.length)).toUpperCase();
+  }
+  const num = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
+  return prefix + '-' + num;
+}
+
+document.getElementById('namaKategori').addEventListener('input', function() {
+  const isAdd = document.getElementById('kategoriAction').value === 'add_kategori';
+  if (!isAdd) return;
+  document.getElementById('kodeKategori').value = generateKodePreview(this.value);
+});
 
 async function deleteKategori(id, nama) {
   if (!confirm(`Hapus kategori "${nama}"?\nBHP yang menggunakan kategori ini akan menjadi tanpa kategori.`)) return;
