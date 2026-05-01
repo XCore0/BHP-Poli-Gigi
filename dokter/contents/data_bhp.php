@@ -1,26 +1,43 @@
 <?php
+
 /**
  * Halaman Data BHP - Dokter (Dinamis)
  */
+
 use App\Classes\BhpManager;
+
 $mgr       = new BhpManager();
+$p      = max(1, (int)($_GET['p'] ?? 1));
+$limit  = 10;
+$offset = ($p - 1) * $limit;
+
 $filter    = [
   'keyword'     => $_GET['keyword']     ?? '',
   'id_kategori' => $_GET['id_kategori'] ?? '',
+  'limit'       => $limit,
+  'offset'      => $offset
 ];
+
+$totalBhp     = $mgr->countAllBhp($filter);
+$totalPages   = max(1, ceil($totalBhp / $limit));
+
 $bhpList      = $mgr->getAllBhp($filter);
 $kategoriList = $mgr->getAllKategori();
 $satuanList   = $mgr->getAllSatuan();
 $kodeBaru     = $mgr->generateKodeBhp();
 
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
 // Warna status stok
 if (!function_exists('stokStatus')) {
-    function stokStatus(int $jumlah, int $Pemakaian): array
-    {
-      if ($jumlah <= 0)            return ['label' => 'Habis',   'cls' => 'text-red-600',   'dot' => 'text-red-500'];
-      if ($jumlah <= $Pemakaian)    return ['label' => 'Menipis', 'cls' => 'text-amber-600', 'dot' => 'text-amber-500'];
-      return                               ['label' => 'Aman',   'cls' => 'text-emerald-600', 'dot' => 'text-emerald-500'];
-    }
+  function stokStatus(int $jumlah, int $Pemakaian): array
+  {
+    if ($jumlah <= 0)            return ['label' => 'Habis',   'cls' => 'text-red-600',   'dot' => 'text-red-500'];
+    if ($jumlah <= $Pemakaian)    return ['label' => 'Menipis', 'cls' => 'text-amber-600', 'dot' => 'text-amber-500'];
+    return                               ['label' => 'Aman',   'cls' => 'text-emerald-600', 'dot' => 'text-emerald-500'];
+  }
 }
 ?>
 
@@ -84,8 +101,8 @@ if (!function_exists('stokStatus')) {
             class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm" />
         </div>
         <div class="flex flex-col gap-1.5">
-          <label for="bhpPemakaian" class="text-sm font-semibold text-slate-700">Pemakaian</label>
-          <input id="bhpPemakaian" name="Pemakaian" type="number" value="5" min="0"
+          <label for="bhpIsi" class="text-sm font-semibold text-slate-700">Pemakaian / Stok</label>
+          <input id="bhpIsi" name="isi_per_stok" type="number" value="1" min="1"
             class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm" />
         </div>
         <div class="flex flex-col gap-1.5">
@@ -219,8 +236,8 @@ if (!function_exists('stokStatus')) {
               <th class="py-4 px-6">Nama BHP</th>
               <th class="py-4 px-6">Kategori</th>
               <th class="py-4 px-6">Satuan</th>
-              <th class="py-4 px-6">Stok</th>
-              <th class="py-4 px-6">Pemakaian</th>
+              <th class="py-4 px-6">Stok (Unit)</th>
+              <th class="py-4 px-6">Total Pemakaian</th>
               <th class="py-4 px-6">Status</th>
               <th class="py-4 px-6 text-right">Aksi</th>
             </tr>
@@ -263,8 +280,14 @@ if (!function_exists('stokStatus')) {
                     <?php endif; ?>
                   </td>
                   <td class="py-5 px-6 font-medium text-slate-600"><?php echo $bhp['Nama_satuan'] ? htmlspecialchars($bhp['Nama_satuan']) : '—'; ?></td>
-                  <td class="py-5 px-6 font-medium text-slate-600"><?php echo number_format((int)$bhp['Jumlah']); ?></td>
-                  <td class="py-5 px-6 font-medium text-slate-500"><?php echo number_format((int)$bhp['Pemakaian']); ?></td>
+                  <td class="py-5 px-6 font-medium text-slate-600">
+                    <span class="font-bold text-slate-700 text-sm"><?php echo number_format((int)$bhp['Jumlah']); ?></span>
+                    <span class="text-xs ml-1">Box/Unit</span>
+                  </td>
+                  <td class="py-5 px-6 font-medium text-slate-500">
+                    <div class="font-bold text-emerald-600 text-sm"><?php echo number_format((int)$bhp['Pemakaian']); ?></div>
+                    <div class="text-[10px] text-slate-400">Pcs (<?php echo (int)($bhp['isi_per_stok'] ?? 1); ?> per unit)</div>
+                  </td>
                   <td class="py-5 px-6">
                     <span class="<?php echo $status['cls']; ?> font-bold text-[11px] tracking-widest uppercase">
                       <span class="<?php echo $status['dot']; ?> mr-1.5 text-[14px] leading-none tracking-normal">&bull;</span><?php echo $status['label']; ?>
@@ -288,6 +311,47 @@ if (!function_exists('stokStatus')) {
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination -->
+      <?php if ($totalPages > 1): ?>
+      <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <span class="text-[13px] font-medium text-slate-500">
+          Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalPages; ?></span>
+        </span>
+        <div class="flex items-center gap-1.5">
+          <?php
+          $qParam = $_GET;
+          unset($qParam['p']);
+          $baseQS = http_build_query($qParam);
+          $baseQS = $baseQS ? '&' . $baseQS : '';
+          
+          if ($p > 1): ?>
+            <a href="?p=<?php echo $p - 1; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+              <i class="fas fa-chevron-left text-[11px]"></i>
+            </a>
+          <?php endif; ?>
+          
+          <?php
+          // Simple pagination numbers (max 5 pages)
+          $startPage = max(1, $p - 2);
+          $endPage = min($totalPages, $p + 2);
+          for ($i = $startPage; $i <= $endPage; $i++):
+            $isActive = ($i === $p);
+          ?>
+            <a href="?p=<?php echo $i; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?php echo $isActive ? 'bg-brand-50 border-brand-200 text-brand-600 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium'; ?> transition-colors text-sm">
+              <?php echo $i; ?>
+            </a>
+          <?php endfor; ?>
+
+          <?php if ($p < $totalPages): ?>
+            <a href="?p=<?php echo $p + 1; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+              <i class="fas fa-chevron-right text-[11px]"></i>
+            </a>
+          <?php endif; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
     </div>
 
   </div>
@@ -347,12 +411,12 @@ if (!function_exists('stokStatus')) {
   }
 
   /* ── Modal ───────────────────────────────────── */
-  function openBhpModal(id = '', kode = '', nama = '', jumlah = 0, Pemakaian = 5, id_kat = '', id_sat = '') {
+  function openBhpModal(id = '', kode = '', nama = '', jumlah = 0, isi = 1, id_kat = '', id_sat = '') {
     document.getElementById('bhpId').value = id;
     document.getElementById('bhpKode').value = kode;
     document.getElementById('bhpNama').value = nama;
     document.getElementById('bhpJumlah').value = jumlah;
-    document.getElementById('bhpPemakaian').value = Pemakaian;
+    document.getElementById('bhpIsi').value = isi;
 
     const katSel = document.getElementById('bhpKategori');
     const satSel = document.getElementById('bhpSatuan');
@@ -388,7 +452,7 @@ if (!function_exists('stokStatus')) {
 
   /* ── Edit ────────────────────────────────────── */
   function editBhp(d) {
-    openBhpModal(d.id_bhp, d.Kode_bhp || '', d.Nama_bhp, d.Jumlah, d.Pemakaian, d.id_kategori || '', d.id_satuan || '');
+    openBhpModal(d.id_bhp, d.Kode_bhp || '', d.Nama_bhp, d.Jumlah, d.isi_per_stok || 1, d.id_kategori || '', d.id_satuan || '');
   }
 
   /* ── Delete ──────────────────────────────────── */

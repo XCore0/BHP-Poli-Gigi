@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Logout Handler
  * Menghancurkan session dan redirect ke halaman login

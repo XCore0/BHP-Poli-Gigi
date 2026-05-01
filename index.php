@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Entry Point - Poli Gigi Klinik Pratama
  * Saat project dibuka (http://localhost/BHP-Poli-Gigi/),
@@ -30,6 +30,6 @@ if ($auth->isLoggedIn()) {
     }
 }
 
-// Belum login → ke halaman Login
+// Belum login â†’ ke halaman Login
 header('Location: /BHP-Poli-Gigi/Login.php');
 exit();

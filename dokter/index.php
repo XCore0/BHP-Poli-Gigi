@@ -1,8 +1,10 @@
-<?php
+﻿<?php
+
 /**
  * Admin Dashboard - dilindungi oleh session Auth
  */
 require_once __DIR__ . '/../vendor/autoload.php';
+
 use App\Classes\Auth;
 
 $auth = new Auth();
@@ -25,35 +27,35 @@ $role_avatar_color = '#1e4a7a';
 $role_label_color = 'text-brand-600';
 
 if ($page == 'data_bhp') {
-    $active_submenu = 'bhp';
-    $page_title = 'Data Bahan Habis Pakai';
-    $page_desc = 'Kelola informasi bahan habis pakai secara terstruktur';
+  $active_submenu = 'bhp';
+  $page_title = 'Data Bahan Habis Pakai';
+  $page_desc = 'Kelola informasi bahan habis pakai secara terstruktur';
 } elseif ($page == 'kategori_bhp') {
-    $active_submenu = 'bhp';
-    $page_title = 'Kategori Bahan Habis Pakai';
-    $page_desc = 'Pengaturan kategori bahan habis pakai untuk mempermudah pencarian data';
+  $active_submenu = 'bhp';
+  $page_title = 'Kategori Bahan Habis Pakai';
+  $page_desc = 'Pengaturan kategori bahan habis pakai untuk mempermudah pencarian data';
 } elseif ($page == 'satuan_bhp') {
-    $active_submenu = 'bhp';
-    $page_title = 'Satuan Bahan Habis Pakai';
-    $page_desc = 'Kelola satuan bahan habis pakai untuk mempermudah pengelompokan data';
+  $active_submenu = 'bhp';
+  $page_title = 'Satuan Bahan Habis Pakai';
+  $page_desc = 'Kelola satuan bahan habis pakai untuk mempermudah pengelompokan data';
 } elseif ($page == 'catat') {
-    $page_title = 'Catat Pemakaian';
-    $page_desc = 'Catat penggunaan Bahan Habis Pakai (BHP) untuk setiap tindakan medis';
+  $page_title = 'Catat Pemakaian';
+  $page_desc = 'Catat penggunaan Bahan Habis Pakai (BHP) untuk setiap tindakan medis';
 } elseif ($page == 'laporan') {
-    $page_title = 'Laporan Pemakaian';
-    $page_desc = 'Menyajikan Laporan pemakaian bahan secara lengkap';
+  $page_title = 'Laporan Pemakaian';
+  $page_desc = 'Menyajikan Laporan pemakaian bahan secara lengkap';
 } elseif ($page == 'dashboard') {
-    $page_title = 'Dashboard';
-    $page_desc = 'Ringkasan informasi dan aktivitas Poliklinik Gigi';
+  $page_title = 'Dashboard';
+  $page_desc = 'Ringkasan informasi dan aktivitas Poliklinik Gigi';
 } elseif ($page == 'profil') {
-    $page_title = 'Profil Saya';
-    $page_desc = 'Kelola informasi pribadi dan credential akun Anda';
+  $page_title = 'Profil Saya';
+  $page_desc = 'Kelola informasi pribadi dan credential akun Anda';
 } elseif ($page == 'pengaturan') {
-    $page_title = 'Pengaturan Akun';
-    $page_desc = 'Konfigurasi preferensi akses dan keamanan sistem';
+  $page_title = 'Pengaturan Akun';
+  $page_desc = 'Konfigurasi preferensi akses dan keamanan sistem';
 } elseif ($page == 'stock') {
-    $page_title = 'Stok Masuk';
-    $page_desc = 'Catat penerimaan barang baru dari supplier atau hasil pengadaan';
+  $page_title = 'Stok Masuk';
+  $page_desc = 'Catat penerimaan barang baru dari supplier atau hasil pengadaan';
 }
 ?>
 <!DOCTYPE html>
@@ -109,13 +111,13 @@ if ($page == 'data_bhp') {
         <?php
         $content_file = __DIR__ . "/contents/$page.php";
         if (file_exists($content_file)) {
-            include $content_file;
+          include $content_file;
         } else {
-            echo "<div class='flex-1 flex items-center justify-center flex-col text-slate-400'><i class='fas fa-person-digging text-5xl mb-4 opacity-50'></i><h2 class='text-xl font-bold font-display text-slate-600'>Halaman Sedang Dibangun</h2><p class='text-sm mt-1'>Konten untuk halaman ini belum tersedia.</p></div>";
+          echo "<div class='flex-1 flex items-center justify-center flex-col text-slate-400'><i class='fas fa-person-digging text-5xl mb-4 opacity-50'></i><h2 class='text-xl font-bold font-display text-slate-600'>Halaman Sedang Dibangun</h2><p class='text-sm mt-1'>Konten untuk halaman ini belum tersedia.</p></div>";
         }
         ?>
       </div>
-      
+
       <!-- FOOTER -->
       <?php include __DIR__ . '/../components/footer.php'; ?>
     </main>

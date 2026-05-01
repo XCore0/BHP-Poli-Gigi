@@ -2,14 +2,38 @@
 /**
  * Halaman Manajemen Pengguna (Admin)
  * Data dinamis dari database + form tambah pengguna via modal
+ * + Export log aktivitas (Excel/PDF)
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Classes\UserManager;
 use App\Classes\ActivityLog;
 
 $manager   = new UserManager();
-$users     = $manager->getAllUsers();
-$total     = $manager->countAll();
+
+// ── Tab Logic ──
+$activeTab = $_GET['tab'] ?? 'kelola';
+if (isset($_GET['log_page']) || isset($_GET['log_keyword']) || isset($_GET['log_kategori'])) {
+    $activeTab = 'log';
+}
+if (isset($_GET['u_p']) || isset($_GET['u_keyword']) || isset($_GET['u_role'])) {
+    $activeTab = 'kelola';
+}
+
+$u_p      = max(1, (int)($_GET['u_p'] ?? 1));
+$u_limit  = 10;
+$u_offset = ($u_p - 1) * $u_limit;
+
+$u_filter = [
+    'keyword' => $_GET['u_keyword'] ?? '',
+    'role'    => $_GET['u_role']    ?? '',
+    'limit'   => $u_limit,
+    'offset'  => $u_offset
+];
+
+$users     = $manager->getAllUsers($u_filter);
+$total     = $manager->countAll($u_filter);
+$u_total_pages = (int) ceil($total / $u_limit);
+
 $adminCnt  = $manager->countByRole('admin');
 $dokterCnt = $manager->countByRole('dokter');
 $kepalaCnt = $manager->countByRole('kepala_klinik');
@@ -34,6 +58,125 @@ $logKategori = [
     'stok'      => $logObj->countByKategori('stok'),
 ];
 $totalPages  = (int) ceil($logTotal / $logLimit);
+
+// ── EXPORT HANDLER ─────────────────────────────────────────────
+$export = $_GET['export'] ?? '';
+if ($export === 'excel' || $export === 'pdf') {
+    // Ambil SEMUA log sesuai filter (tanpa pagination)
+    $allLogs = $logObj->getLogs($logFilter, 10000, 0);
+    $tanggal = date('Y-m-d_H-i-s');
+
+    if ($export === 'excel') {
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="log_aktivitas_' . $tanggal . '.csv"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        echo "\xEF\xBB\xBF"; // BOM untuk Excel UTF-8
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['No', 'Waktu', 'Nama User', 'Role', 'Aksi', 'Kategori', 'Detail', 'IP Address'], ';');
+        $no = 1;
+        foreach ($allLogs as $log) {
+            fputcsv($out, [
+                $no++,
+                date('d/m/Y H:i:s', strtotime($log['waktu'])),
+                $log['nama_user'],
+                $log['role_user'],
+                ucwords(str_replace('_', ' ', $log['aksi'])),
+                ucfirst($log['kategori']),
+                $log['detail'],
+                $log['ip_address'] ?? '-',
+            ], ';');
+        }
+        fclose($out);
+        exit;
+    }
+
+    if ($export === 'pdf') {
+        $filterInfo = [];
+        if ($logFilter['keyword'])  $filterInfo[] = 'Keyword: ' . htmlspecialchars($logFilter['keyword']);
+        if ($logFilter['kategori']) $filterInfo[] = 'Kategori: ' . htmlspecialchars($logFilter['kategori']);
+        if ($logFilter['role'])     $filterInfo[] = 'Role: ' . htmlspecialchars($logFilter['role']);
+        ?><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Log Aktivitas – <?php echo date('d/m/Y'); ?></title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #1e293b; background: white; }
+  .no-print-bar { background:#fff3cd;padding:12px 24px;border-bottom:2px solid #f59e0b;font-size:12px;color:#92400e; display:flex; align-items:center; gap:12px; }
+  .header { background: linear-gradient(135deg, #006B47, #1A9F70); color: white; padding: 20px 24px; }
+  .header h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .header p  { font-size: 11px; opacity: 0.85; }
+  .meta { padding: 12px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 24px; font-size: 11px; color: #64748b; flex-wrap: wrap; }
+  .meta strong { color: #1e293b; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { background: #1e293b; color: white; padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; }
+  .badge-auth     { background: #dbeafe; color: #1d4ed8; }
+  .badge-pengguna { background: #ede9fe; color: #6d28d9; }
+  .badge-bhp      { background: #d1fae5; color: #065f46; }
+  .badge-stok     { background: #cffafe; color: #0e7490; }
+  .badge-laporan  { background: #fef9c3; color: #854d0e; }
+  .badge-sistem   { background: #f1f5f9; color: #475569; }
+  .footer { padding: 12px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; color: #94a3b8; }
+  @media print { .no-print-bar { display: none !important; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<div class="no-print-bar">
+  <strong>💡 Tip:</strong> Tekan <kbd>Ctrl+P</kbd> lalu pilih <em>"Save as PDF"</em> untuk menyimpan sebagai file PDF.
+  <button onclick="window.print()" style="padding:6px 18px;background:#059669;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;">🖨️ Print / Save PDF</button>
+  <button onclick="window.close()" style="padding:6px 18px;background:#e2e8f0;color:#374151;border:none;border-radius:8px;cursor:pointer;font-size:12px;">✕ Tutup</button>
+</div>
+<div class="header">
+  <h1>📋 Log Aktivitas Sistem – BHP Poli Gigi</h1>
+  <p>Dicetak pada <?php echo date('d/m/Y H:i:s'); ?> oleh <?php echo htmlspecialchars($currentUser['nama'] ?? 'Admin'); ?></p>
+</div>
+<div class="meta">
+  <span>Total: <strong><?php echo count($allLogs); ?> log</strong></span>
+  <?php if (empty($filterInfo)): ?>
+  <span>Filter: <strong>Semua Data</strong></span>
+  <?php else: foreach ($filterInfo as $fi): ?>
+  <span><?php echo $fi; ?></span>
+  <?php endforeach; endif; ?>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:36px;">No</th>
+      <th style="width:115px;">Waktu</th>
+      <th style="width:140px;">Nama User</th>
+      <th style="width:80px;">Role</th>
+      <th style="width:120px;">Aksi</th>
+      <th style="width:75px;">Kategori</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php if (empty($allLogs)): ?>
+    <tr><td colspan="7" style="text-align:center;padding:24px;color:#94a3b8;">Tidak ada data log sesuai filter.</td></tr>
+    <?php else: $no = 1; foreach ($allLogs as $log): $badge = 'badge-' . ($log['kategori'] ?? 'sistem'); ?>
+    <tr>
+      <td style="color:#94a3b8;text-align:center;"><?php echo $no++; ?></td>
+      <td style="color:#475569;white-space:nowrap;"><?php echo date('d/m/Y H:i', strtotime($log['waktu'])); ?></td>
+      <td style="font-weight:600;"><?php echo htmlspecialchars($log['nama_user']); ?></td>
+      <td style="color:#64748b;"><?php echo htmlspecialchars($log['role_user']); ?></td>
+      <td style="font-weight:600;"><?php echo ucwords(str_replace('_',' ',$log['aksi'])); ?></td>
+      <td><span class="badge <?php echo htmlspecialchars($badge); ?>"><?php echo ucfirst($log['kategori']); ?></span></td>
+      <td style="color:#374151;"><?php echo htmlspecialchars($log['detail'] ?: '-'); ?></td>
+    </tr>
+    <?php endforeach; endif; ?>
+  </tbody>
+</table>
+<div class="footer">BHP Poli Gigi Management System &mdash; Ekspor Log Aktivitas</div>
+</body></html>
+<?php
+        exit;
+    }
+}
+// ── END EXPORT HANDLER ─────────────────────────────────────────
 ?>
 
 <!-- ======================================================
@@ -179,32 +322,69 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
             </p>
           </div>
         </div>
-        <!-- Action button -->
-        <div id="banner-action">
+        <!-- Action button: dinamis berdasarkan tab aktif -->
+        <div id="banner-action-kelola" class="<?= $activeTab === 'kelola' ? '' : 'hidden' ?>">
           <button onclick="openModal()"
             class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-plex font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-colors flex-shrink-0">
             <i class="fas fa-plus"></i> Tambah Pengguna
           </button>
+        </div>
+        <div id="banner-action-log" class="<?= $activeTab === 'log' ? '' : 'hidden' ?> relative">
+          <button onclick="toggleExportDropdown()"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-plex font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-colors flex-shrink-0" id="btn-export-log">
+            <i class="fas fa-download"></i> Export Log
+            <i class="fas fa-chevron-down text-[10px]"></i>
+          </button>
+          <!-- Export Dropdown -->
+          <div id="export-dropdown" class="hidden absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 min-w-[200px]">
+            <div class="px-4 py-3 border-b border-slate-100">
+              <p class="font-plex text-xs font-semibold text-slate-500 uppercase tracking-wider">Format Export</p>
+            </div>
+            <a href="<?php echo '?page=pengguna&export=excel' . (!empty($logFilter['keyword']) ? '&log_keyword='.urlencode($logFilter['keyword']) : '') . (!empty($logFilter['kategori']) ? '&log_kategori='.urlencode($logFilter['kategori']) : '') . (!empty($logFilter['role']) ? '&log_role='.urlencode($logFilter['role']) : ''); ?>"
+              class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors group">
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-file-excel text-emerald-600 text-sm"></i>
+              </div>
+              <div>
+                <p class="font-plex text-sm font-semibold text-slate-700">Export Excel</p>
+                <p class="font-plex text-[11px] text-slate-400">Format .xlsx</p>
+              </div>
+            </a>
+            <a href="<?php echo '?page=pengguna&export=pdf' . (!empty($logFilter['keyword']) ? '&log_keyword='.urlencode($logFilter['keyword']) : '') . (!empty($logFilter['kategori']) ? '&log_kategori='.urlencode($logFilter['kategori']) : '') . (!empty($logFilter['role']) ? '&log_role='.urlencode($logFilter['role']) : ''); ?>"
+              class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors group border-t border-slate-50">
+              <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="fas fa-file-pdf text-red-500 text-sm"></i>
+              </div>
+              <div>
+                <p class="font-plex text-sm font-semibold text-slate-700">Export PDF</p>
+                <p class="font-plex text-[11px] text-slate-400">Format .pdf</p>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Tabs -->
     <div class="flex items-center gap-2">
+      <?php 
+        $activeBtn   = 'px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-brand-600 text-white shadow-sm';
+        $inactiveBtn = 'px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200';
+      ?>
       <button onclick="switchTab('kelola')" id="tab-kelola"
-        class="px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-brand-600 text-white shadow-sm">
+        class="<?= $activeTab === 'kelola' ? $activeBtn : $inactiveBtn ?>">
         <i class="fas fa-users text-xs"></i> Kelola Pengguna
         <span id="badge-kelola" class="bg-white/20 text-white text-[11px] px-2 py-0.5 rounded-full font-bold"><?php echo $total; ?></span>
       </button>
       <button onclick="switchTab('log')" id="tab-log"
-        class="px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200">
+        class="<?= $activeTab === 'log' ? $activeBtn : $inactiveBtn ?>">
         <i class="fas fa-heart-pulse text-xs"></i> Log Aktivitas
         <span class="bg-slate-200 text-slate-500 text-[11px] px-2 py-0.5 rounded-full font-bold">-</span>
       </button>
     </div>
 
     <!-- ========== TAB 1: KELOLA PENGGUNA ========== -->
-    <div id="content-kelola">
+    <div id="content-kelola" class="<?= $activeTab === 'kelola' ? '' : 'hidden' ?>">
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <!-- Total -->
@@ -247,6 +427,39 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
             <p id="stat-kepala" class="font-display font-bold text-xl sm:text-2xl text-slate-800 leading-tight"><?php echo $kepalaCnt; ?></p>
           </div>
         </div>
+      </div>
+
+      <!-- User Filters & Search -->
+      <div class="mb-5 flex flex-col md:flex-row gap-4 items-end">
+        <form method="GET" action="" class="flex-1 flex flex-col md:flex-row gap-3 items-end">
+          <input type="hidden" name="page" value="pengguna">
+          <div class="flex-1 min-w-0">
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cari Pengguna</label>
+            <div class="relative">
+              <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" name="u_keyword" value="<?php echo htmlspecialchars($u_filter['keyword']); ?>" 
+                placeholder="Cari nama atau email..."
+                class="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all">
+            </div>
+          </div>
+          <div class="w-full md:w-48">
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Filter Role</label>
+            <select name="u_role" class="w-full h-11 px-4 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none appearance-none cursor-pointer">
+              <option value="">Semua Role</option>
+              <option value="admin" <?php echo $u_filter['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
+              <option value="dokter" <?php echo $u_filter['role'] === 'dokter' ? 'selected' : ''; ?>>Dokter</option>
+              <option value="kepala_klinik" <?php echo $u_filter['role'] === 'kepala_klinik' ? 'selected' : ''; ?>>Kepala Klinik</option>
+            </select>
+          </div>
+          <button type="submit" class="h-11 px-6 bg-brand-600 text-white rounded-xl font-bold text-sm hover:bg-brand-700 transition-colors shadow-sm shadow-brand-200">
+            Filter
+          </button>
+          <?php if ($u_filter['keyword'] || $u_filter['role']): ?>
+          <a href="?page=pengguna" class="h-11 px-4 flex items-center justify-center border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 transition-colors">
+            <i class="fas fa-times text-xs"></i>
+          </a>
+          <?php endif; ?>
+        </form>
       </div>
 
       <!-- User Table -->
@@ -310,17 +523,58 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
                   </div>
                 </td>
               </tr>
-              <?php endforeach; ?>
-              <?php endif; ?>
-            </tbody>
-          </table>
+            <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- User Pagination -->
+      <?php if ($u_total_pages > 1): ?>
+      <div class="px-5 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <span class="text-xs font-plex font-medium text-slate-500">
+          Menampilkan <span class="font-bold text-slate-700"><?php echo count($users); ?></span> dari <?php echo $total; ?> pengguna
+        </span>
+        <div class="flex items-center gap-1">
+          <?php
+            $q = $_GET; unset($q['u_p']);
+            $q['tab'] = 'kelola';
+            $qs = http_build_query($q);
+            $qs = $qs ? '&'.$qs : '';
+            if ($u_p > 1): 
+          ?>
+          <a href="?u_p=<?php echo $u_p - 1; ?><?php echo $qs; ?>" class="h-8 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all">
+            <i class="fas fa-chevron-left text-[10px]"></i>
+          </a>
+          <?php endif; ?>
+
+          <?php 
+          $u_start = max(1, $u_p - 2); $u_end = min($u_total_pages, $u_p + 2);
+          for ($i = $u_start; $i <= $u_end; $i++): 
+            $isActive = ($i === $u_p);
+          ?>
+          <a href="?u_p=<?php echo $i; ?><?php echo $qs; ?>" 
+            class="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all
+            <?php echo $isActive ? 'bg-brand-600 text-white shadow-md shadow-brand-100' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'; ?>">
+            <?php echo $i; ?>
+          </a>
+          <?php endfor; ?>
+
+          <?php if ($u_p < $u_total_pages): ?>
+          <a href="?u_p=<?php echo $u_p + 1; ?><?php echo $qs; ?>" class="h-8 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all">
+            <i class="fas fa-chevron-right text-[10px]"></i>
+          </a>
+          <?php endif; ?>
         </div>
       </div>
+      <?php endif; ?>
+
+    </div>
     </div>
     <!-- ========== END TAB 1 ========== -->
 
     <!-- ========== TAB 2: LOG AKTIVITAS ========== -->
-    <div id="content-log" class="hidden">
+    <div id="content-log" class="<?= $activeTab === 'log' ? '' : 'hidden' ?>">
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -502,23 +756,23 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
         <?php if ($totalPages > 1): ?>
         <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-4 border-t border-slate-100 gap-3">
           <p class="font-plex text-sm text-slate-500">
-            Menampilkan <?php echo min($logOffset + 1, $logTotal); ?>–<?php echo min($logOffset + $logLimit, $logTotal); ?> dari <?php echo $logTotal; ?> log
+            Menampilkan <?php echo min($logOffset + 1, $logTotal); ?>â€“<?php echo min($logOffset + $logLimit, $logTotal); ?> dari <?php echo $logTotal; ?> log
           </p>
           <div class="flex items-center gap-1.5">
             <?php if ($logPage > 1): ?>
-            <a href="?page=pengguna&log_page=<?php echo $logPage-1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
+            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage-1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
               class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
               <i class="fas fa-chevron-left text-xs"></i>
             </a>
             <?php endif; ?>
             <?php for ($p = max(1, $logPage-2); $p <= min($totalPages, $logPage+2); $p++): ?>
-            <a href="?page=pengguna&log_page=<?php echo $p; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
+            <a href="?page=pengguna&tab=log&log_page=<?php echo $p; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
               class="w-9 h-9 rounded-lg flex items-center justify-center font-plex text-sm transition-colors <?php echo $p === $logPage ? 'bg-brand-600 text-white font-semibold' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'; ?>">
               <?php echo $p; ?>
             </a>
             <?php endfor; ?>
             <?php if ($logPage < $totalPages): ?>
-            <a href="?page=pengguna&log_page=<?php echo $logPage+1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
+            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage+1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
               class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
               <i class="fas fa-chevron-right text-xs"></i>
             </a>
@@ -558,8 +812,8 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
 </style>
 
 <script>
-  /* ─── Tab Switch ─────────────────────────────────── */
-  let currentTab = 'kelola';
+  /* ─── Tab Switch ─────────────────────────────────────────── */
+  let currentTab = '<?= $activeTab ?>';
   function switchTab(tab) {
     if (tab === currentTab) return;
     const tabKelola = document.getElementById('tab-kelola');
@@ -575,14 +829,33 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
       into.classList.remove('hidden'); into.classList.add(goFwd ? 'tab-enter-right' : 'tab-enter-left');
       setTimeout(() => into.classList.remove('tab-enter-left','tab-enter-right'), 350);
     }, 250);
-    const activeClass = 'px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-brand-600 text-white shadow-sm';
+    const activeClass   = 'px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-brand-600 text-white shadow-sm';
     const inactiveClass = 'px-5 py-2.5 rounded-full text-sm font-plex font-semibold transition-all duration-200 flex items-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200';
-    if (tab === 'kelola') { tabKelola.className = activeClass; tabLog.className = inactiveClass; }
-    else { tabLog.className = activeClass; tabKelola.className = inactiveClass; }
+    if (tab === 'kelola') {
+      tabKelola.className = activeClass; tabLog.className = inactiveClass;
+      document.getElementById('banner-action-kelola').classList.remove('hidden');
+      document.getElementById('banner-action-log').classList.add('hidden');
+    } else {
+      tabLog.className = activeClass; tabKelola.className = inactiveClass;
+      document.getElementById('banner-action-kelola').classList.add('hidden');
+      document.getElementById('banner-action-log').classList.remove('hidden');
+    }
     currentTab = tab;
   }
 
-  /* ─── Modal ──────────────────────────────────────── */
+  /* ─── Export Dropdown ─────────────────────────────────────── */
+  function toggleExportDropdown() {
+    document.getElementById('export-dropdown').classList.toggle('hidden');
+  }
+  document.addEventListener('click', function(e) {
+    const btn = document.getElementById('btn-export-log');
+    const dd  = document.getElementById('export-dropdown');
+    if (btn && dd && !btn.contains(e.target) && !dd.contains(e.target)) {
+      dd.classList.add('hidden');
+    }
+  });
+
+  /* ─── Modal ──────────────────────────────────────────────── */
   function openModal() {
     const m = document.getElementById('modal-tambah');
     m.classList.remove('hidden');
@@ -597,7 +870,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     m.classList.remove('flex');
   }
 
-  /* ─── Toggle Modal Password ──────────────────────── */
+  /* â”€â”€â”€ Toggle Modal Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function toggleModalPwd() {
     const inp = document.getElementById('input-password');
     const icon = document.getElementById('modal-eye');
@@ -606,7 +879,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     icon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
   }
 
-  /* ─── Password Strength ──────────────────────────── */
+  /* â”€â”€â”€ Password Strength â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   document.getElementById('input-password').addEventListener('input', function() {
     const val  = this.value;
     const bar  = document.getElementById('pwd-strength-bar');
@@ -636,7 +909,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     document.getElementById('pwd-strength-text').textContent = '';
   }
 
-  /* ─── Modal Alert ────────────────────────────────── */
+  /* â”€â”€â”€ Modal Alert â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function showModalAlert(msg, type = 'error') {
     const el = document.getElementById('modal-alert');
     el.classList.remove('hidden','bg-red-50','text-red-600','bg-emerald-50','text-emerald-600','border','border-red-200','border-emerald-200');
@@ -652,7 +925,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     document.getElementById('modal-alert').classList.add('hidden');
   }
 
-  /* ─── Toast ──────────────────────────────────────── */
+  /* â”€â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   let toastTimer;
   function showToast(msg, type = 'success') {
     const toast = document.getElementById('toast');
@@ -672,7 +945,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     toastTimer = setTimeout(() => { toast.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => toast.classList.add('hidden'), 300); }, 3000);
   }
 
-  /* ─── Submit Form Tambah Pengguna ────────────────── */
+  /* â”€â”€â”€ Submit Form Tambah Pengguna â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   document.getElementById('form-tambah-user').addEventListener('submit', async function(e) {
     e.preventDefault();
     hideModalAlert();
@@ -705,7 +978,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     }
   });
 
-  /* ─── Toggle Status Akun ─────────────────────────── */
+  /* â”€â”€â”€ Toggle Status Akun â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   async function toggleStatus(id) {
     const data = new FormData();
     data.append('action', 'toggle_status');
@@ -729,7 +1002,7 @@ $totalPages  = (int) ceil($logTotal / $logLimit);
     } catch { showToast('Gagal mengubah status.', 'error'); }
   }
 
-  /* ─── Hapus Pengguna ─────────────────────────────── */
+  /* â”€â”€â”€ Hapus Pengguna â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   async function hapusUser(id, nama) {
     if (!confirm('Hapus pengguna "' + nama + '"?\nTindakan ini tidak dapat dibatalkan.')) return;
     const data = new FormData();

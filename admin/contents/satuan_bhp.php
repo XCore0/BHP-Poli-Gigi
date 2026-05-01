@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Halaman Satuan BHP - Admin
  */
@@ -184,7 +184,7 @@ function satBadgeColor(int $i): array {
 <script>
 const SATUAN_PROCESS_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
-/* ── Modal open / close ──────────────────────── */
+/* â”€â”€ Modal open / close â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function openSatuanModal(id = '', nama = '') {
   document.getElementById('satuanId').value       = id;
   document.getElementById('namaSatuan').value     = nama;
@@ -200,10 +200,10 @@ function closeSatuanModal() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSatuanModal(); });
 
-/* ── Edit ────────────────────────────────────── */
+/* â”€â”€ Edit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function editSatuan(id, nama) { openSatuanModal(id, nama); }
 
-/* ── Delete ──────────────────────────────────── */
+/* â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 async function deleteSatuan(id, nama) {
   if (!confirm(`Hapus satuan "${nama}"?\nTindakan ini tidak dapat dibatalkan.`)) return;
   const fd = new FormData();
@@ -217,7 +217,7 @@ async function deleteSatuan(id, nama) {
   } catch { showToastSatuan('Gagal menghapus satuan.', 'error'); }
 }
 
-/* ── Form submit ─────────────────────────────── */
+/* â”€â”€ Form submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 document.getElementById('formSatuan').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = document.getElementById('btnSimpanSatuan');
@@ -237,7 +237,7 @@ document.getElementById('formSatuan').addEventListener('submit', async function(
   finally { btn.disabled = false; btn.textContent = 'Simpan Barang'; }
 });
 
-/* ── Filter tabel ────────────────────────────── */
+/* â”€â”€ Filter tabel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function filterSatuan(val) {
   const v = val.toLowerCase().trim();
   let visible = 0;
@@ -250,7 +250,7 @@ function filterSatuan(val) {
   if (emptyEl) emptyEl.style.display = visible === 0 ? '' : 'none';
 }
 
-/* ── Toast ───────────────────────────────────── */
+/* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 let _toastTimer2;
 function showToastSatuan(msg, type='success') {
   const toast = document.getElementById('toastSatuan');

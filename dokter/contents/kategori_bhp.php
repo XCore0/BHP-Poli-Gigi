@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Halaman Kategori BHP - Dokter (Dinamis)
  */

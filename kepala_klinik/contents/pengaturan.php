@@ -1,5 +1,6 @@
 <?php
-// Pengaturan — menggunakan shared component
+// Pengaturan — shared semua role
+require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Classes\UserManager;
 use App\Classes\Auth;
 

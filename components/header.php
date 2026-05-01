@@ -116,7 +116,7 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
           class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-plex"><i
             class="fas fa-cog text-slate-400 w-4"></i> Pengaturan</a>
         <div class="my-1 border-t border-gray-100"></div>
-        <!-- Logout: gunakan onclick showLogoutModal() — BUKAN href langsung, untuk mencegah double-log via SPA -->
+        <!-- Logout: gunakan onclick showLogoutModal() â€” BUKAN href langsung, untuk mencegah double-log via SPA -->
         <button onclick="showLogoutModal()"
           class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-plex text-left">
           <i class="fas fa-sign-out-alt text-red-400 w-4"></i> Keluar
@@ -138,7 +138,7 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
 </style>
 
 <script>
-  /* ─── Logout Modal ─────────────────────────────────────── */
+  /* â”€â”€â”€ Logout Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function showLogoutModal() {
     const modal = document.getElementById('logout-modal');
     const card  = document.getElementById('logout-modal-card');
@@ -165,12 +165,12 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
     const btn  = document.getElementById('btn-logout-confirm');
     const icon = document.getElementById('btn-logout-icon');
     const text = document.getElementById('btn-logout-text');
-    // Disable tombol langsung — mencegah double-klik dan double-log
+    // Disable tombol langsung â€” mencegah double-klik dan double-log
     btn.disabled = true;
     btn.style.opacity = '0.75';
     icon.className = 'fas fa-spinner fa-spin text-sm';
     text.textContent = 'Keluar...';
-    // Navigasi langsung (bypass SPA interceptor) — hanya SATU request ke logout.php
+    // Navigasi langsung (bypass SPA interceptor) â€” hanya SATU request ke logout.php
     window.location.href = '/BHP-Poli-Gigi/logout.php';
   }
 

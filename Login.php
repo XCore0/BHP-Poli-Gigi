@@ -1,10 +1,10 @@
-<?php
+﻿<?php
 /**
  * Halaman Login - Poli Gigi Klinik Pratama
- * Halaman akses utama — session dimulai di sini sebelum apapun
+ * Halaman akses utama â€” session dimulai di sini sebelum apapun
  */
 
-// ── Session harus dimulai PERTAMA kali di halaman login ──
+// â”€â”€ Session harus dimulai PERTAMA kali di halaman login â”€â”€
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -124,7 +124,7 @@ $prevEmail = htmlspecialchars($_POST['email'] ?? '');
 
       <!-- Footer -->
       <div class="relative z-10 pb-6 text-center">
-        <p class="text-sm font-medium" style="color: rgba(255, 255, 255, 0.45);">© 2025 Poli Gigi Inventory System</p>
+        <p class="text-sm font-medium" style="color: rgba(255, 255, 255, 0.45);">Â© 2025 Poli Gigi Inventory System</p>
       </div>
     </div>
 
@@ -233,7 +233,7 @@ $prevEmail = htmlspecialchars($_POST['email'] ?? '');
         </div>
 
         <!-- Footer Tagline -->
-        <p class="text-center text-sm font-medium text-gray-500 mt-6">Klinik Poli Gigi · Sistem Inventaris BHP v2.0</p>
+        <p class="text-center text-sm font-medium text-gray-500 mt-6">Klinik Poli Gigi Â· Sistem Inventaris BHP v2.0</p>
       </div>
     </div>
   </div>

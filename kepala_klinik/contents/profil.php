@@ -1,5 +1,6 @@
 <?php
-// Profil — menggunakan shared component
+// Profil — shared semua role
+require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Classes\UserManager;
 use App\Classes\Auth;
 

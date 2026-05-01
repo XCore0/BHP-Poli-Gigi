@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Classes\Auth;
@@ -39,6 +40,7 @@ class BhpController
                 exit();
             }
 
+
             $action = $_POST['action'] ?? '';
             $mgr    = new BhpManager();
             $log    = new ActivityLog();
@@ -53,8 +55,14 @@ class BhpController
                 case 'add_satuan':
                     $result = $mgr->addSatuan($_POST['nama_satuan'] ?? '');
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'tambah_satuan', 'bhp',
-                            'Menambahkan satuan: ' . ($_POST['nama_satuan'] ?? '') . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'tambah_satuan',
+                            'bhp',
+                            'Menambahkan satuan: ' . ($_POST['nama_satuan'] ?? '') . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -63,8 +71,14 @@ class BhpController
                     $id     = (int)($_POST['id'] ?? 0);
                     $result = $mgr->editSatuan($id, $_POST['nama_satuan'] ?? '');
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'edit_satuan', 'bhp',
-                            'Mengedit satuan ID ' . $id . ' menjadi: ' . ($_POST['nama_satuan'] ?? '') . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'edit_satuan',
+                            'bhp',
+                            'Mengedit satuan ID ' . $id . ' menjadi: ' . ($_POST['nama_satuan'] ?? '') . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -73,8 +87,14 @@ class BhpController
                     $id     = (int)($_POST['id'] ?? 0);
                     $result = $mgr->deleteSatuan($id);
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'hapus_satuan', 'bhp',
-                            'Menghapus satuan ID ' . $id . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'hapus_satuan',
+                            'bhp',
+                            'Menghapus satuan ID ' . $id . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -86,8 +106,14 @@ class BhpController
                         $_POST['kode_kategori'] ?? ''
                     );
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'tambah_kategori', 'bhp',
-                            'Menambahkan kategori: ' . ($_POST['nama_kategori'] ?? '') . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'tambah_kategori',
+                            'bhp',
+                            'Menambahkan kategori: ' . ($_POST['nama_kategori'] ?? '') . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -100,8 +126,14 @@ class BhpController
                         $_POST['kode_kategori'] ?? ''
                     );
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'edit_kategori', 'bhp',
-                            'Mengedit kategori ID ' . $id . ' menjadi: ' . ($_POST['nama_kategori'] ?? '') . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'edit_kategori',
+                            'bhp',
+                            'Mengedit kategori ID ' . $id . ' menjadi: ' . ($_POST['nama_kategori'] ?? '') . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -110,18 +142,30 @@ class BhpController
                     $id     = (int)($_POST['id'] ?? 0);
                     $result = $mgr->deleteKategori($id);
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'hapus_kategori', 'bhp',
-                            'Menghapus kategori ID ' . $id . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'hapus_kategori',
+                            'bhp',
+                            'Menghapus kategori ID ' . $id . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
 
                 // ── BHP ───────────────────────────────────────
                 case 'add_bhp':
-                    $result = $mgr->addBhp($_POST);
+                    $result = $mgr->addBhp($_POST, $uid);
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'tambah_bhp', 'bhp',
-                            'Menambahkan BHP: ' . ($_POST['nama_bhp'] ?? '') . ' (kode: ' . ($result['kode'] ?? '') . ').');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'tambah_bhp',
+                            'bhp',
+                            'Menambahkan BHP: ' . ($_POST['nama_bhp'] ?? '') . ' (kode: ' . ($result['kode'] ?? '') . ').'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -130,8 +174,14 @@ class BhpController
                     $id     = (int)($_POST['id'] ?? 0);
                     $result = $mgr->editBhp($id, $_POST);
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'edit_bhp', 'bhp',
-                            'Mengedit BHP ID ' . $id . ': ' . ($_POST['nama_bhp'] ?? '') . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'edit_bhp',
+                            'bhp',
+                            'Mengedit BHP ID ' . $id . ': ' . ($_POST['nama_bhp'] ?? '') . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -140,8 +190,14 @@ class BhpController
                     $id     = (int)($_POST['id'] ?? 0);
                     $result = $mgr->deleteBhp($id);
                     if ($result['success']) {
-                        $log->catat($uid, $uname, $urole, 'hapus_bhp', 'bhp',
-                            'Menghapus BHP ID ' . $id . '.');
+                        $log->catat(
+                            $uid,
+                            $uname,
+                            $urole,
+                            'hapus_bhp',
+                            'bhp',
+                            'Menghapus BHP ID ' . $id . '.'
+                        );
                     }
                     echo json_encode($result);
                     break;
@@ -149,15 +205,15 @@ class BhpController
                 default:
                     echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenali: ' . htmlspecialchars($action)]);
             }
-
         } catch (Throwable $e) {
             if (ob_get_length()) {
                 ob_clean();
             }
             header('Content-Type: application/json; charset=utf-8');
+            error_log('[BhpController] ' . $e->getMessage());
             echo json_encode([
                 'success' => false,
-                'message' => 'Server error: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan di server. Silakan coba lagi.'
             ]);
         }
 

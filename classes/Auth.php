@@ -61,6 +61,8 @@ class Auth
             return ['success' => false, 'message' => 'Email atau password salah.'];
         }
 
+        session_regenerate_id(true);
+
         // Simpan data user ke session (tanpa password)
         $_SESSION[$this->sessionKey] = [
             'id'     => $user['id_user'],
@@ -118,7 +120,7 @@ class Auth
     }
 
     /**
-     * Paksa login — redirect ke Login.php jika belum masuk
+     * Paksa login â€” redirect ke Login.php jika belum masuk
      *
      * @param string $loginUrl Path ke halaman login
      */
@@ -132,7 +134,7 @@ class Auth
     }
 
     /**
-     * Paksa role tertentu — redirect jika role tidak sesuai
+     * Paksa role tertentu â€” redirect jika role tidak sesuai
      *
      * @param string|array $roles Role yang diizinkan
      * @param string $redirectUrl URL redirect jika ditolak

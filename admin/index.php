@@ -1,7 +1,9 @@
-<?php
-/**
- * Admin Dashboard - dilindungi oleh session Auth
- */
+﻿<?php
+// â”€â”€ Session sebelum output apapun â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../vendor/autoload.php';
 use App\Classes\Auth;
 
@@ -104,7 +106,7 @@ if ($page == 'dashboard') {
     <!-- ======================== END SIDEBAR ======================== -->
 
     <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto w-full relative flex flex-col justify-between">
+    <main class="flex-1 overflow-y-auto relative flex flex-col justify-between">
 
       <div class="flex-1 flex flex-col">
         <?php

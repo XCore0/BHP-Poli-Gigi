@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Config;
 
 use PDO;
@@ -30,9 +31,10 @@ class Database
         try {
             $this->pdo = new PDO($dsn, $this->username, $this->password, $options);
         } catch (PDOException $e) {
+            error_log('[Database] ' . $e->getMessage());
             die(json_encode([
                 'status'  => 'error',
-                'message' => 'Koneksi database gagal: ' . $e->getMessage()
+                'message' => 'Koneksi database gagal. Silakan coba lagi nanti.'
             ]));
         }
     }
