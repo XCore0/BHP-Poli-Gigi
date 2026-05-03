@@ -69,6 +69,9 @@ class UserManager
         $email    = trim($data['email'] ?? '');
         $password = $data['password'] ?? '';
         $role     = $data['role'] ?? '';
+        $noTelp   = trim($data['no_telp'] ?? '');
+        $gender   = trim($data['jenis_kelamin'] ?? '');
+        $tglBergabung = trim($data['tanggal_bergabung'] ?? '');
 
         // Validasi input
         if (empty($nama) || empty($email) || empty($password) || empty($role)) {
@@ -88,6 +91,17 @@ class UserManager
             return ['success' => false, 'message' => 'Role tidak valid.'];
         }
 
+        // Validasi jenis kelamin (opsional)
+        $allowedGender = ['Laki-laki', 'Perempuan', ''];
+        if (!in_array($gender, $allowedGender)) {
+            $gender = '';
+        }
+
+        // Default tanggal bergabung ke hari ini jika kosong
+        if (empty($tglBergabung)) {
+            $tglBergabung = date('Y-m-d');
+        }
+
         // Cek duplikasi email
         $cek = $this->db->prepare('SELECT id_user FROM user WHERE Email = ? LIMIT 1');
         $cek->execute([$email]);
@@ -99,12 +113,17 @@ class UserManager
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         $stmt = $this->db->prepare(
-            'INSERT INTO user (Nama_lengkap, Email, Password, Role, Status_akun)
-             VALUES (?, ?, ?, ?, "aktif")'
+            'INSERT INTO user (Nama_lengkap, Email, Password, Role, Status_akun, No_telp, Jenis_kelamin, Tanggal_bergabung)
+             VALUES (?, ?, ?, ?, "aktif", ?, ?, ?)'
         );
-        $stmt->execute([$nama, $email, $hashedPassword, $role]);
+        $stmt->execute([
+            $nama, $email, $hashedPassword, $role,
+            $noTelp ?: null, $gender ?: null, $tglBergabung
+        ]);
 
-        return ['success' => true, 'message' => 'Pengguna berhasil ditambahkan.'];
+        $newId = (int) $this->db->lastInsertId();
+
+        return ['success' => true, 'message' => 'Pengguna berhasil ditambahkan.', 'id' => $newId];
     }
 
     /**

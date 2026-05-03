@@ -42,7 +42,7 @@ function stokStatus(int $jumlah): array
 
 <!-- ===== MODAL TAMBAH / EDIT BHP ===== -->
 <div id="modalBhp"
-  class="hidden fixed inset-0 z-50 items-center justify-center p-4"
+  class="hidden fixed inset-0 z-[9999] items-center justify-center p-4"
   style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
   onclick="if(event.target===this)closeBhpModal()">
   <div class="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl"
@@ -427,6 +427,9 @@ function stokStatus(int $jumlah): array
     document.getElementById('bhpAction').value = id ? 'edit_bhp' : 'add_bhp';
     document.getElementById('bhpModalTitle').textContent = id ? 'Edit Data BHP' : 'Tambah Barang Baru';
     const m = document.getElementById('modalBhp');
+    if (m.parentNode !== document.body) {
+      document.body.appendChild(m);
+    }
     m.classList.remove('hidden');
     m.classList.add('flex');
   }

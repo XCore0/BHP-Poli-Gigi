@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Halaman Satuan BHP - Admin
  */
@@ -13,7 +13,7 @@ $keyword    = $_GET['keyword'] ?? '';
 
 <!-- ===== MODAL TAMBAH SATUAN ===== -->
 <div id="modalTambahSatuan"
-  class="hidden fixed inset-0 z-50 items-center justify-center p-4"
+  class="hidden fixed inset-0 z-[9999] items-center justify-center p-4"
   style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
   onclick="if(event.target===this)closeSatuanModal()">
   <div class="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
@@ -191,6 +191,9 @@ function openSatuanModal(id = '', nama = '') {
   document.getElementById('satuanAction').value   = id ? 'edit_satuan' : 'add_satuan';
   document.getElementById('satuanModalTitle').textContent = id ? 'Edit Satuan' : 'Tambah Satuan Baru';
   const m = document.getElementById('modalTambahSatuan');
+  if (m.parentNode !== document.body) {
+    document.body.appendChild(m);
+  }
   m.classList.remove('hidden'); m.classList.add('flex');
 }
 function closeSatuanModal() {

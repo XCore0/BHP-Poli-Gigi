@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Halaman Kategori BHP - Dokter (Dinamis)
  */
@@ -9,7 +9,7 @@ $kategoriList = $mgr->getAllKategori();
 
 <!-- ===== MODAL TAMBAH / EDIT KATEGORI ===== -->
 <div id="modalKategori"
-  class="hidden fixed inset-0 z-50 items-center justify-center p-4"
+  class="hidden fixed inset-0 z-[9999] items-center justify-center p-4"
   style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
   onclick="if(event.target===this)closeKategoriModal()">
   <div class="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl"
@@ -192,6 +192,9 @@ function openKategoriModal(id='', nama='', kode='') {
   document.getElementById('kategoriAction').value = id ? 'edit_kategori' : 'add_kategori';
   document.getElementById('kategoriModalTitle').textContent = id ? 'Edit Kategori' : 'Tambah Kategori Baru';
   const m = document.getElementById('modalKategori');
+  if (m.parentNode !== document.body) {
+    document.body.appendChild(m);
+  }
   m.classList.remove('hidden'); m.classList.add('flex');
 }
 function closeKategoriModal() {

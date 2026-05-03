@@ -38,8 +38,22 @@ class UserController
                     'email'    => $_POST['email']    ?? '',
                     'password' => $_POST['password'] ?? '',
                     'role'     => $_POST['role']     ?? '',
+                    'no_telp'  => $_POST['no_telp']  ?? '',
+                    'jenis_kelamin'     => $_POST['jenis_kelamin']     ?? '',
+                    'tanggal_bergabung' => $_POST['tanggal_bergabung'] ?? '',
                 ]);
                 if ($result['success']) {
+                    // Handle foto upload jika ada
+                    if (!empty($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                        $uploadDir = __DIR__ . '/../assets/uploads/foto_profil';
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0755, true);
+                        }
+                        $newUserId = $result['id'] ?? 0;
+                        if ($newUserId > 0) {
+                            $manager->uploadFoto($newUserId, $_FILES['foto'], $uploadDir);
+                        }
+                    }
                     $currentUser = $auth->getCurrentUser();
                     (new ActivityLog())->logTambahPengguna(
                         (int) $currentUser['id'],

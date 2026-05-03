@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <!-- ===== MODAL TAMBAH / EDIT KATEGORI ===== -->
 <div id="modalKategori"
-  class="hidden fixed inset-0 z-50 items-center justify-center p-4"
+  class="hidden fixed inset-0 z-[9999] items-center justify-center p-4"
   style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
   onclick="if(event.target===this)closeKategoriModal()">
   <div class="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl"
@@ -223,6 +223,9 @@ if (session_status() === PHP_SESSION_NONE) {
     }
 
     const m = document.getElementById('modalKategori');
+    if (m.parentNode !== document.body) {
+      document.body.appendChild(m);
+    }
     m.classList.remove('hidden');
     m.classList.add('flex');
   }

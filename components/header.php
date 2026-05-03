@@ -9,7 +9,7 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
 ?>
 
 <!-- ======================== LOGOUT MODAL ======================== -->
-<div id="logout-modal" class="fixed inset-0 z-[999] hidden items-center justify-center px-4"
+<div id="logout-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center px-4"
   style="background: rgba(15,23,42,0.55); backdrop-filter: blur(4px);">
   <div id="logout-modal-card"
     class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden"
@@ -142,6 +142,9 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
   function showLogoutModal() {
     const modal = document.getElementById('logout-modal');
     const card  = document.getElementById('logout-modal-card');
+    if (modal.parentNode !== document.body) {
+      document.body.appendChild(modal);
+    }
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     card.style.animation = 'logoutModalIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards';

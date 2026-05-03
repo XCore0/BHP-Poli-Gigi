@@ -182,117 +182,187 @@ if ($export === 'excel' || $export === 'pdf') {
 <!-- ======================================================
      MODAL TAMBAH PENGGUNA
      ====================================================== -->
-<div id="modal-tambah" class="fixed inset-0 z-50 hidden items-center justify-center px-4">
-  <!-- Backdrop -->
-  <div id="modal-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-    onclick="closeModal()"></div>
+<div id="modal-tambah" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4"
+  style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
+  onclick="if(event.target===this)closeModal()">
 
   <!-- Modal Card -->
-  <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-modal">
+  <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" 
+    style="animation: modalIn .25s cubic-bezier(.34,1.56,.64,1) both; max-height:90vh;">
 
-    <!-- Top accent -->
-    <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #006B47 0%, #07FFA7 100%);"></div>
-
-    <!-- Header -->
-    <div class="flex items-center justify-between px-7 pt-7 pb-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center"
-          style="background: #ECFDF5; border: 1px solid #A7F3D0;">
-          <i class="fas fa-user-plus text-brand-600" style="color: #059669;"></i>
-        </div>
-        <div>
-          <h2 class="font-display font-bold text-slate-800 text-lg">Tambah Pengguna</h2>
-          <p class="font-plex text-xs text-slate-400">Buat akun pengguna baru</p>
-        </div>
-      </div>
-      <button onclick="closeModal()"
-        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-        <i class="fas fa-times text-sm"></i>
-      </button>
+    <!-- Gradient Header -->
+    <div class="relative px-7 pt-6 pb-5 flex-shrink-0"
+      style="background:radial-gradient(ellipse at 0% 0%,#006B47 0%,#1A9F70 60%,#1DB879 100%);">
+      <button type="button" onclick="closeModal()"
+        class="absolute top-4 right-5 text-white/70 hover:text-white text-xl leading-none transition-colors">&times;</button>
+      <h2 class="font-bold text-white text-xl leading-tight">Tambah Pengguna</h2>
+      <p class="text-white/80 text-sm mt-1">Lengkapi data untuk menambahkan pengguna baru.</p>
     </div>
 
-    <!-- Divider -->
-    <div class="border-t border-slate-100 mx-7"></div>
+    <!-- Alert -->
+    <div id="modal-alert" class="hidden mx-6 mt-4 px-4 py-3 rounded-xl text-sm font-plex font-medium flex items-center gap-2 flex-shrink-0"></div>
 
-    <!-- Alert (hidden by default) -->
-    <div id="modal-alert" class="hidden mx-7 mt-4 px-4 py-3 rounded-xl text-sm font-plex font-medium flex items-center gap-2"></div>
+    <!-- Form (scrollable body) -->
+    <form id="form-tambah-user" class="flex-1 overflow-y-auto px-6 py-5 space-y-5" enctype="multipart/form-data">
 
-    <!-- Form -->
-    <form id="form-tambah-user" class="px-7 py-5 space-y-4">
-      <!-- Nama Lengkap -->
-      <div>
-        <label class="block text-sm font-plex font-semibold text-slate-700 mb-1.5">
-          Nama Lengkap <span class="text-red-500">*</span>
-        </label>
-        <input type="text" name="nama" id="input-nama"
-          placeholder="cth: Drg. Budi Santoso, Sp.KG"
-          class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:border-transparent placeholder:text-slate-400"
-          style="--tw-ring-color: #059669;" required>
+      <!-- SECTION: Akun -->
+      <div class="flex items-center gap-3">
+        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Informasi Akun</span>
+        <div class="flex-1 h-px bg-slate-100"></div>
       </div>
+      <!-- 2-col grid: Nama + Email -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Nama -->
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Lengkap <span class="text-red-400">*</span></label>
+          <div class="relative">
+            <i class="fas fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+            <input type="text" name="nama" id="input-nama" placeholder="cth: Drg. Budi Santoso, Sp.KG"
+              class="w-full h-11 pl-10 pr-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 placeholder:text-slate-300 transition-all"
+              required>
+          </div>
+        </div>
 
-      <!-- Email -->
-      <div>
-        <label class="block text-sm font-plex font-semibold text-slate-700 mb-1.5">
-          Email Login <span class="text-red-500">*</span>
-        </label>
-        <input type="email" name="email" id="input-email"
-          placeholder="email@poligigi.com"
-          class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:border-transparent placeholder:text-slate-400"
-          style="--tw-ring-color: #059669;" required>
-      </div>
+        <!-- Email -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Login <span class="text-red-400">*</span></label>
+          <div class="relative">
+            <i class="fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+            <input type="email" name="email" id="input-email" placeholder="email@poligigi.com"
+              class="w-full h-11 pl-10 pr-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 placeholder:text-slate-300 transition-all"
+              required>
+          </div>
+        </div>
 
-      <!-- Password -->
+        <!-- Role -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Role / Hak Akses <span class="text-red-400">*</span></label>
+          <div class="relative">
+            <i class="fas fa-shield-halved absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm z-10 pointer-events-none"></i>
+            <select name="role" id="input-role"
+              class="w-full h-11 pl-10 pr-8 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 appearance-none transition-all"
+              required>
+              <option value="" disabled selected>-- Pilih role --</option>
+              <option value="admin">Admin</option>
+              <option value="dokter">Dokter</option>
+              <option value="kepala_klinik">Kepala Klinik</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-xs pointer-events-none"></i>
+          </div>
+        </div>
+      </div><!-- end 2-col grid akun -->
+
+      <!-- Password full width -->
       <div>
-        <label class="block text-sm font-plex font-semibold text-slate-700 mb-1.5">
-          Password <span class="text-red-500">*</span>
-          <span class="text-slate-400 font-normal">(minimal 6 karakter)</span>
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+          Password <span class="text-red-400">*</span>
+          <span class="text-slate-400 font-normal normal-case ml-1">(minimal 6 karakter)</span>
         </label>
         <div class="relative">
-          <input type="password" name="password" id="input-password"
-            placeholder="Buat password yang kuat"
-            class="w-full h-11 pl-4 pr-10 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:border-transparent placeholder:text-slate-400"
-            style="--tw-ring-color: #059669;" required minlength="6">
+          <i class="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+          <input type="password" name="password" id="input-password" placeholder="Buat password yang kuat"
+            class="w-full h-11 pl-10 pr-11 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 placeholder:text-slate-300 transition-all"
+            required minlength="6">
           <button type="button" onclick="toggleModalPwd()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors text-sm">
-            <i id="modal-eye" class="fas fa-eye"></i>
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
+            <i id="modal-eye" class="fas fa-eye text-sm"></i>
           </button>
         </div>
-        <!-- Strength bar -->
-        <div class="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-          <div id="pwd-strength-bar" class="h-full rounded-full transition-all duration-300" style="width:0;background:#e5e7eb;"></div>
+        <div class="mt-2 h-1 bg-slate-100 rounded-full overflow-hidden">
+          <div id="pwd-strength-bar" class="h-full rounded-full transition-all duration-500" style="width:0;background:#e5e7eb;"></div>
         </div>
         <p id="pwd-strength-text" class="text-[11px] font-plex text-slate-400 mt-1"></p>
       </div>
 
-      <!-- Role -->
-      <div>
-        <label class="block text-sm font-plex font-semibold text-slate-700 mb-1.5">
-          Role / Hak Akses <span class="text-red-500">*</span>
-        </label>
-        <select name="role" id="input-role"
-          class="w-full h-11 px-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 bg-white focus:outline-none focus:ring-2 focus:border-transparent"
-          style="--tw-ring-color: #059669;" required>
-          <option value="" disabled selected>-- Pilih role --</option>
-          <option value="admin">Admin</option>
-          <option value="dokter">Dokter</option>
-          <option value="kepala_klinik">Kepala Klinik</option>
-        </select>
+      <!-- SECTION: Profil -->
+      <div class="flex items-center gap-3">
+        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Informasi Profil</span>
+        <div class="flex-1 h-px bg-slate-100"></div>
       </div>
 
-      <!-- Footer Buttons -->
-      <div class="flex items-center gap-3 pt-2">
-        <button type="button" onclick="closeModal()"
-          class="flex-1 h-11 border border-slate-200 rounded-xl text-sm font-plex font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-          Batal
-        </button>
-        <button type="submit" id="btn-simpan"
-          class="flex-1 h-11 rounded-xl text-sm font-plex font-bold text-white flex items-center justify-center gap-2 transition-all"
-          style="background: linear-gradient(135deg, #047857 0%, #34D399 100%); box-shadow: 0 4px 12px rgba(5,150,105,0.3);">
-          <i id="btn-simpan-icon" class="fas fa-user-plus text-sm"></i>
-          <span id="btn-simpan-text">Simpan Pengguna</span>
-        </button>
+      <!-- Foto Profil -->
+      <div class="flex items-start gap-5">
+        <div class="relative cursor-pointer flex-shrink-0" onclick="document.getElementById('input-foto').click()" title="Klik untuk upload foto">
+          <div id="foto-avatar" class="w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden bg-slate-100 border-2 border-dashed border-slate-300 hover:border-emerald-400 hover:bg-emerald-50 transition-all">
+            <i id="foto-placeholder-icon" class="fas fa-camera text-slate-400 text-2xl"></i>
+            <img id="foto-preview-img" src="" alt="Preview" class="w-full h-full object-cover hidden">
+          </div>
+          <div class="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full bg-white border border-slate-100 flex items-center justify-center shadow-sm text-emerald-600 hover:scale-110 transition-transform">
+            <i class="fas fa-plus text-[10px] font-black"></i>
+          </div>
+          <input type="file" name="foto" id="input-foto" accept="image/jpeg,image/png,image/webp"
+            class="hidden" onchange="previewFoto(this)">
+        </div>
+        <div class="pt-2">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Foto Profil <span class="text-slate-400 font-normal normal-case">(Opsional)</span></label>
+          <p class="text-xs text-slate-500 mb-2 leading-relaxed">Format yang didukung: JPG, PNG, atau WEBP. <br>Ukuran maksimal file adalah 2MB.</p>
+          <button type="button" onclick="document.getElementById('input-foto').click()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors">
+            Pilih Foto
+          </button>
+        </div>
       </div>
-    </form>
+
+      <!-- Profil fields 2-col -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- No. Telepon -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. Telepon</label>
+          <div class="relative">
+            <i class="fas fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+            <input type="tel" name="no_telp" id="input-no-telp" placeholder="08123456789"
+              class="w-full h-11 pl-10 pr-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 placeholder:text-slate-300 transition-all">
+          </div>
+        </div>
+        <!-- Tanggal Bergabung -->
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tanggal Bergabung</label>
+          <div class="relative">
+            <i class="fas fa-calendar-check absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none z-10"></i>
+            <input type="date" name="tanggal_bergabung" id="input-tanggal-bergabung"
+              value="<?php echo date('Y-m-d'); ?>"
+              class="w-full h-11 pl-10 pr-4 border border-slate-200 rounded-xl text-sm font-plex text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400/30 focus:border-emerald-400 transition-all">
+          </div>
+        </div>
+        <!-- Jenis Kelamin full width -->
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Kelamin</label>
+          <div class="flex gap-3">
+            <label class="flex-1 flex items-center gap-3 px-4 py-3 border-2 border-slate-100 rounded-xl cursor-pointer hover:border-blue-200 hover:bg-blue-50/40 transition-all has-[:checked]:border-blue-400 has-[:checked]:bg-blue-50">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-mars text-blue-500 text-sm"></i>
+              </div>
+              <input type="radio" name="jenis_kelamin" value="Laki-laki" class="sr-only">
+              <span class="text-sm font-semibold font-plex text-slate-700">Laki-laki</span>
+              <div class="border-slate-300 flex items-center justify-center flex-shrink-0 has-[:checked]:border-blue-500">
+              </div>
+            </label>
+            <label class="flex-1 flex items-center gap-3 px-4 py-3 border-2 border-slate-100 rounded-xl cursor-pointer hover:border-pink-200 hover:bg-pink-50/40 transition-all has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+              <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-venus text-pink-500 text-sm"></i>
+              </div>
+              <input type="radio" name="jenis_kelamin" value="Perempuan" class="sr-only">
+              <span class="text-sm font-semibold font-plex text-slate-700">Perempuan</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </form><!-- end scrollable form -->
+
+    <!-- Sticky Footer -->
+    <div class="flex-shrink-0 px-6 py-4 border-t border-slate-100 bg-white flex items-center gap-3">
+      <button type="button" onclick="closeModal()"
+        class="flex-1 h-11 border-2 border-slate-200 rounded-xl text-sm font-plex font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+        Batal
+      </button>
+      <button type="submit" form="form-tambah-user" id="btn-simpan"
+        class="flex-1 h-11 rounded-xl text-sm font-plex font-bold text-white flex items-center justify-center gap-2 transition-all"
+        style="background:linear-gradient(135deg,#047857 0%,#34D399 100%);box-shadow:0 4px 14px rgba(5,150,105,0.35);">
+        <i id="btn-simpan-icon" class="fas fa-user-plus text-sm"></i>
+        <span id="btn-simpan-text">Simpan Pengguna</span>
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -858,16 +928,60 @@ if ($export === 'excel' || $export === 'pdf') {
   /* ─── Modal ──────────────────────────────────────────────── */
   function openModal() {
     const m = document.getElementById('modal-tambah');
+    // Pindahkan ke body agar tidak terhalang stacking context dari <main> (termasuk efek view-transition)
+    if (m.parentNode !== document.body) {
+      document.body.appendChild(m);
+    }
     m.classList.remove('hidden');
     m.classList.add('flex');
     document.getElementById('form-tambah-user').reset();
     hideModalAlert();
     resetPwdStrength();
+    resetFotoPreview();
+    // Reset tanggal bergabung ke hari ini
+    const tglInput = document.getElementById('input-tanggal-bergabung');
+    if (tglInput) tglInput.value = new Date().toISOString().slice(0, 10);
   }
   function closeModal() {
     const m = document.getElementById('modal-tambah');
     m.classList.add('hidden');
     m.classList.remove('flex');
+  }
+
+  /* ─── Foto Preview ──────────────────────────────────────── */
+  function previewFoto(input) {
+    const preview = document.getElementById('foto-preview-img');
+    const icon    = document.getElementById('foto-placeholder-icon');
+    const label   = document.getElementById('foto-filename');
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      if (file.size > 2 * 1024 * 1024) {
+        showModalAlert('Ukuran foto maksimal 2MB.', 'error');
+        input.value = '';
+        resetFotoPreview();
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        icon.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+      label.textContent = file.name;
+      label.classList.remove('text-slate-400');
+      label.classList.add('text-slate-700');
+    } else {
+      resetFotoPreview();
+    }
+  }
+  function resetFotoPreview() {
+    const preview = document.getElementById('foto-preview-img');
+    const icon    = document.getElementById('foto-placeholder-icon');
+    const label   = document.getElementById('foto-filename');
+    if (preview) { preview.src = ''; preview.classList.add('hidden'); }
+    if (icon)    { icon.classList.remove('hidden'); }
+    if (label)   { label.textContent = 'Pilih foto (maks 2MB)'; label.className = label.className.replace('text-slate-700','text-slate-400'); }
   }
 
   /* â”€â”€â”€ Toggle Modal Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -1021,3 +1135,9 @@ if ($export === 'excel' || $export === 'pdf') {
     } catch { showToast('Gagal menghapus pengguna.', 'error'); }
   }
 </script>
+<style>
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(16px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+</style>
