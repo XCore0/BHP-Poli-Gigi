@@ -79,12 +79,14 @@ $today    = date('Y-m-d');
                       class="w-full border border-slate-200 bg-white rounded-xl h-11 pl-10 pr-10 text-[14px] text-slate-700 font-medium outline-none focus:border-brand-500 appearance-none transition-colors">
                       <option value="" disabled selected>Pilih BHP...</option>
                       <?php foreach ($bhpList as $b): ?>
-                      <option value="<?= $b['id_bhp'] ?>"
-                        data-nama="<?= htmlspecialchars($b['Nama_bhp']) ?>"
-                        data-satuan="<?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>"
-                        data-stok="<?= $b['Jumlah'] ?>">
-                        <?= htmlspecialchars($b['Nama_bhp']) ?> â€” Stok: <?= $b['Jumlah'] ?> <?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>
-                      </option>
+                        <?php if ((int)$b['Jumlah'] > 0): ?>
+                          <option value="<?= $b['id_bhp'] ?>"
+                            data-nama="<?= htmlspecialchars($b['Nama_bhp']) ?>"
+                            data-satuan="<?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>"
+                            data-stok="<?= $b['Jumlah'] ?>">
+                            <?= htmlspecialchars($b['Nama_bhp']) ?> â€” Stok: <?= $b['Jumlah'] ?> <?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>
+                          </option>
+                        <?php endif; ?>
                       <?php endforeach; ?>
                     </select>
                     <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none"></i>

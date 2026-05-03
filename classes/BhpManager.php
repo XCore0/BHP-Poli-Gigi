@@ -247,12 +247,11 @@ class BhpManager
     {
         $nama   = trim($data['nama_bhp']    ?? '');
         $kode   = trim($data['kode_bhp']    ?? '') ?: $this->generateKodeBhp();
-        $jumlah = max(0, (int)($data['jumlah']    ?? 0));
-        $isi    = max(1, (int)($data['isi_per_stok'] ?? 1));
+        $jumlah = 0; // Stok dibuat 0 secara default
         $id_kat = (int)($data['id_kategori'] ?? 0) ?: null;
         $id_sat = (int)($data['id_satuan']   ?? 0) ?: null;
         
-        $pemakaian = $jumlah * $isi;
+        $pemakaian = 0; // Total pemakaian dibuat 0 secara default
 
         if ($nama === '') return ['success' => false, 'message' => 'Nama BHP tidak boleh kosong.'];
 
@@ -266,10 +265,10 @@ class BhpManager
             $this->db->beginTransaction();
 
             $stmt = $this->db->prepare(
-                'INSERT INTO bhp (Kode_bhp, Nama_bhp, Jumlah, isi_per_stok, Pemakaian, id_kategori, id_satuan)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+                'INSERT INTO bhp (Kode_bhp, Nama_bhp, Jumlah, Pemakaian, id_kategori, id_satuan)
+                 VALUES (?, ?, ?, ?, ?, ?)'
             );
-            $stmt->execute([$kode ?: null, $nama, $jumlah, $isi, $pemakaian, $id_kat, $id_sat]);
+            $stmt->execute([$kode ?: null, $nama, $jumlah, $pemakaian, $id_kat, $id_sat]);
             $id_bhp = (int)$this->db->lastInsertId();
 
             // Jika ada stok awal, masukkan ke riwayat stok masuk agar terhitung di Pemakaian
@@ -300,12 +299,10 @@ class BhpManager
     {
         $nama   = trim($data['nama_bhp']    ?? '');
         $kode   = trim($data['kode_bhp']    ?? '');
-        $jumlah = max(0, (int)($data['jumlah']    ?? 0));
-        $isi    = max(1, (int)($data['isi_per_stok'] ?? 1));
         $id_kat = (int)($data['id_kategori'] ?? 0) ?: null;
         $id_sat = (int)($data['id_satuan']   ?? 0) ?: null;
         
-        $pemakaian = $jumlah * $isi;
+
 
         if ($nama === '') return ['success' => false, 'message' => 'Nama BHP tidak boleh kosong.'];
 
@@ -316,9 +313,9 @@ class BhpManager
         }
 
         $stmt = $this->db->prepare(
-            'UPDATE bhp SET Kode_bhp=?, Nama_bhp=?, Jumlah=?, isi_per_stok=?, Pemakaian=?, id_kategori=?, id_satuan=? WHERE id_bhp=?'
+            'UPDATE bhp SET Kode_bhp=?, Nama_bhp=?, id_kategori=?, id_satuan=? WHERE id_bhp=?'
         );
-        $stmt->execute([$kode ?: null, $nama, $jumlah, $isi, $pemakaian, $id_kat, $id_sat, $id]);
+        $stmt->execute([$kode ?: null, $nama, $id_kat, $id_sat, $id]);
         return ['success' => true, 'message' => "BHP \"$nama\" berhasil diperbarui."];
     }
 

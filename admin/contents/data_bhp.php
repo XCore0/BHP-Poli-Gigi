@@ -92,18 +92,8 @@ function stokStatus(int $jumlah): array
           class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" />
       </div>
 
-      <!-- Row 3: Stok + Isi Per Stok + Satuan -->
-      <div class="grid grid-cols-3 gap-5">
-        <div class="flex flex-col gap-1.5">
-          <label for="bhpJumlah" class="text-sm font-semibold text-slate-700">Stok Awal</label>
-          <input id="bhpJumlah" name="jumlah" type="number" value="0" min="0"
-            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label for="bhpIsi" class="text-sm font-semibold text-slate-700">Pemakaian / Stok</label>
-          <input id="bhpIsi" name="isi_per_stok" type="number" value="1" min="1"
-            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-sm" />
-        </div>
+      <!-- Row 3: Satuan -->
+      <div class="grid grid-cols-1 gap-5">
         <div class="flex flex-col gap-1.5">
           <label for="bhpSatuan" class="text-sm font-semibold text-slate-700">Satuan</label>
           <div class="relative group">
@@ -285,7 +275,6 @@ function stokStatus(int $jumlah): array
                   </td>
                   <td class="py-5 px-6 font-medium text-slate-500">
                     <div class="font-bold text-emerald-600 text-sm"><?php echo number_format((int)$bhp['Pemakaian']); ?></div>
-                    <div class="text-[10px] text-slate-400">Pcs (<?php echo (int)($bhp['isi_per_stok'] ?? 1); ?> per unit)</div>
                   </td>
                   <td class="py-5 px-6">
                     <span class="<?php echo $status['cls']; ?> font-bold text-[11px] tracking-widest uppercase">
@@ -410,12 +399,10 @@ function stokStatus(int $jumlah): array
   }
 
   /* ── Modal ───────────────────────────────────── */
-  function openBhpModal(id = '', kode = '', nama = '', jumlah = 0, isi = 1, id_kat = '', id_sat = '') {
+  function openBhpModal(id = '', kode = '', nama = '', id_kat = '', id_sat = '') {
     document.getElementById('bhpId').value = id;
     document.getElementById('bhpKode').value = kode;
     document.getElementById('bhpNama').value = nama;
-    document.getElementById('bhpJumlah').value = jumlah;
-    document.getElementById('bhpIsi').value = isi;
 
     const katSel = document.getElementById('bhpKategori');
     const satSel = document.getElementById('bhpSatuan');
@@ -454,7 +441,7 @@ function stokStatus(int $jumlah): array
 
   /* ── Edit ────────────────────────────────────── */
   function editBhp(d) {
-    openBhpModal(d.id_bhp, d.Kode_bhp || '', d.Nama_bhp, d.Jumlah, d.isi_per_stok || 1, d.id_kategori || '', d.id_satuan || '');
+    openBhpModal(d.id_bhp, d.Kode_bhp || '', d.Nama_bhp, d.id_kategori || '', d.id_satuan || '');
   }
 
   /* ── Delete ──────────────────────────────────── */
