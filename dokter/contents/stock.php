@@ -203,24 +203,19 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
   <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <!-- MODAL: Input Stok Masuk                               -->
   <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-  <div id="modalStokMasuk" class="fixed inset-0 z-[99] hidden flex items-center justify-center font-plex">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeModalStok()"></div>
-
+  <div id="modalStokMasuk" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 font-plex"
+    style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
+    onclick="if(event.target===this)closeModalStok()">
+    
     <!-- Modal Content -->
-    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl m-4 overflow-hidden flex flex-col">
+    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+      style="animation: modalIn .25s cubic-bezier(.34,1.56,.64,1) both;">
 
       <!-- Banner Header -->
-      <div class="p-6" style="background: linear-gradient(135deg, #006B47 0%, #10B981 100%);">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white">
-            <i class="fas fa-arrow-down shadow-sm"></i>
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-white mb-0.5">Input Stok Masuk</h2>
-            <p class="text-[13px] text-emerald-50">Catat penerimaan barang baru (Restock)</p>
-          </div>
-        </div>
+      <div class="relative px-7 pt-6 pb-5 flex-shrink-0" style="background: radial-gradient(ellipse at 0% 0%, #006B47 0%, #1A9F70 60%, #1DB879 100%);">
+        <button type="button" onclick="closeModalStok()" class="absolute top-4 right-5 text-white/70 hover:text-white text-xl leading-none transition-colors">&times;</button>
+        <h2 class="font-bold text-white text-xl leading-tight">Input Stok Masuk</h2>
+        <p class="text-white/80 text-sm mt-1">Catat penerimaan barang baru (Restock).</p>
       </div>
 
       <!-- Form -->
@@ -308,10 +303,17 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
 
 // â”€â”€ Modal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openModalStok() {
-  document.getElementById('modalStokMasuk').classList.remove('hidden');
+  const m = document.getElementById('modalStokMasuk');
+  if (m.parentNode !== document.body) {
+    document.body.appendChild(m);
+  }
+  m.classList.remove('hidden');
+  m.classList.add('flex');
 }
 function closeModalStok() {
-  document.getElementById('modalStokMasuk').classList.add('hidden');
+  const m = document.getElementById('modalStokMasuk');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
   document.getElementById('formStokMasuk').reset();
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('inputTglTerima').value = today;
@@ -486,3 +488,10 @@ function deleteStok(id, btn) {
   });
 }
 </script>
+
+<style>
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.92) translateY(16px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+</style>
