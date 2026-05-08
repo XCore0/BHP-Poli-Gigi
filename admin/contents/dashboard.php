@@ -1,33 +1,34 @@
-2<?php
-  /**
-   * Dashboard Admin – Data real dari database
-   */
-  require_once __DIR__ . '/../../vendor/autoload.php';
+<?php
 
-  use App\Classes\UserManager;
-  use App\Classes\BhpManager;
-  use App\Classes\ActivityLog;
+/**
+ * Dashboard Admin – Data real dari database
+ */
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-  $userMgr  = new UserManager();
-  $bhpMgr   = new BhpManager();
-  $logObj   = new ActivityLog();
+use App\Classes\UserManager;
+use App\Classes\BhpManager;
+use App\Classes\ActivityLog;
 
-  // Stats real
-  $totalPengguna = $userMgr->countAll();
-  $totalBhp      = count($bhpMgr->getAllBhp());
+$userMgr  = new UserManager();
+$bhpMgr   = new BhpManager();
+$logObj   = new ActivityLog();
 
-  // BHP dengan stok menipis (jumlah <= 10)
-  $allBhp        = $bhpMgr->getAllBhp();
-  $stokMenipis   = array_filter($allBhp, fn($b) => (int)($b['Jumlah'] ?? 0) <= 10);
-  $jumlahMenipis = count($stokMenipis);
+// Stats real
+$totalPengguna = $userMgr->countAll();
+$totalBhp      = count($bhpMgr->getAllBhp());
 
-  // Log hari ini
-  $logHariIni  = $logObj->countToday();
-  $logTerbaru  = $logObj->getLogs([], 5, 0);
+// BHP dengan stok menipis (jumlah <= 10)
+$allBhp        = $bhpMgr->getAllBhp();
+$stokMenipis   = array_filter($allBhp, fn($b) => (int)($b['Jumlah'] ?? 0) <= 10);
+$jumlahMenipis = count($stokMenipis);
 
-  // BHP stok menipis (5 teratas)
-  $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
-  ?>
+// Log hari ini
+$logHariIni  = $logObj->countToday();
+$logTerbaru  = $logObj->getLogs([], 5, 0);
+
+// BHP stok menipis (5 teratas)
+$stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
+?>
 
 <div class="w-full p-4 sm:p-6 lg:p-8">
   <div class="max-w-[1400px] mx-auto space-y-6 w-full">

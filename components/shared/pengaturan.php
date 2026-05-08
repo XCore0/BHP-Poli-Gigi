@@ -6,7 +6,6 @@ $auth  = new Auth();
 $user  = $auth->getCurrentUser();
 $uid   = (int)($user['id'] ?? 0);
 $mgr   = new UserManager();
-$pref  = $mgr->getPreferensi($uid);
 ?>
 
 <div class="w-full p-4 sm:p-6 lg:p-8">
@@ -36,11 +35,7 @@ $pref  = $mgr->getPreferensi($uid);
               class="text-left w-full nav-tab px-5 py-4 border-l-4 border-brand-500 bg-brand-50/50 text-brand-700 font-bold text-[14px] flex items-center gap-3">
               <i class="fas fa-shield-alt w-5 text-center"></i> Keamanan Akun
             </button>
-            <button type="button" onclick="showSection('notif')"
-              id="nav-notif"
-              class="text-left w-full nav-tab px-5 py-4 border-l-4 border-transparent text-slate-600 font-semibold text-[14px] flex items-center gap-3 hover:bg-slate-50 transition-colors">
-              <i class="far fa-bell w-5 text-center"></i> Notifikasi Sistem
-            </button>
+
           </nav>
         </div>
       </div>
@@ -113,48 +108,7 @@ $pref  = $mgr->getPreferensi($uid);
           </div>
         </div>
 
-        <!-- SECTION: Notifikasi -->
-        <div id="sec-notif">
-          <div class="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-6 border-b border-slate-100">
-              <h3 class="text-[16px] font-bold text-slate-800 font-display">Pengaturan Notifikasi</h3>
-              <p class="text-[12px] text-slate-500 font-medium">Pilih aktivitas yang ingin Anda terima sebagai notifikasi.</p>
-            </div>
-            <form id="formNotif" onsubmit="simpanNotif(event)" class="p-6 sm:p-8 flex flex-col gap-6">
 
-              <!-- Toggle: Stok Kurang -->
-              <div class="flex items-center justify-between gap-4">
-                <div>
-                  <h4 class="text-[14px] font-bold text-slate-800 mb-0.5">Peringatan Stok Kurang</h4>
-                  <p class="text-[12px] text-slate-500 font-medium">Tampilkan peringatan ketika stok BHP menyentuh batas minimum.</p>
-                </div>
-                <label class="relative inline-flex flex-shrink-0 cursor-pointer items-center">
-                  <input type="checkbox" name="notif_stok_kurang" class="peer sr-only" <?= $pref['notif_stok_kurang'] ? 'checked' : '' ?>>
-                  <div class="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-brand-500 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full shadow-inner"></div>
-                </label>
-              </div>
-
-              <!-- Toggle: Laporan Harian -->
-              <div class="flex items-center justify-between gap-4">
-                <div>
-                  <h4 class="text-[14px] font-bold text-slate-800 mb-0.5">Laporan Pemakaian Harian</h4>
-                  <p class="text-[12px] text-slate-500 font-medium">Tampilkan ringkasan pemakaian BHP setiap hari di dashboard.</p>
-                </div>
-                <label class="relative inline-flex flex-shrink-0 cursor-pointer items-center">
-                  <input type="checkbox" name="notif_laporan_harian" class="peer sr-only" <?= $pref['notif_laporan_harian'] ? 'checked' : '' ?>>
-                  <div class="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-brand-500 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full shadow-inner"></div>
-                </label>
-              </div>
-
-              <div class="pt-2 flex justify-end">
-                <button type="submit" id="btnSimpanNotif"
-                  class="bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold text-[13px] hover:bg-brand-700 transition shadow-sm flex items-center gap-2">
-                  <i class="fas fa-save text-[11px]"></i> Simpan Preferensi
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
 
       </div>
     </div>
@@ -175,15 +129,8 @@ function showToastSet(msg, ok=true) {
 
 // Tab navigation
 function showSection(sec) {
-  ['keamanan','notif'].forEach(s => {
-    document.getElementById('nav-'+s).className = 'nav-tab px-5 py-4 border-l-4 border-transparent text-slate-600 font-semibold text-[14px] flex items-center gap-3 hover:bg-slate-50 transition-colors';
-  });
-  document.getElementById('nav-'+sec).className = 'nav-tab px-5 py-4 border-l-4 border-brand-500 bg-brand-50/50 text-brand-700 font-bold text-[14px] flex items-center gap-3';
-  // Scroll to section smoothly
-  const el = document.getElementById('sec-' + sec);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  // Since we only have one section now, this is mostly for compatibility
+  // but we can remove it if we remove the sidebar entirely.
 }
 
 // Toggle password visibility
@@ -230,18 +177,5 @@ function gantiPassword(e) {
   .finally(()=>{btn.disabled=false; btn.innerHTML='<i class="fas fa-key text-[11px]"></i> Perbarui Kata Sandi';});
 }
 
-// Simpan Notifikasi
-function simpanNotif(e) {
-  e.preventDefault();
-  const btn = document.getElementById('btnSimpanNotif');
-  const fd  = new FormData(document.getElementById('formNotif'));
-  fd.append('action', 'save_preferensi');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[11px]"></i> Menyimpan...';
-  fetch('/BHP-Poli-Gigi/process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
-  .then(r=>r.json()).then(res=>{
-    showToastSet(res.message, res.success);
-  }).catch(()=>showToastSet('Koneksi gagal.', false))
-  .finally(()=>{btn.disabled=false; btn.innerHTML='<i class="fas fa-save text-[11px]"></i> Simpan Preferensi';});
-}
+
 </script>
