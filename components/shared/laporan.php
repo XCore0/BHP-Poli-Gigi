@@ -171,9 +171,13 @@ function getInitial(string $name): string {
         </button>
       </div>
       <div class="flex items-center gap-3 w-full xl:w-auto mt-4 xl:mt-0 pt-4 xl:pt-0 border-t xl:border-t-0 border-slate-100">
-        <button type="button" onclick="window.print()"
+        <button type="button" onclick="exportLaporan('pdf')"
           class="flex-1 xl:flex-none h-11 px-5 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
-          <i class="far fa-file-pdf"></i> Cetak PDF
+          <i class="far fa-file-pdf"></i> Export PDF
+        </button>
+        <button type="button" onclick="exportLaporan('excel')"
+          class="flex-1 xl:flex-none h-11 px-5 rounded-xl text-sm font-semibold text-emerald-600 border border-emerald-100 bg-emerald-50/50 flex items-center justify-center gap-2 hover:bg-emerald-50 transition-colors">
+          <i class="far fa-file-excel"></i> Export Excel
         </button>
       </div>
     </form>
@@ -352,11 +356,17 @@ function getInitial(string $name): string {
     </div>
 
     <div class="flex items-center justify-between mt-2">
-      <!-- Cetak Button -->
-      <button onclick="window.print()"
-        class="h-11 px-5 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
-        <i class="far fa-file-pdf"></i> Cetak PDF
-      </button>
+      <!-- Export Buttons -->
+      <div class="flex items-center gap-2">
+        <button onclick="exportLaporan('pdf')"
+          class="h-11 px-5 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
+          <i class="far fa-file-pdf"></i> Export PDF
+        </button>
+        <button onclick="exportLaporan('excel')"
+          class="h-11 px-5 rounded-xl text-sm font-semibold text-emerald-600 border border-emerald-100 bg-emerald-50/50 flex items-center justify-center gap-2 hover:bg-emerald-50 transition-colors">
+          <i class="far fa-file-excel"></i> Export Excel
+        </button>
+      </div>
 
       <!-- Pagination Section 2 -->
       <?php if ($totalPage2 > 1): ?>
@@ -385,3 +395,21 @@ function getInitial(string $name): string {
 
   </div>
 </div>
+
+<script>
+function exportLaporan(type) {
+  const params = new URLSearchParams(window.location.search);
+  const tglMulai = document.querySelector('[name="tgl_mulai"]')?.value || params.get('tgl_mulai') || '';
+  const tglAkhir = document.querySelector('[name="tgl_akhir"]')?.value || params.get('tgl_akhir') || '';
+  const keyword  = document.querySelector('[name="keyword"]')?.value  || params.get('keyword')  || '';
+
+  const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+  url.searchParams.set('type', type);
+  url.searchParams.set('page', 'laporan');
+  if (tglMulai) url.searchParams.set('tgl_mulai', tglMulai);
+  if (tglAkhir) url.searchParams.set('tgl_akhir', tglAkhir);
+  if (keyword)  url.searchParams.set('keyword', keyword);
+
+  window.location.href = url.toString();
+}
+</script>

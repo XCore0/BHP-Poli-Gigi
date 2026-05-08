@@ -206,16 +206,17 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') closeKategoriMo
 
 function editKategori(id, nama, kode='') { openKategoriModal(id, nama, kode); }
 
-async function deleteKategori(id, nama) {
-  if (!confirm(`Hapus kategori "${nama}"?\nBHP yang menggunakan kategori ini akan menjadi tanpa kategori.`)) return;
-  const fd = new FormData();
-  fd.append('action','delete_kategori'); fd.append('id',id);
-  try {
-    const res  = await fetch(KAT_URL,{method:'POST',body:fd});
-    const json = await res.json();
-    if(json.success){showToastKat(json.message,'success');setTimeout(()=>location.reload(),900);}
-    else showToastKat(json.message,'error');
-  } catch { showToastKat('Gagal menghapus kategori.','error'); }
+function deleteKategori(id, nama) {
+  showDeleteConfirm('Hapus Kategori?', `Hapus kategori "${nama}"? BHP yang menggunakan kategori ini akan menjadi tanpa kategori.`, async () => {
+    const fd = new FormData();
+    fd.append('action','delete_kategori'); fd.append('id',id);
+    try {
+      const res  = await fetch(KAT_URL,{method:'POST',body:fd});
+      const json = await res.json();
+      if(json.success){showToastKat(json.message,'success');setTimeout(()=>location.reload(),900);}
+      else showToastKat(json.message,'error');
+    } catch { showToastKat('Gagal menghapus kategori.','error'); }
+  });
 }
 
 document.getElementById('formKategori').addEventListener('submit', async function(e){

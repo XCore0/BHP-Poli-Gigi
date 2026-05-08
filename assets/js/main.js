@@ -116,3 +116,90 @@ function updatePageContent(newDoc) {
     });
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// Global Delete Confirm Modal
+// Usage: showDeleteConfirm('Hapus BHP?', 'Detail pesan', () => yourDeleteFn())
+// ═══════════════════════════════════════════════════════════════════
+(function initDeleteModal() {
+  const MODAL_ID = '__global_delete_modal__';
+  let _resolveCallback = null;
+
+  function ensureModal() {
+    if (document.getElementById(MODAL_ID)) return;
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div id="${MODAL_ID}" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4"
+        style="background:rgba(15,23,42,0.52);backdrop-filter:blur(4px);"
+        onclick="if(event.target.id==='${MODAL_ID}')window.__closeDeleteModal()">
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+          style="animation:_delModalIn .25s cubic-bezier(.34,1.56,.64,1) both">
+          <div class="p-6 text-center">
+            <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
+            </div>
+            <h3 id="${MODAL_ID}_title" class="font-display font-bold text-slate-800 text-lg mb-1">Hapus?</h3>
+            <p id="${MODAL_ID}_msg" class="font-plex text-slate-500 text-sm">Tindakan ini tidak dapat dibatalkan.</p>
+          </div>
+          <div class="flex gap-3 px-6 pb-6">
+            <button onclick="window.__closeDeleteModal()"
+              class="flex-1 h-11 border-2 border-slate-200 rounded-xl text-sm font-plex font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+              Batal
+            </button>
+            <button id="${MODAL_ID}_btn" onclick="window.__confirmDelete()"
+              class="flex-1 h-11 rounded-xl text-sm font-plex font-bold text-white"
+              style="background:linear-gradient(135deg,#dc2626 0%,#ef4444 100%);box-shadow:0 4px 14px rgba(220,38,38,0.35);">
+              <i class="fas fa-trash-alt mr-1 text-sm"></i> Ya, Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(div.firstElementChild);
+
+    // Add keyframe if not already added
+    if (!document.getElementById('_delModalStyle')) {
+      const style = document.createElement('style');
+      style.id = '_delModalStyle';
+      style.textContent = '@keyframes _delModalIn{from{opacity:0;transform:scale(.9) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}';
+      document.head.appendChild(style);
+    }
+  }
+
+  window.__closeDeleteModal = function() {
+    const m = document.getElementById(MODAL_ID);
+    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+    _resolveCallback = null;
+  };
+
+  window.__confirmDelete = async function() {
+    const btn = document.getElementById(MODAL_ID + '_btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Menghapus...'; }
+    if (typeof _resolveCallback === 'function') {
+      try { await _resolveCallback(); } catch(e) { console.error(e); }
+    }
+    window.__closeDeleteModal();
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash-alt mr-1 text-sm"></i> Ya, Hapus'; }
+  };
+
+  /**
+   * showDeleteConfirm(title, message, onConfirm)
+   * Shows a custom animated delete confirm modal.
+   * onConfirm: async function to call when user confirms
+   */
+  window.showDeleteConfirm = function(title, message, onConfirm) {
+    ensureModal();
+    document.getElementById(MODAL_ID + '_title').textContent = title || 'Konfirmasi Hapus';
+    document.getElementById(MODAL_ID + '_msg').textContent   = message || 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.';
+    _resolveCallback = onConfirm;
+    const m = document.getElementById(MODAL_ID);
+    m.classList.remove('hidden'); m.classList.add('flex');
+  };
+
+  // Escape key closes modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById(MODAL_ID) && !document.getElementById(MODAL_ID).classList.contains('hidden')) {
+      window.__closeDeleteModal();
+    }
+  });
+})();

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Halaman Data BHP - Admin (Dinamis)
@@ -214,6 +214,17 @@ function stokStatus(int $jumlah): array
             <i class="fas fa-times mr-1"></i> Reset
           </a>
         <?php endif; ?>
+        <!-- Export buttons -->
+        <div class="flex gap-2 ml-auto">
+          <button type="button" onclick="exportBhp('pdf')"
+            class="h-11 px-4 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center gap-2 hover:bg-red-50 transition-colors shrink-0 whitespace-nowrap">
+            <i class="far fa-file-pdf"></i> Export PDF
+          </button>
+          <button type="button" onclick="exportBhp('excel')"
+            class="h-11 px-4 rounded-xl text-sm font-semibold text-emerald-600 border border-emerald-100 bg-emerald-50/50 flex items-center gap-2 hover:bg-emerald-50 transition-colors shrink-0 whitespace-nowrap">
+            <i class="far fa-file-excel"></i> Export Excel
+          </button>
+        </div>
       </form>
 
       <!-- Table -->
@@ -445,24 +456,22 @@ function stokStatus(int $jumlah): array
   }
 
   /* ── Delete ──────────────────────────────────── */
-  async function deleteBhp(id, nama) {
-    if (!confirm(`Hapus BHP "${nama}"?\nTindakan ini tidak dapat dibatalkan.`)) return;
-    const fd = new FormData();
-    fd.append('action', 'delete_bhp');
-    fd.append('id', id);
-    try {
-      const res = await fetch(BHP_URL, {
-        method: 'POST',
-        body: fd
-      });
-      const json = await res.json();
-      if (json.success) {
-        showToastBhp(json.message, 'success');
-        setTimeout(() => location.reload(), 900);
-      } else showToastBhp(json.message, 'error');
-    } catch {
-      showToastBhp('Gagal menghapus BHP.', 'error');
-    }
+  function deleteBhp(id, nama) {
+    showDeleteConfirm(
+      'Hapus BHP?',
+      `Anda akan menghapus BHP "${nama}". Tindakan ini tidak dapat dibatalkan.`,
+      async () => {
+        const fd = new FormData();
+        fd.append('action', 'delete_bhp');
+        fd.append('id', id);
+        try {
+          const res = await fetch(BHP_URL, { method: 'POST', body: fd });
+          const json = await res.json();
+          if (json.success) { showToastBhp(json.message, 'success'); setTimeout(() => location.reload(), 900); }
+          else showToastBhp(json.message, 'error');
+        } catch { showToastBhp('Gagal menghapus BHP.', 'error'); }
+      }
+    );
   }
 
   /* ── Form Submit ─────────────────────────────── */
@@ -512,5 +521,17 @@ function stokStatus(int $jumlah): array
       t.style.animation = 'toastOut2 .3s ease forwards';
       setTimeout(() => t.classList.add('hidden'), 300);
     }, 3000);
+  }
+
+  function exportBhp(type) {
+    const params = new URLSearchParams(window.location.search);
+    const keyword = document.querySelector('[name="keyword"]')?.value   || params.get('keyword')     || '';
+    const idKat   = document.querySelector('[name="id_kategori"]')?.value || params.get('id_kategori') || '';
+    const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+    url.searchParams.set('type', type);
+    url.searchParams.set('page', 'bhp');
+    if (keyword) url.searchParams.set('keyword', keyword);
+    if (idKat)   url.searchParams.set('id_kategori', idKat);
+    window.location.href = url.toString();
   }
 </script>

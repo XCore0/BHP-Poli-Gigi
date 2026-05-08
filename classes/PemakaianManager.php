@@ -166,14 +166,13 @@ class PemakaianManager
             // Insert header
             $stmtH = $this->db->prepare("
                 INSERT INTO pemakaian_bhp
-                    (tanggal, id_user, unit_tindakan, lokasi, nama_pasien, catatan)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (tanggal, id_user, unit_tindakan, nama_pasien, catatan)
+                VALUES (?, ?, ?, ?, ?)
             ");
             $stmtH->execute([
                 $tanggal,
                 $userId > 0 ? $userId : null,
                 $unit_tindakan ?: null,
-                $lokasi        ?: null,
                 $nama_pasien   ?: null,
                 $catatan       ?: null,
             ]);
@@ -184,10 +183,12 @@ class PemakaianManager
                 INSERT INTO pemakaian_bhp_detail (id_pemakaian, id_bhp, jumlah, kondisi)
                 VALUES (?, ?, ?, ?)
             ");
+            // Update: kurangi Pemakaian (unit kecil), recalculate Jumlah (kotak)
+            // Jumlah = FLOOR(sisa_Pemakaian / isi_per_stok)
             $stmtUpd = $this->db->prepare("
                 UPDATE bhp
                 SET Pemakaian = GREATEST(0, Pemakaian - ?),
-                    Jumlah    = CEIL(GREATEST(0, Pemakaian - ?) / NULLIF(isi_per_stok, 0))
+                    Jumlah    = FLOOR(GREATEST(0, Pemakaian - ?) / NULLIF(isi_per_stok, 0))
                 WHERE id_bhp = ?
             ");
 
@@ -198,7 +199,10 @@ class PemakaianManager
 
                 if ($id_bhp <= 0) continue;
 
-                $stmtD->execute([$idPemakaian, $id_bhp, $jumlah, $kondisi]);
+            $stmtD->execute([$idPemakaian, $id_bhp, $jumlah, $kondisi]);
+
+                // Kurangi Pemakaian (unit kecil) lalu recalculate Jumlah (kotak/stok)
+                // Jumlah = FLOOR(sisa_pemakaian / isi_per_stok)
                 $stmtUpd->execute([$jumlah, $jumlah, $id_bhp]);
             }
 
@@ -236,10 +240,11 @@ class PemakaianManager
 
             // Kembalikan stok bhp
             if (!empty($details)) {
+                // Kembalikan Pemakaian (unit kecil), recalculate Jumlah (kotak)
                 $stmtUpd = $this->db->prepare("
                     UPDATE bhp
                     SET Pemakaian = Pemakaian + ?,
-                        Jumlah    = CEIL((Pemakaian + ?) / NULLIF(isi_per_stok, 0))
+                        Jumlah    = FLOOR((Pemakaian + ?) / NULLIF(isi_per_stok, 0))
                     WHERE id_bhp = ?
                 ");
                 foreach ($details as $d) {

@@ -446,24 +446,24 @@ if (!function_exists('stokStatus')) {
   }
 
   /* ── Delete ──────────────────────────────────── */
-  async function deleteBhp(id, nama) {
-    if (!confirm(`Hapus BHP "${nama}"?\nTindakan ini tidak dapat dibatalkan.`)) return;
-    const fd = new FormData();
-    fd.append('action', 'delete_bhp');
-    fd.append('id', id);
-    try {
-      const res = await fetch(BHP_URL, {
-        method: 'POST',
-        body: fd
-      });
-      const json = await res.json();
-      if (json.success) {
-        showToastBhp(json.message, 'success');
-        setTimeout(() => location.reload(), 900);
-      } else showToastBhp(json.message, 'error');
-    } catch {
-      showToastBhp('Gagal menghapus BHP.', 'error');
-    }
+  function deleteBhp(id, nama) {
+    showDeleteConfirm(
+      'Hapus BHP?',
+      `Anda akan menghapus "${nama}". Tindakan ini tidak dapat dibatalkan.`,
+      async () => {
+        const fd = new FormData();
+        fd.append('action', 'delete_bhp');
+        fd.append('id', id);
+        try {
+          const res = await fetch(BHP_URL, { method: 'POST', body: fd });
+          const json = await res.json();
+          if (json.success) {
+            showToastBhp(json.message, 'success');
+            setTimeout(() => location.reload(), 900);
+          } else showToastBhp(json.message, 'error');
+        } catch { showToastBhp('Gagal menghapus BHP.', 'error'); }
+      }
+    );
   }
 
   /* ── Form Submit ─────────────────────────────── */
@@ -513,5 +513,17 @@ if (!function_exists('stokStatus')) {
       t.style.animation = 'toastOut2 .3s ease forwards';
       setTimeout(() => t.classList.add('hidden'), 300);
     }, 3000);
+  }
+
+  function exportBhp(type) {
+    const params = new URLSearchParams(window.location.search);
+    const keyword = document.querySelector('[name="keyword"]')?.value   || params.get('keyword')     || '';
+    const idKat   = document.querySelector('[name="id_kategori"]')?.value || params.get('id_kategori') || '';
+    const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+    url.searchParams.set('type', type);
+    url.searchParams.set('page', 'bhp');
+    if (keyword) url.searchParams.set('keyword', keyword);
+    if (idKat)   url.searchParams.set('id_kategori', idKat);
+    window.location.href = url.toString();
   }
 </script>

@@ -14,7 +14,7 @@ class PemakaianController
 {
     public function handleRequest(): void
     {
-        ini_set('display_errors', 0);
+        ini_set('display_errors', 1); // Diubah ke 1 untuk menampilkan error debug
         error_reporting(E_ALL);
         ob_start();
 

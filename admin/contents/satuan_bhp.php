@@ -206,18 +206,23 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSatuanM
 /* â”€â”€ Edit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function editSatuan(id, nama) { openSatuanModal(id, nama); }
 
-/* â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-async function deleteSatuan(id, nama) {
-  if (!confirm(`Hapus satuan "${nama}"?\nTindakan ini tidak dapat dibatalkan.`)) return;
-  const fd = new FormData();
-  fd.append('action', 'delete_satuan');
-  fd.append('id', id);
-  try {
-    const res  = await fetch(SATUAN_PROCESS_URL, { method:'POST', body:fd });
-    const json = await res.json();
-    if (json.success) { showToastSatuan(json.message, 'success'); setTimeout(() => location.reload(), 900); }
-    else showToastSatuan(json.message, 'error');
-  } catch { showToastSatuan('Gagal menghapus satuan.', 'error'); }
+/* ── Delete ────────────────────────────────────────────────── */
+function deleteSatuan(id, nama) {
+  showDeleteConfirm(
+    'Hapus Satuan?',
+    `Hapus satuan "${nama}"? Tindakan ini tidak dapat dibatalkan.`,
+    async () => {
+      const fd = new FormData();
+      fd.append('action', 'delete_satuan');
+      fd.append('id', id);
+      try {
+        const res  = await fetch(SATUAN_PROCESS_URL, { method:'POST', body:fd });
+        const json = await res.json();
+        if (json.success) { showToastSatuan(json.message, 'success'); setTimeout(() => location.reload(), 900); }
+        else showToastSatuan(json.message, 'error');
+      } catch { showToastSatuan('Gagal menghapus satuan.', 'error'); }
+    }
+  );
 }
 
 /* â”€â”€ Form submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */

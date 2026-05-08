@@ -1,32 +1,33 @@
-<?php
-/**
- * Dashboard Admin – Data real dari database
- */
-require_once __DIR__ . '/../../vendor/autoload.php';
-use App\Classes\UserManager;
-use App\Classes\BhpManager;
-use App\Classes\ActivityLog;
+2<?php
+  /**
+   * Dashboard Admin – Data real dari database
+   */
+  require_once __DIR__ . '/../../vendor/autoload.php';
 
-$userMgr  = new UserManager();
-$bhpMgr   = new BhpManager();
-$logObj   = new ActivityLog();
+  use App\Classes\UserManager;
+  use App\Classes\BhpManager;
+  use App\Classes\ActivityLog;
 
-// Stats real
-$totalPengguna = $userMgr->countAll();
-$totalBhp      = count($bhpMgr->getAllBhp());
+  $userMgr  = new UserManager();
+  $bhpMgr   = new BhpManager();
+  $logObj   = new ActivityLog();
 
-// BHP dengan stok menipis (jumlah <= 10)
-$allBhp        = $bhpMgr->getAllBhp();
-$stokMenipis   = array_filter($allBhp, fn($b) => (int)($b['Jumlah'] ?? 0) <= 10);
-$jumlahMenipis = count($stokMenipis);
+  // Stats real
+  $totalPengguna = $userMgr->countAll();
+  $totalBhp      = count($bhpMgr->getAllBhp());
 
-// Log hari ini
-$logHariIni  = $logObj->countToday();
-$logTerbaru  = $logObj->getLogs([], 5, 0);
+  // BHP dengan stok menipis (jumlah <= 10)
+  $allBhp        = $bhpMgr->getAllBhp();
+  $stokMenipis   = array_filter($allBhp, fn($b) => (int)($b['Jumlah'] ?? 0) <= 10);
+  $jumlahMenipis = count($stokMenipis);
 
-// BHP stok menipis (5 teratas)
-$stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
-?>
+  // Log hari ini
+  $logHariIni  = $logObj->countToday();
+  $logTerbaru  = $logObj->getLogs([], 5, 0);
+
+  // BHP stok menipis (5 teratas)
+  $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
+  ?>
 
 <div class="w-full p-4 sm:p-6 lg:p-8">
   <div class="max-w-[1400px] mx-auto space-y-6 w-full">
@@ -133,45 +134,45 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
         </div>
         <div class="divide-y divide-slate-50">
           <?php if (empty($logTerbaru)): ?>
-          <div class="px-6 py-10 text-center text-slate-400">
-            <i class="fas fa-heart-pulse text-3xl opacity-30 block mb-2"></i>
-            <p class="text-sm">Belum ada aktivitas tercatat.</p>
-          </div>
+            <div class="px-6 py-10 text-center text-slate-400">
+              <i class="fas fa-heart-pulse text-3xl opacity-30 block mb-2"></i>
+              <p class="text-sm">Belum ada aktivitas tercatat.</p>
+            </div>
           <?php else: ?>
-          <?php foreach ($logTerbaru as $log):
-            $avatarStyle = match($log['role_user']) {
-              'admin'         => 'background:linear-gradient(135deg,#c7d2fe,#6366f1);color:#1e1b4b',
-              'dokter'        => 'background:linear-gradient(135deg,#a7f3d0,#059669);color:#065f46',
-              'kepala_klinik' => 'background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f',
-              default         => 'background:#e2e8f0;color:#475569',
-            };
-            $aksiBadge = match($log['kategori']) {
-              'auth'     => 'bg-blue-50 text-blue-600',
-              'pengguna' => 'bg-purple-50 text-purple-600',
-              'bhp'      => 'bg-emerald-50 text-emerald-600',
-              'stok'     => 'bg-cyan-50 text-cyan-600',
-              'laporan'  => 'bg-amber-50 text-amber-600',
-              default    => 'bg-slate-100 text-slate-500',
-            };
-            $aksiLabel = ucwords(str_replace('_', ' ', $log['aksi']));
-            $ts = strtotime($log['waktu']);
-            $waktuLabel = (date('Y-m-d',$ts)===date('Y-m-d'))
-              ? 'Hari ini, '.date('H:i',$ts)
-              : date('d/m/Y H:i',$ts);
-          ?>
-          <div class="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50/50 transition-colors">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="<?php echo $avatarStyle; ?>">
-              <?php echo strtoupper(substr($log['nama_user'],0,1)); ?>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-plex text-sm font-medium text-slate-700 truncate"><?php echo htmlspecialchars($log['nama_user']); ?></p>
-              <p class="font-plex text-xs text-slate-400"><?php echo $waktuLabel; ?></p>
-            </div>
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold font-plex <?php echo $aksiBadge; ?> flex-shrink-0">
-              <?php echo htmlspecialchars($aksiLabel); ?>
-            </span>
-          </div>
-          <?php endforeach; ?>
+            <?php foreach ($logTerbaru as $log):
+              $avatarStyle = match ($log['role_user']) {
+                'admin'         => 'background:linear-gradient(135deg,#c7d2fe,#6366f1);color:#1e1b4b',
+                'dokter'        => 'background:linear-gradient(135deg,#a7f3d0,#059669);color:#065f46',
+                'kepala_klinik' => 'background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f',
+                default         => 'background:#e2e8f0;color:#475569',
+              };
+              $aksiBadge = match ($log['kategori']) {
+                'auth'     => 'bg-blue-50 text-blue-600',
+                'pengguna' => 'bg-purple-50 text-purple-600',
+                'bhp'      => 'bg-emerald-50 text-emerald-600',
+                'stok'     => 'bg-cyan-50 text-cyan-600',
+                'laporan'  => 'bg-amber-50 text-amber-600',
+                default    => 'bg-slate-100 text-slate-500',
+              };
+              $aksiLabel = ucwords(str_replace('_', ' ', $log['aksi']));
+              $ts = strtotime($log['waktu']);
+              $waktuLabel = (date('Y-m-d', $ts) === date('Y-m-d'))
+                ? 'Hari ini, ' . date('H:i', $ts)
+                : date('d/m/Y H:i', $ts);
+            ?>
+              <div class="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50/50 transition-colors">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="<?php echo $avatarStyle; ?>">
+                  <?php echo strtoupper(substr($log['nama_user'], 0, 1)); ?>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-plex text-sm font-medium text-slate-700 truncate"><?php echo htmlspecialchars($log['nama_user']); ?></p>
+                  <p class="font-plex text-xs text-slate-400"><?php echo $waktuLabel; ?></p>
+                </div>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold font-plex <?php echo $aksiBadge; ?> flex-shrink-0">
+                  <?php echo htmlspecialchars($aksiLabel); ?>
+                </span>
+              </div>
+            <?php endforeach; ?>
           <?php endif; ?>
         </div>
       </div>
@@ -189,28 +190,28 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
         </div>
         <div class="divide-y divide-slate-50">
           <?php if (empty($stokMenipisArr)): ?>
-          <div class="px-6 py-10 text-center text-slate-400">
-            <i class="fas fa-circle-check text-3xl text-emerald-300 block mb-2"></i>
-            <p class="text-sm font-plex font-medium text-emerald-600">Semua stok aman!</p>
-            <p class="text-xs mt-1">Tidak ada BHP yang perlu segera diisi.</p>
-          </div>
+            <div class="px-6 py-10 text-center text-slate-400">
+              <i class="fas fa-circle-check text-3xl text-emerald-300 block mb-2"></i>
+              <p class="text-sm font-plex font-medium text-emerald-600">Semua stok aman!</p>
+              <p class="text-xs mt-1">Tidak ada BHP yang perlu segera diisi.</p>
+            </div>
           <?php else: ?>
-          <?php foreach ($stokMenipisArr as $bhp):
-            $pct = min(100, max(0, (int)($bhp['Jumlah'] ?? 0) * 10));
-            $color = ($bhp['Jumlah'] ?? 0) <= 3 ? '#EF4444' : '#F59E0B';
-          ?>
-          <div class="px-6 py-3.5 hover:bg-slate-50/50 transition-colors">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="font-plex text-sm font-semibold text-slate-700 truncate max-w-[140px]"><?php echo htmlspecialchars($bhp['Nama_bhp']); ?></span>
-              <span class="font-plex text-xs font-bold ml-2 <?php echo ($bhp['Jumlah'] ?? 0) <= 3 ? 'text-red-600' : 'text-amber-600'; ?>">
-                <?php echo (int)($bhp['Jumlah'] ?? 0); ?> <?php echo htmlspecialchars($bhp['Nama_satuan'] ?? 'Unit'); ?>
-              </span>
-            </div>
-            <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all duration-500" style="width:<?php echo $pct; ?>%;background:<?php echo $color; ?>;"></div>
-            </div>
-          </div>
-          <?php endforeach; ?>
+            <?php foreach ($stokMenipisArr as $bhp):
+              $pct = min(100, max(0, (int)($bhp['Jumlah'] ?? 0) * 10));
+              $color = ($bhp['Jumlah'] ?? 0) <= 3 ? '#EF4444' : '#F59E0B';
+            ?>
+              <div class="px-6 py-3.5 hover:bg-slate-50/50 transition-colors">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-plex text-sm font-semibold text-slate-700 truncate max-w-[140px]"><?php echo htmlspecialchars($bhp['Nama_bhp']); ?></span>
+                  <span class="font-plex text-xs font-bold ml-2 <?php echo ($bhp['Jumlah'] ?? 0) <= 3 ? 'text-red-600' : 'text-amber-600'; ?>">
+                    <?php echo (int)($bhp['Jumlah'] ?? 0); ?> <?php echo htmlspecialchars($bhp['Nama_satuan'] ?? 'Unit'); ?>
+                  </span>
+                </div>
+                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500" style="width:<?php echo $pct; ?>%;background:<?php echo $color; ?>;"></div>
+                </div>
+              </div>
+            <?php endforeach; ?>
           <?php endif; ?>
         </div>
       </div>

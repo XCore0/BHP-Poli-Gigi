@@ -5,11 +5,8 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Classes\BhpManager;
 use App\Classes\PemakaianManager;
-use App\Classes\ActivityLog;
-
 $bhpMgr    = new BhpManager();
 $pemMgr    = new PemakaianManager();
-$logObj    = new ActivityLog();
 
 // Stats real
 $allBhp      = $bhpMgr->getAllBhp();
@@ -26,10 +23,6 @@ foreach ($allPemakaian as $p) {
         $totalPemakaianBulanIni += (int)($p['jumlah_item'] ?? 0);
     }
 }
-
-// Log aktivitas terbaru (semua user)
-$logTerbaru = $logObj->getLogs([], 5, 0);
-$logHariIni = $logObj->countToday();
 
 // Pemakaian terbaru
 $pemakaianTerbaru = $pemMgr->getAllPemakaian(['limit' => 5]);
@@ -69,20 +62,46 @@ $greeting = $jam < 12 ? 'Selamat Pagi' : ($jam < 15 ? 'Selamat Siang' : ($jam < 
           <span class="font-bold text-white"><?php echo $jmlMenipis; ?> item</span> yang perlu perhatian stok.
         </p>
         <div class="flex flex-wrap gap-3 mt-7">
-          <a href="index.php?page=log"
-            class="bg-white text-[#006B47] px-6 py-3 rounded-xl font-bold text-[13px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
-            <i class="fas fa-heart-pulse text-[12px]"></i> Lihat Log Aktivitas
-          </a>
-          <a href="index.php?page=laporan"
-            class="bg-white/10 text-white border border-white/20 hover:bg-white/20 backdrop-blur-sm px-6 py-3 rounded-xl font-bold text-[13px] transition-all flex items-center gap-2">
-            <i class="fas fa-chart-bar text-[12px]"></i> Laporan Pemakaian
-          </a>
+          <!-- Dropdown Laporan -->
+          <div class="relative" x-data="{ open: false }" @click.away="open = false">
+            <button @click="open = !open"
+              class="bg-white text-emerald-700 hover:bg-white/90 px-6 py-3 rounded-xl font-bold text-[13px] transition-all flex items-center gap-2 shadow-lg">
+              <i class="fas fa-chart-bar text-[12px]"></i>
+              Cetak Laporan
+              <i class="fas fa-chevron-down text-[10px] transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+            </button>
+            
+            <div x-show="open" 
+              x-transition:enter="transition ease-out duration-150"
+              x-transition:enter-start="opacity-0 scale-95"
+              x-transition:enter-end="opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-100"
+              x-transition:leave-start="opacity-100 scale-100"
+              x-transition:leave-end="opacity-0 scale-95"
+              class="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden z-50">
+              <div class="px-4 py-3 border-b border-slate-50 bg-slate-50/50">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pilih Jenis Laporan</p>
+              </div>
+              <a href="index.php?page=laporan" class="flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                  <i class="fas fa-file-medical-alt text-sm"></i>
+                </div>
+                <span class="text-sm font-semibold text-slate-700">Laporan Pemakaian</span>
+              </a>
+              <a href="index.php?page=laporan_stok" class="flex items-center gap-3 px-4 py-3 hover:bg-emerald-50 transition-colors group">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                  <i class="fas fa-boxes-stacked text-sm"></i>
+                </div>
+                <span class="text-sm font-semibold text-slate-700">Laporan Stok Masuk</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-3 gap-5">
       <!-- Total BHP -->
       <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow group relative overflow-hidden">
         <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-50 rounded-bl-full -z-10 opacity-50 group-hover:scale-110 transition-transform"></div>
@@ -128,80 +147,13 @@ $greeting = $jam < 12 ? 'Selamat Pagi' : ($jam < 15 ? 'Selamat Siang' : ($jam < 
         </div>
       </div>
 
-      <!-- Log Hari Ini -->
-      <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow group relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-20 h-20 bg-purple-50 rounded-bl-full -z-10 opacity-50 group-hover:scale-110 transition-transform"></div>
-        <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-sm border border-purple-100/50 group-hover:-translate-y-1 transition-transform">
-          <i class="text-xl fas fa-clipboard-list"></i>
-        </div>
-        <div class="z-10">
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Log Hari Ini</p>
-          <div class="flex items-end gap-1.5">
-            <h4 class="text-[26px] font-display font-bold text-slate-800 leading-none"><?php echo $logHariIni; ?></h4>
-            <span class="text-[12px] font-semibold text-slate-500 mb-1">Aktivitas</span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Bottom Two Columns -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- Left: Pemakaian Terbaru + Log -->
+      <!-- Left: Pemakaian Terbaru -->
       <div class="lg:col-span-2 flex flex-col gap-6">
-
-        <!-- Log Aktivitas Terbaru -->
-        <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                <i class="fas fa-heart-pulse text-purple-500 text-sm"></i>
-              </div>
-              <h3 class="font-display font-bold text-slate-800 text-[15px]">Log Aktivitas Terbaru</h3>
-            </div>
-            <a href="index.php?page=log" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
-              Lihat Semua <i class="fas fa-arrow-right text-[10px]"></i>
-            </a>
-          </div>
-          <div class="divide-y divide-slate-50">
-            <?php if (empty($logTerbaru)): ?>
-            <div class="px-6 py-10 text-center text-slate-400">
-              <p class="text-sm">Belum ada aktivitas tercatat.</p>
-            </div>
-            <?php else: ?>
-            <?php foreach ($logTerbaru as $log):
-              $aksiBadge = match($log['kategori']) {
-                'auth'     => 'bg-blue-50 text-blue-600',
-                'pengguna' => 'bg-purple-50 text-purple-600',
-                'bhp'      => 'bg-emerald-50 text-emerald-600',
-                'stok'     => 'bg-cyan-50 text-cyan-600',
-                default    => 'bg-slate-100 text-slate-500',
-              };
-              $avatarStyle = match($log['role_user']) {
-                'admin'         => 'background:linear-gradient(135deg,#c7d2fe,#6366f1);color:#1e1b4b',
-                'dokter'        => 'background:linear-gradient(135deg,#a7f3d0,#059669);color:#065f46',
-                'kepala_klinik' => 'background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f',
-                default         => 'background:#e2e8f0;color:#475569',
-              };
-              $ts = strtotime($log['waktu']);
-              $waktuLabel = date('Y-m-d',$ts)===date('Y-m-d') ? 'Hari ini, '.date('H:i',$ts) : date('d/m H:i',$ts);
-            ?>
-            <div class="flex items-center gap-3 px-6 py-3.5 hover:bg-slate-50/50 transition-colors">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="<?php echo $avatarStyle; ?>">
-                <?php echo strtoupper(substr($log['nama_user'],0,1)); ?>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-slate-700 truncate"><?php echo htmlspecialchars($log['nama_user']); ?></p>
-                <p class="text-xs text-slate-400"><?php echo $waktuLabel; ?></p>
-              </div>
-              <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold <?php echo $aksiBadge; ?> flex-shrink-0 whitespace-nowrap">
-                <?php echo ucwords(str_replace('_',' ',$log['aksi'])); ?>
-              </span>
-            </div>
-            <?php endforeach; ?>
-            <?php endif; ?>
-          </div>
-        </div>
 
         <!-- Pemakaian Terbaru -->
         <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">

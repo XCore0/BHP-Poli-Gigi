@@ -399,38 +399,15 @@ if ($export === 'excel' || $export === 'pdf') {
             <i class="fas fa-plus"></i> Tambah Pengguna
           </button>
         </div>
-        <div id="banner-action-log" class="<?= $activeTab === 'log' ? '' : 'hidden' ?> relative">
-          <button onclick="toggleExportDropdown()"
-            class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-plex font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-colors flex-shrink-0" id="btn-export-log">
-            <i class="fas fa-download"></i> Export Log
-            <i class="fas fa-chevron-down text-[10px]"></i>
+        <div id="banner-action-log" class="<?= $activeTab === 'log' ? '' : 'hidden' ?> flex items-center gap-2">
+          <button onclick="exportLogAktivitas('pdf')"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-plex font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-colors flex-shrink-0">
+            <i class="far fa-file-pdf"></i> Export PDF
           </button>
-          <!-- Export Dropdown -->
-          <div id="export-dropdown" class="hidden absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 min-w-[200px]">
-            <div class="px-4 py-3 border-b border-slate-100">
-              <p class="font-plex text-xs font-semibold text-slate-500 uppercase tracking-wider">Format Export</p>
-            </div>
-            <a href="<?php echo '?page=pengguna&export=excel' . (!empty($logFilter['keyword']) ? '&log_keyword='.urlencode($logFilter['keyword']) : '') . (!empty($logFilter['kategori']) ? '&log_kategori='.urlencode($logFilter['kategori']) : '') . (!empty($logFilter['role']) ? '&log_role='.urlencode($logFilter['role']) : ''); ?>"
-              class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors group">
-              <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <i class="fas fa-file-excel text-emerald-600 text-sm"></i>
-              </div>
-              <div>
-                <p class="font-plex text-sm font-semibold text-slate-700">Export Excel</p>
-                <p class="font-plex text-[11px] text-slate-400">Format .xlsx</p>
-              </div>
-            </a>
-            <a href="<?php echo '?page=pengguna&export=pdf' . (!empty($logFilter['keyword']) ? '&log_keyword='.urlencode($logFilter['keyword']) : '') . (!empty($logFilter['kategori']) ? '&log_kategori='.urlencode($logFilter['kategori']) : '') . (!empty($logFilter['role']) ? '&log_role='.urlencode($logFilter['role']) : ''); ?>"
-              class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors group border-t border-slate-50">
-              <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <i class="fas fa-file-pdf text-red-500 text-sm"></i>
-              </div>
-              <div>
-                <p class="font-plex text-sm font-semibold text-slate-700">Export PDF</p>
-                <p class="font-plex text-[11px] text-slate-400">Format .pdf</p>
-              </div>
-            </a>
-          </div>
+          <button onclick="exportLogAktivitas('excel')"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-plex font-semibold bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-colors flex-shrink-0">
+            <i class="far fa-file-excel"></i> Export Excel
+          </button>
         </div>
       </div>
     </div>
@@ -527,11 +504,20 @@ if ($export === 'excel' || $export === 'pdf') {
           <?php if ($u_filter['keyword'] || $u_filter['role']): ?>
           <a href="?page=pengguna" class="h-11 px-4 flex items-center justify-center border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 transition-colors">
             <i class="fas fa-times text-xs"></i>
-          </a>
-          <?php endif; ?>
+          </a>          <?php endif; ?>
         </form>
+        <!-- Export Pengguna Buttons -->
+        <div class="flex gap-2 shrink-0">
+          <button type="button" onclick="exportPengguna('pdf')"
+            class="h-11 px-4 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center gap-2 hover:bg-red-50 transition-colors whitespace-nowrap">
+            <i class="far fa-file-pdf"></i> Export PDF
+          </button>
+          <button type="button" onclick="exportPengguna('excel')"
+            class="h-11 px-4 rounded-xl text-sm font-semibold text-emerald-600 border border-emerald-100 bg-emerald-50/50 flex items-center gap-2 hover:bg-emerald-50 transition-colors whitespace-nowrap">
+            <i class="far fa-file-excel"></i> Export Excel
+          </button>
+        </div>
       </div>
-
       <!-- User Table -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
@@ -863,6 +849,33 @@ if ($export === 'excel' || $export === 'pdf') {
   <span id="toast-msg"></span>
 </div>
 
+<!-- Custom Delete Confirm Modal -->
+<div id="modal-hapus" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4"
+  style="background:rgba(15,23,42,0.5);backdrop-filter:blur(4px);"
+  onclick="if(event.target===this)closeHapusModal()">
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+    style="animation:modalIn .25s cubic-bezier(.34,1.56,.64,1) both">
+    <div class="p-6 text-center">
+      <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
+      </div>
+      <h3 class="font-display font-bold text-slate-800 text-lg mb-1">Hapus Pengguna?</h3>
+      <p class="font-plex text-slate-500 text-sm" id="hapus-modal-text">Tindakan ini tidak dapat dibatalkan.</p>
+    </div>
+    <div class="flex gap-3 px-6 pb-6">
+      <button onclick="closeHapusModal()"
+        class="flex-1 h-11 border-2 border-slate-200 rounded-xl text-sm font-plex font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+        Batal
+      </button>
+      <button id="btn-konfirmasi-hapus" onclick="eksekusiHapus()"
+        class="flex-1 h-11 rounded-xl text-sm font-plex font-bold text-white transition-all"
+        style="background:linear-gradient(135deg,#dc2626 0%,#ef4444 100%);box-shadow:0 4px 14px rgba(220,38,38,0.35);">
+        <i class="fas fa-trash-alt mr-1 text-sm"></i> Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
 <style>
   .animate-modal { animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes modalIn {
@@ -882,6 +895,15 @@ if ($export === 'excel' || $export === 'pdf') {
 </style>
 
 <script>
+  function exportLogAktivitas(format) {
+    const keyword = document.querySelector('input[name="log_keyword"]') ? document.querySelector('input[name="log_keyword"]').value : '';
+    const kat = document.querySelector('select[name="log_kategori"]') ? document.querySelector('select[name="log_kategori"]').value : '';
+    const role = document.querySelector('select[name="log_role"]') ? document.querySelector('select[name="log_role"]').value : '';
+    
+    const url = `/BHP-Poli-Gigi/api/export.php?page=log&type=${format}&log_keyword=${encodeURIComponent(keyword)}&log_kategori=${encodeURIComponent(kat)}&log_role=${encodeURIComponent(role)}`;
+    window.location.href = url;
+  }
+
   /* ─── Tab Switch ─────────────────────────────────────────── */
   let currentTab = '<?= $activeTab ?>';
   function switchTab(tab) {
@@ -914,17 +936,7 @@ if ($export === 'excel' || $export === 'pdf') {
   }
 
   /* ─── Export Dropdown ─────────────────────────────────────── */
-  function toggleExportDropdown() {
-    document.getElementById('export-dropdown').classList.toggle('hidden');
-  }
-  document.addEventListener('click', function(e) {
-    const btn = document.getElementById('btn-export-log');
-    const dd  = document.getElementById('export-dropdown');
-    if (btn && dd && !btn.contains(e.target) && !dd.contains(e.target)) {
-      dd.classList.add('hidden');
-    }
-  });
-
+  
   /* ─── Modal ──────────────────────────────────────────────── */
   function openModal() {
     const m = document.getElementById('modal-tambah');
@@ -1092,7 +1104,7 @@ if ($export === 'excel' || $export === 'pdf') {
     }
   });
 
-  /* â”€â”€â”€ Toggle Status Akun â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ─── Toggle Status Akun ───────────────────────────── */
   async function toggleStatus(id) {
     const data = new FormData();
     data.append('action', 'toggle_status');
@@ -1116,25 +1128,31 @@ if ($export === 'excel' || $export === 'pdf') {
     } catch { showToast('Gagal mengubah status.', 'error'); }
   }
 
-  /* â”€â”€â”€ Hapus Pengguna â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-  async function hapusUser(id, nama) {
-    if (!confirm('Hapus pengguna "' + nama + '"?\nTindakan ini tidak dapat dibatalkan.')) return;
-    const data = new FormData();
-    data.append('action', 'delete');
-    data.append('id', id);
-    try {
-      const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
-      const json = await res.json();
-      if (json.success) {
-        const row = document.getElementById('row-' + id);
-        if (row) { row.style.animation = 'slideOutLeft 0.3s ease forwards'; setTimeout(() => row.remove(), 300); }
-        showToast(json.message, 'success');
-      } else {
-        showToast(json.message, 'error');
-      }
-    } catch { showToast('Gagal menghapus pengguna.', 'error'); }
+  /* ─── Hapus Pengguna ─────────────────────────────── */
+  function hapusUser(id, nama) {
+    showDeleteConfirm('Hapus Pengguna?', `Hapus pengguna "${nama}"? Tindakan ini tidak dapat dibatalkan.`, async () => {
+      const data = new FormData();
+      data.append('action', 'delete');
+      data.append('id', id);
+      try {
+        const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
+        const json = await res.json();
+        if (json.success) {
+          const row = document.getElementById('row-' + id);
+          if (row) { row.style.animation = 'slideOutLeft 0.3s ease forwards'; setTimeout(() => row.remove(), 300); }
+          showToast(json.message, 'success');
+        } else {
+          showToast(json.message, 'error');
+        }
+      } catch { showToast('Gagal menghapus pengguna.', 'error'); }
+    });
   }
-</script>
+function exportPengguna(type) {
+  const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+  url.searchParams.set('type', type);
+  url.searchParams.set('page', 'pengguna');
+  window.location.href = url.toString();
+}</script>
 <style>
   @keyframes modalIn {
     from { opacity: 0; transform: scale(0.92) translateY(16px); }

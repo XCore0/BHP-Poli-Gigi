@@ -10,6 +10,8 @@
         }
     },
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "dompdf/dompdf": "^2.0",
+        "phpoffice/phpspreadsheet": "^3.0"
     }
 }

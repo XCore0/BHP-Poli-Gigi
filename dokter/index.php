@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Admin Dashboard - dilindungi oleh session Auth
@@ -77,6 +77,7 @@ if ($page == 'data_bhp') {
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&family=Bricolage+Grotesque:wght@600;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
   <script src="/BHP-Poli-Gigi/assets/js/tailwind-config.js"></script>
   <style type="text/tailwindcss">
@@ -123,7 +124,7 @@ if ($page == 'data_bhp') {
     </main>
   </div> <!-- Close Container for Sidebar + Main Content -->
 
-  <script src="/BHP-Poli-Gigi/assets/js/main.js"></script>
+  <script src="/BHP-Poli-Gigi/assets/js/main.js?v=<?= time() ?>"></script>
 </body>
 
 </html>

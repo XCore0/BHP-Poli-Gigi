@@ -53,13 +53,22 @@ $today    = date('Y-m-d');
             </div>
           </div>
 
-          <!-- Nama Pasien (WAJIB) -->
-          <div class="mb-8">
-            <label class="block text-[12px] font-bold text-slate-600 mb-2">
-              Nama Pasien <span class="text-red-500">*</span>
-            </label>
-            <input type="text" name="nama_pasien" required placeholder="Masukkan nama lengkap pasien..."
-              class="w-full border border-slate-200 bg-slate-50/50 rounded-xl h-12 px-4 text-[14px] text-slate-700 font-medium outline-none focus:border-brand-500 transition-colors placeholder:font-normal placeholder:text-slate-400">
+          <!-- Nama Pasien & Unit Tindakan -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label class="block text-[12px] font-bold text-slate-600 mb-2">
+                Nama Pasien <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="nama_pasien" required placeholder="Masukkan nama lengkap pasien..."
+                class="w-full border border-slate-200 bg-slate-50/50 rounded-xl h-12 px-4 text-[14px] text-slate-700 font-medium outline-none focus:border-brand-500 transition-colors placeholder:font-normal placeholder:text-slate-400">
+            </div>
+            <div>
+              <label class="block text-[12px] font-bold text-slate-600 mb-2">
+                Unit / Tindakan <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="unit_tindakan" required placeholder="cth: Poli Gigi, IGD, dll..."
+                class="w-full border border-slate-200 bg-slate-50/50 rounded-xl h-12 px-4 text-[14px] text-slate-700 font-medium outline-none focus:border-brand-500 transition-colors placeholder:font-normal placeholder:text-slate-400">
+            </div>
           </div>
 
           <!-- Tambah BHP -->
@@ -79,12 +88,12 @@ $today    = date('Y-m-d');
                       class="w-full border border-slate-200 bg-white rounded-xl h-11 pl-10 pr-10 text-[14px] text-slate-700 font-medium outline-none focus:border-brand-500 appearance-none transition-colors">
                       <option value="" disabled selected>Pilih BHP...</option>
                       <?php foreach ($bhpList as $b): ?>
-                        <?php if ((int)$b['Jumlah'] > 0): ?>
+                        <?php if ((int)$b['Pemakaian'] > 0): ?>
                           <option value="<?= $b['id_bhp'] ?>"
                             data-nama="<?= htmlspecialchars($b['Nama_bhp']) ?>"
                             data-satuan="<?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>"
-                            data-stok="<?= $b['Jumlah'] ?>">
-                            <?= htmlspecialchars($b['Nama_bhp']) ?> â€” Stok: <?= $b['Jumlah'] ?> <?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>
+                            data-stok="<?= $b['Pemakaian'] ?>">
+                            <?= htmlspecialchars($b['Nama_bhp']) ?> — Tersedia: <?= $b['Pemakaian'] ?> (kapasitas/unit kecil)
                           </option>
                         <?php endif; ?>
                       <?php endforeach; ?>
@@ -93,7 +102,7 @@ $today    = date('Y-m-d');
                   </div>
                 </div>
                 <div class="w-full sm:w-[130px] flex-shrink-0">
-                  <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Jumlah</label>
+                  <label class="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-wide">Jml (Unit Kecil)</label>
                   <input type="number" id="inputJmlCatat" value="1" min="1"
                     class="w-full border border-slate-200 bg-white rounded-xl h-11 px-4 text-[14px] text-slate-700 font-medium outline-none focus:border-brand-500 transition-colors">
                 </div>
@@ -170,6 +179,7 @@ $today    = date('Y-m-d');
                 <th class="py-3 px-3">TANGGAL</th>
                 <th class="py-3 px-3">DOKTER</th>
                 <th class="py-3 px-3">PASIEN</th>
+                <th class="py-3 px-3">UNIT/TINDAKAN</th>
                 <th class="py-3 px-3 text-center">ITEM</th>
                 <th class="py-3 px-3"></th>
               </tr>
@@ -186,6 +196,7 @@ $today    = date('Y-m-d');
                 </td>
                 <td class="py-4 px-3 font-medium text-slate-700"><?= htmlspecialchars($r['nama_dokter'] ?? '-') ?></td>
                 <td class="py-4 px-3 text-slate-500 text-[12px]"><?= htmlspecialchars($r['nama_pasien'] ?? '-') ?></td>
+                <td class="py-4 px-3 text-slate-500 text-[12px]"><?= htmlspecialchars($r['unit_tindakan'] ?? '-') ?></td>
                 <td class="py-4 px-3 text-center">
                   <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-bold text-[11px]"><?= $r['jumlah_item'] ?> item</span>
                 </td>
@@ -348,17 +359,18 @@ function submitPemakaian(e){
 }
 
 function deletePemakaian(id,btn){
-  if(!confirm('Hapus catatan pemakaian ini?\nStok BHP akan dikembalikan.'))return;
-  const orig=btn.innerHTML;
-  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin text-[11px]"></i>';
-  const fd=new FormData();fd.append('action','delete_pemakaian');fd.append('id',id);
-  fetch('/BHP-Poli-Gigi/process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
-  .then(r=>r.json()).then(res=>{
-    if(res.success){
-      const row=document.querySelector(`.riwayat-row[data-id="${id}"]`);
-      if(row){row.style.opacity='0';row.style.transition='opacity .3s';setTimeout(()=>row.remove(),300);}
-      showToastCatat(res.message,true);
-    }else{btn.disabled=false;btn.innerHTML=orig;showToastCatat(res.message||'Gagal.',false);}
-  }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;showToastCatat('Koneksi gagal.',false);});
+  showDeleteConfirm('Hapus Catatan?', 'Hapus catatan pemakaian ini? Stok BHP akan dikembalikan.', () => {
+    const orig=btn.innerHTML;
+    btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin text-[11px]"></i>';
+    const fd=new FormData();fd.append('action','delete_pemakaian');fd.append('id',id);
+    fetch('/BHP-Poli-Gigi/process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
+    .then(r=>r.json()).then(res=>{
+      if(res.success){
+        const row=document.querySelector(`.riwayat-row[data-id="${id}"]`);
+        if(row){row.style.opacity='0';row.style.transition='opacity .3s';setTimeout(()=>row.remove(),300);}
+        showToastCatat(res.message,true);
+      }else{btn.disabled=false;btn.innerHTML=orig;showToastCatat(res.message||'Gagal.',false);}
+    }).catch(()=>{btn.disabled=false;btn.innerHTML=orig;showToastCatat('Koneksi gagal.',false);});
+  });
 }
 </script>

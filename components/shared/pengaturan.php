@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 use App\Classes\UserManager;
 use App\Classes\Auth;
 
@@ -31,16 +31,16 @@ $pref  = $mgr->getPreferensi($uid);
       <div class="w-full lg:w-64 shrink-0">
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden sticky top-6">
           <nav class="flex flex-col">
-            <a href="#sec-keamanan" onclick="showSection('keamanan')"
+            <button type="button" onclick="showSection('keamanan')"
               id="nav-keamanan"
-              class="nav-tab px-5 py-4 border-l-4 border-brand-500 bg-brand-50/50 text-brand-700 font-bold text-[14px] flex items-center gap-3">
+              class="text-left w-full nav-tab px-5 py-4 border-l-4 border-brand-500 bg-brand-50/50 text-brand-700 font-bold text-[14px] flex items-center gap-3">
               <i class="fas fa-shield-alt w-5 text-center"></i> Keamanan Akun
-            </a>
-            <a href="#sec-notif" onclick="showSection('notif')"
+            </button>
+            <button type="button" onclick="showSection('notif')"
               id="nav-notif"
-              class="nav-tab px-5 py-4 border-l-4 border-transparent text-slate-600 font-semibold text-[14px] flex items-center gap-3 hover:bg-slate-50 transition-colors">
+              class="text-left w-full nav-tab px-5 py-4 border-l-4 border-transparent text-slate-600 font-semibold text-[14px] flex items-center gap-3 hover:bg-slate-50 transition-colors">
               <i class="far fa-bell w-5 text-center"></i> Notifikasi Sistem
-            </a>
+            </button>
           </nav>
         </div>
       </div>
@@ -179,6 +179,11 @@ function showSection(sec) {
     document.getElementById('nav-'+s).className = 'nav-tab px-5 py-4 border-l-4 border-transparent text-slate-600 font-semibold text-[14px] flex items-center gap-3 hover:bg-slate-50 transition-colors';
   });
   document.getElementById('nav-'+sec).className = 'nav-tab px-5 py-4 border-l-4 border-brand-500 bg-brand-50/50 text-brand-700 font-bold text-[14px] flex items-center gap-3';
+  // Scroll to section smoothly
+  const el = document.getElementById('sec-' + sec);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // Toggle password visibility

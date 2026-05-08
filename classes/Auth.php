@@ -120,7 +120,7 @@ class Auth
     }
 
     /**
-     * Paksa login â€” redirect ke Login.php jika belum masuk
+     * Paksa login — redirect ke Login.php jika belum masuk
      *
      * @param string $loginUrl Path ke halaman login
      */
@@ -134,20 +134,39 @@ class Auth
     }
 
     /**
-     * Paksa role tertentu â€” redirect jika role tidak sesuai
+     * Paksa role tertentu — redirect atau JSON error jika role tidak sesuai
      *
-     * @param string|array $roles Role yang diizinkan
-     * @param string $redirectUrl URL redirect jika ditolak
+     * @param string|array $roles       Role yang diizinkan
+     * @param string|null  $redirectUrl URL redirect jika ditolak (null = tidak redirect)
+     * @param bool         $jsonMode    Jika true, kembalikan JSON 403 alih-alih redirect
      */
-    public function requireRole($roles, string $redirectUrl = '/BHP-Poli-Gigi/Login.php'): void
+    public function requireRole($roles, ?string $redirectUrl = '/BHP-Poli-Gigi/Login.php', bool $jsonMode = false): void
     {
-        $this->requireLogin($redirectUrl);
+        if (!$this->isLoggedIn()) {
+            if ($jsonMode) {
+                http_response_code(401);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => false, 'message' => 'Sesi tidak valid. Silakan login kembali.']);
+                exit();
+            }
+            header('Location: ' . ($redirectUrl ?? '/BHP-Poli-Gigi/Login.php'));
+            exit();
+        }
+
         $user = $this->getCurrentUser();
         $allowedRoles = (array) $roles;
 
         if (!in_array($user['role'], $allowedRoles)) {
-            header("Location: $redirectUrl");
-            exit();
+            if ($jsonMode) {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['success' => false, 'message' => 'Akses ditolak. Role tidak diizinkan.']);
+                exit();
+            }
+            if ($redirectUrl) {
+                header("Location: $redirectUrl");
+                exit();
+            }
         }
     }
 

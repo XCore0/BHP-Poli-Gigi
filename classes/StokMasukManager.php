@@ -153,14 +153,13 @@ class StokMasukManager
             // Insert stok_masuk
             $stmt = $this->db->prepare("
                 INSERT INTO stok_masuk
-                    (id_bhp, jumlah, tanggal_terima, supplier, tgl_kadaluarsa, catatan, id_user)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (id_bhp, jumlah, tanggal_terima, tgl_kadaluarsa, catatan, id_user)
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $id_bhp,
                 $jumlah,
                 $tanggal_terima,
-                $supplier  ?: null,
                 $tgl_kadaluarsa ?: null,
                 $catatan   ?: null,
                 $userId > 0 ? $userId : null,
@@ -202,9 +201,14 @@ class StokMasukManager
         try {
             $this->db->beginTransaction();
 
-            // Kurangi kembali stok bhp dan total pemakaian
-            $upd = $this->db->prepare('UPDATE bhp SET Jumlah = GREATEST(0, Jumlah - ?), Pemakaian = GREATEST(0, Pemakaian - ?) WHERE id_bhp = ?');
-            $upd->execute([$row['jumlah'], $kurangPemakaian, $row['id_bhp']]);
+            // Kurangi kembali stok bhp: Pemakaian -= jumlah*isi_per_stok, Jumlah = FLOOR(Pemakaian/isi_per_stok)
+            $upd = $this->db->prepare(
+                'UPDATE bhp
+                 SET Pemakaian = GREATEST(0, Pemakaian - ?),
+                     Jumlah    = FLOOR(GREATEST(0, Pemakaian - ?) / NULLIF(isi_per_stok, 0))
+                 WHERE id_bhp = ?'
+            );
+            $upd->execute([$kurangPemakaian, $kurangPemakaian, $row['id_bhp']]);
 
             // Hapus record
             $del = $this->db->prepare('DELETE FROM stok_masuk WHERE id_stok_masuk = ?');

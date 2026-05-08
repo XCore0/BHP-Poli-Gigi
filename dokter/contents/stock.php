@@ -310,6 +310,23 @@ function openModalStok() {
   m.classList.remove('hidden');
   m.classList.add('flex');
 }
+function updateIsiPerStok(select) {
+  const infoEl = document.getElementById('infoIsiPerStok');
+  const textEl = document.getElementById('txtIsiPerStok');
+  if (!select.value) {
+    infoEl.classList.add('hidden');
+    return;
+  }
+  const opt = select.options[select.selectedIndex];
+  const isi = parseInt(opt.dataset.isi) || 1;
+  const satuan = opt.dataset.satuan || '';
+  if (isi > 1) {
+    textEl.textContent = `Setiap 1 box/unit berisi ${isi} ${satuan} (unit kecil)`;
+    infoEl.classList.remove('hidden');
+  } else {
+    infoEl.classList.add('hidden');
+  }
+}
 function closeModalStok() {
   const m = document.getElementById('modalStokMasuk');
   m.classList.add('hidden');
@@ -431,60 +448,60 @@ function submitStokMasuk(e) {
 
 // â”€â”€ Hapus stok â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function deleteStok(id, btn) {
-  if (!confirm('Yakin ingin menghapus data stok masuk ini?\nJumlah stok BHP akan dikurangi kembali.')) return;
+  showDeleteConfirm('Hapus Stok Masuk?', 'Yakin ingin menghapus data stok masuk ini? Jumlah stok BHP akan dikurangi kembali.', () => {
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[12px]"></i>';
 
-  const originalHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[12px]"></i>';
+    const fd = new FormData();
+    fd.append('action', 'delete_stok_masuk');
+    fd.append('id', id);
 
-  const fd = new FormData();
-  fd.append('action', 'delete_stok_masuk');
-  fd.append('id', id);
-
-  fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', {
-    method : 'POST',
-    body   : fd,
-    credentials: 'same-origin'
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.success) {
-      // Hapus baris dari DOM
-      const row = document.querySelector(`.stok-row[data-id="${id}"]`);
-      if (row) {
-        row.style.transition = 'opacity 0.3s, transform 0.3s';
-        row.style.opacity    = '0';
-        row.style.transform  = 'translateX(20px)';
-        setTimeout(() => {
-          row.remove();
-          updateBadge(-1);
-          // Tampilkan empty jika tidak ada baris
-          if (!document.querySelector('.stok-row')) {
-            const tbody = document.getElementById('tbodyStok');
-            tbody.innerHTML = `
-              <tr id="emptyRowStok">
-                <td colspan="5" class="py-16 text-center">
-                  <div class="flex flex-col items-center gap-3 text-slate-400">
-                    <i class="fas fa-box-open text-3xl opacity-50"></i>
-                    <p class="font-medium text-[14px]">Belum ada riwayat stok masuk</p>
-                    <p class="text-[12px]">Klik "Input Stok" untuk mencatat penerimaan barang</p>
-                  </div>
-                </td>
-              </tr>`;
-          }
-        }, 300);
+    fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', {
+      method : 'POST',
+      body   : fd,
+      credentials: 'same-origin'
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        // Hapus baris dari DOM
+        const row = document.querySelector(`.stok-row[data-id="${id}"]`);
+        if (row) {
+          row.style.transition = 'opacity 0.3s, transform 0.3s';
+          row.style.opacity    = '0';
+          row.style.transform  = 'translateX(20px)';
+          setTimeout(() => {
+            row.remove();
+            updateBadge(-1);
+            // Tampilkan empty jika tidak ada baris
+            if (!document.querySelector('.stok-row')) {
+              const tbody = document.getElementById('tbodyStok');
+              tbody.innerHTML = `
+                <tr id="emptyRowStok">
+                  <td colspan="5" class="py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-slate-400">
+                      <i class="fas fa-box-open text-3xl opacity-50"></i>
+                      <p class="font-medium text-[14px]">Belum ada riwayat stok masuk</p>
+                      <p class="text-[12px]">Klik "Input Stok" untuk mencatat penerimaan barang</p>
+                    </div>
+                  </td>
+                </tr>`;
+            }
+          }, 300);
+        }
+        showToastStok(res.message, true);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        showToastStok(res.message || 'Gagal menghapus.', false);
       }
-      showToastStok(res.message, true);
-    } else {
+    })
+    .catch(() => {
       btn.disabled = false;
       btn.innerHTML = originalHTML;
-      showToastStok(res.message || 'Gagal menghapus.', false);
-    }
-  })
-  .catch(() => {
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
-    showToastStok('Koneksi gagal, coba lagi.', false);
+      showToastStok('Koneksi gagal, coba lagi.', false);
+    });
   });
 }
 </script>
