@@ -132,6 +132,7 @@ class StokMasukManager
         $supplier       = trim($data['supplier']        ?? '');
         $tgl_kadaluarsa = trim($data['tgl_kadaluarsa']  ?? '');
         $catatan        = trim($data['catatan']         ?? '');
+        $isiPerStokBaru = max(1, (int)($data['isi_per_stok'] ?? 1));
 
         // Validasi
         if ($id_bhp <= 0)         return ['success' => false, 'message' => 'Pilih barang BHP terlebih dahulu.'];
@@ -145,10 +146,18 @@ class StokMasukManager
         if (!$bhp) {
             return ['success' => false, 'message' => 'Data BHP tidak ditemukan.'];
         }
-        $isiPerStok = (int)($bhp['isi_per_stok'] ?? 1);
+
+        // Gunakan isi_per_stok dari form (yang terbaru)
+        $isiPerStok = $isiPerStokBaru;
 
         try {
             $this->db->beginTransaction();
+
+            // Update isi_per_stok di tabel bhp jika berubah
+            if ($isiPerStok !== (int)$bhp['isi_per_stok']) {
+                $updIsi = $this->db->prepare('UPDATE bhp SET isi_per_stok = ? WHERE id_bhp = ?');
+                $updIsi->execute([$isiPerStok, $id_bhp]);
+            }
 
             // Insert stok_masuk
             $stmt = $this->db->prepare("

@@ -261,14 +261,16 @@ class BhpManager
             if ($chk->fetch()) return ['success' => false, 'message' => "Kode BHP \"$kode\" sudah digunakan."];
         }
 
+        $isi_per_stok = max(1, (int)($data['isi_per_stok'] ?? 1));
+
         try {
             $this->db->beginTransaction();
 
             $stmt = $this->db->prepare(
-                'INSERT INTO bhp (Kode_bhp, Nama_bhp, Jumlah, Pemakaian, id_kategori, id_satuan)
-                 VALUES (?, ?, ?, ?, ?, ?)'
+                'INSERT INTO bhp (Kode_bhp, Nama_bhp, Jumlah, Pemakaian, isi_per_stok, id_kategori, id_satuan)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)'
             );
-            $stmt->execute([$kode ?: null, $nama, $jumlah, $pemakaian, $id_kat, $id_sat]);
+            $stmt->execute([$kode ?: null, $nama, $jumlah, $pemakaian, $isi_per_stok, $id_kat, $id_sat]);
             $id_bhp = (int)$this->db->lastInsertId();
 
             // Jika ada stok awal, masukkan ke riwayat stok masuk agar terhitung di Pemakaian
@@ -297,12 +299,11 @@ class BhpManager
     /** Edit BHP */
     public function editBhp(int $id, array $data): array
     {
-        $nama   = trim($data['nama_bhp']    ?? '');
-        $kode   = trim($data['kode_bhp']    ?? '');
-        $id_kat = (int)($data['id_kategori'] ?? 0) ?: null;
-        $id_sat = (int)($data['id_satuan']   ?? 0) ?: null;
-        
-
+        $nama         = trim($data['nama_bhp']    ?? '');
+        $kode         = trim($data['kode_bhp']    ?? '');
+        $id_kat       = (int)($data['id_kategori'] ?? 0) ?: null;
+        $id_sat       = (int)($data['id_satuan']   ?? 0) ?: null;
+        $isi_per_stok = max(1, (int)($data['isi_per_stok'] ?? 1));
 
         if ($nama === '') return ['success' => false, 'message' => 'Nama BHP tidak boleh kosong.'];
 
@@ -313,9 +314,9 @@ class BhpManager
         }
 
         $stmt = $this->db->prepare(
-            'UPDATE bhp SET Kode_bhp=?, Nama_bhp=?, id_kategori=?, id_satuan=? WHERE id_bhp=?'
+            'UPDATE bhp SET Kode_bhp=?, Nama_bhp=?, isi_per_stok=?, id_kategori=?, id_satuan=? WHERE id_bhp=?'
         );
-        $stmt->execute([$kode ?: null, $nama, $id_kat, $id_sat, $id]);
+        $stmt->execute([$kode ?: null, $nama, $isi_per_stok, $id_kat, $id_sat, $id]);
         return ['success' => true, 'message' => "BHP \"$nama\" berhasil diperbarui."];
     }
 

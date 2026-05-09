@@ -390,11 +390,18 @@ if ($type === 'pdf') {
                 $val = ucfirst((string)$val);
             }
             if ($key === 'kondisi') {
+                $kondisiColor = $val === 'habis' ? '#EF4444' : '#F59E0B';
                 $val = $val === 'habis' ? 'Habis' : 'Sisa';
+                $cells .= '<td style="color:' . $kondisiColor . ';font-weight:600;text-align:center">' . htmlspecialchars((string)$val) . '</td>';
+                continue;
             }
             if ($key === 'Status') {
                 $color = ['Habis' => '#EF4444', 'Menipis' => '#F59E0B', 'Aman' => '#10B981'][$val] ?? '#64748B';
                 $cells .= '<td style="color:' . $color . ';font-weight:600">' . htmlspecialchars((string)($val ?? '-')) . '</td>';
+                continue;
+            }
+            if ($key === 'jumlah' || $key === '#') {
+                $cells .= '<td style="text-align:center">' . htmlspecialchars((string)($val ?? '-')) . '</td>';
                 continue;
             }
             $cells .= '<td>' . htmlspecialchars((string)($val ?? '-')) . '</td>';
@@ -410,7 +417,124 @@ if ($type === 'pdf') {
     $subtitle = !empty($cfg['subtitle']) ? "<p class='subtitle'>{$cfg['subtitle']}</p>" : '';
     $totalData = count($data);
 
-    $html = <<<HTML
+    // Khusus laporan pemakaian — gunakan template formal
+    if ($page === 'laporan') {
+        $periodeStr = date('d M Y', strtotime($tglMulai)) . ' s/d ' . date('d M Y', strtotime($tglAkhir));
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family: DejaVu Sans, Arial, sans-serif; font-size:9px; color:#1e293b; }
+
+  /* KOP SURAT */
+  .kop { display:table; width:100%; border-bottom:2.5px solid #006B47; padding-bottom:10px; margin-bottom:12px; }
+  .kop-logo { display:table-cell; width:64px; vertical-align:middle; }
+  .kop-logo .logo-box {
+    width:54px; height:54px; border-radius:8px;
+    background:linear-gradient(135deg,#006B47,#1DB879);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:bold; color:white; text-align:center;
+    line-height:54px;
+  }
+  .kop-text { display:table-cell; vertical-align:middle; padding-left:10px; }
+  .kop-text h1 { font-size:14px; font-weight:bold; color:#006B47; }
+  .kop-text p  { font-size:8px; color:#64748b; margin-top:2px; }
+
+  /* JUDUL LAPORAN */
+  .doc-title { text-align:center; margin:10px 0 6px; }
+  .doc-title h2 { font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; }
+  .doc-title .underline { display:block; width:200px; height:2px; background:#006B47; margin:4px auto 0; }
+  .doc-meta { text-align:center; font-size:8px; color:#64748b; margin-bottom:12px; }
+
+  /* SUMMARY */
+  .summary-row { display:table; width:100%; margin-bottom:10px; }
+  .summary-cell { display:table-cell; width:33.3%; padding:6px 8px; font-size:8px; border:1px solid #e2e8f0; background:#f8fafc; }
+  .summary-cell strong { display:block; font-size:11px; color:#006B47; }
+
+  /* TABEL */
+  table { width:100%; border-collapse:collapse; margin-top:4px; }
+  thead th {
+    background:#006B47; color:white;
+    padding:5px 6px; text-align:left;
+    font-size:8px; font-weight:bold;
+    border:1px solid #005538;
+  }
+  tbody td {
+    padding:4px 6px; border:1px solid #e2e8f0;
+    font-size:8px; vertical-align:top;
+  }
+  tbody tr:hover td { background:#f0fdf4; }
+
+  /* FOOTER */
+  .ttd-section { display:table; width:100%; margin-top:28px; }
+  .ttd-box { display:table-cell; width:33.3%; text-align:center; font-size:8px; vertical-align:top; padding:0 8px; }
+  .ttd-box .label { font-weight:bold; margin-bottom:52px; }
+  .ttd-box .line { border-top:1px solid #334155; padding-top:4px; }
+
+  .doc-footer { margin-top:16px; font-size:7.5px; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:6px; text-align:center; }
+</style>
+</head>
+<body>
+
+  <!-- KOP SURAT -->
+  <div class="kop">
+    <div class="kop-logo">
+      <div class="logo-box">&#x2665;</div>
+    </div>
+    <div class="kop-text">
+      <h1>KLINIK POLI GIGI</h1>
+      <p>Sistem Informasi Manajemen Bahan Habis Pakai</p>
+      <p>Jl. Contoh No. 1 &nbsp;|&nbsp; Telp. (021) 000-0000</p>
+    </div>
+  </div>
+
+  <!-- JUDUL -->
+  <div class="doc-title">
+    <h2>Laporan Pemakaian Bahan Habis Pakai (BHP)</h2>
+    <span class="underline"></span>
+  </div>
+  <p class="doc-meta">Periode: <strong>{$periodeStr}</strong> &nbsp;&nbsp; Dicetak: <strong>{$now}</strong></p>
+
+  <!-- SUMMARY -->
+  <div class="summary-row">
+    <div class="summary-cell">Total Catatan<strong>{$totalData} record</strong></div>
+    <div class="summary-cell">Filter Keyword<strong><?= $keyword ?: '(semua)' ?></strong></div>
+    <div class="summary-cell">Dicetak Oleh<strong><?= htmlspecialchars($auth->getCurrentUser()['nama'] ?? 'Sistem') ?></strong></div>
+  </div>
+
+  <!-- TABEL DATA -->
+  <table>
+    <thead><tr>{$headerCells}</tr></thead>
+    <tbody>{$rows}</tbody>
+  </table>
+
+  <!-- TANDA TANGAN -->
+  <div class="ttd-section">
+    <div class="ttd-box">
+      <div class="label">Mengetahui,<br>Kepala Klinik</div>
+      <div class="line">( _________________________ )</div>
+    </div>
+    <div class="ttd-box">
+      <div class="label">&nbsp;</div>
+    </div>
+    <div class="ttd-box">
+      <div class="label">Dicetak Oleh,<br>Petugas / Dokter</div>
+      <div class="line">( _________________________ )</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    Dokumen ini dicetak secara otomatis oleh Sistem BHP Klinik Poli Gigi &nbsp;&mdash;&nbsp; {$now}
+  </div>
+
+</body>
+</html>
+HTML;
+    } else {
+        $html = <<<HTML
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -472,6 +596,7 @@ if ($type === 'pdf') {
 </body>
 </html>
 HTML;
+    }
 
     // ── Render PDF ─────────────────────────────────────────
     $options = new Options();

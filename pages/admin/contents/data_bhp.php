@@ -1,0 +1,537 @@
+<?php
+
+/**
+ * Halaman Data BHP - Admin (Dinamis)
+ */
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use App\Classes\BhpManager;
+
+$mgr       = new BhpManager();
+$p      = max(1, (int)($_GET['p'] ?? 1));
+$limit  = 10;
+$offset = ($p - 1) * $limit;
+
+$filter    = [
+  'keyword'     => $_GET['keyword']     ?? '',
+  'id_kategori' => $_GET['id_kategori'] ?? '',
+  'limit'       => $limit,
+  'offset'      => $offset
+];
+
+$totalBhp     = $mgr->countAllBhp($filter);
+$totalPages   = max(1, ceil($totalBhp / $limit));
+
+$bhpList      = $mgr->getAllBhp($filter);
+$kategoriList = $mgr->getAllKategori();
+$satuanList   = $mgr->getAllSatuan();
+$kodeBaru     = $mgr->generateKodeBhp();
+
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+
+// Warna status stok
+function stokStatus(int $jumlah): array
+{
+  if ($jumlah <= 0)  return ['label' => 'Habis',   'cls' => 'text-red-600',   'dot' => 'text-red-500'];
+  if ($jumlah <= 10) return ['label' => 'Menipis', 'cls' => 'text-amber-600', 'dot' => 'text-amber-500'];
+  return             ['label' => 'Aman',   'cls' => 'text-emerald-600', 'dot' => 'text-emerald-500'];
+}
+?>
+
+<!-- ===== MODAL TAMBAH / EDIT BHP ===== -->
+<div id="modalBhp"
+  class="hidden fixed inset-0 z-[9999] items-center justify-center p-4"
+  style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
+  onclick="if(event.target===this)closeBhpModal()">
+  <div class="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl"
+    style="background:#fff;animation:bhpModalIn2 .25s cubic-bezier(.34,1.56,.64,1) both;">
+    <!-- Header -->
+    <div class="relative px-7 pt-6 pb-5"
+      style="background:radial-gradient(ellipse at 0% 0%,#006B47 0%,#1A9F70 60%,#1DB879 100%);">
+      <button onclick="closeBhpModal()"
+        class="absolute top-4 right-5 text-white/70 hover:text-white text-xl leading-none">&times;</button>
+      <h2 class="font-bold text-white text-xl leading-tight" id="bhpModalTitle">Tambah Barang Baru</h2>
+      <p class="text-white/80 text-sm mt-1">Isi formulir di bawah ini untuk menambahkan data barang ke inventaris.</p>
+    </div>
+    <!-- Body -->
+    <form id="formBhp" class="p-7 space-y-5">
+      <input type="hidden" id="bhpId" name="id" value="">
+      <input type="hidden" id="bhpAction" name="action" value="add_bhp">
+
+      <!-- Row 1: Kode + Kategori -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="flex flex-col gap-1.5">
+          <label for="bhpKode" class="text-sm font-semibold text-slate-700">Kode Barang</label>
+          <input id="bhpKode" name="kode_bhp" type="text"
+            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm"
+            placeholder="Generate otomatis jika kosong" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="bhpKategori" class="text-sm font-semibold text-slate-700">Kategori</label>
+          <div class="relative group">
+            <i class="fa-solid fa-tags absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
+            <select id="bhpKategori" name="id_kategori" onchange="this.classList.toggle('text-slate-700',this.value!=='');this.classList.toggle('text-slate-400',this.value==='');"
+              class="w-full h-11 pl-9 pr-10 border border-slate-200 rounded-xl text-sm text-slate-400 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer shadow-sm bg-white hover:border-slate-300">
+              <option value="">Pilih kategori...</option>
+              <?php foreach ($kategoriList as $kat): ?>
+                <option value="<?php echo $kat['id_kategori']; ?>"><?php echo htmlspecialchars($kat['Nama_kategori']); ?> (<?php echo htmlspecialchars($kat['Kode_kategori'] ?? '-'); ?>)</option>
+              <?php endforeach; ?>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Nama BHP -->
+      <div class="flex flex-col gap-1.5">
+        <label for="bhpNama" class="text-sm font-semibold text-slate-700">Nama BHP <span class="text-red-500">*</span></label>
+        <input id="bhpNama" name="nama_bhp" type="text" required
+          placeholder="Masukkan nama barang lengkap"
+          class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" />
+      </div>
+
+      <!-- Row 3: Satuan -->
+      <div class="grid grid-cols-1 gap-5">
+        <div class="flex flex-col gap-1.5">
+          <label for="bhpSatuan" class="text-sm font-semibold text-slate-700">Satuan</label>
+          <div class="relative group">
+            <i class="fa-solid fa-ruler absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
+            <select id="bhpSatuan" name="id_satuan" onchange="this.classList.toggle('text-slate-700',this.value!=='');this.classList.toggle('text-slate-400',this.value==='');"
+              class="w-full h-11 pl-9 pr-10 border border-slate-200 rounded-xl text-sm text-slate-400 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer shadow-sm bg-white hover:border-slate-300">
+              <option value="">Pilih satuan...</option>
+              <?php foreach ($satuanList as $sat): ?>
+                <option value="<?php echo $sat['id_satuan']; ?>"><?php echo htmlspecialchars($sat['Nama_satuan']); ?></option>
+              <?php endforeach; ?>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px] pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pesan jika tidak ada kategori/satuan -->
+      <?php if (empty($kategoriList) || empty($satuanList)): ?>
+        <div class="rounded-xl px-4 py-3 text-sm font-medium bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-2">
+          <i class="fas fa-triangle-exclamation"></i>
+          <?php if (empty($kategoriList) && empty($satuanList)): ?>
+            Belum ada data <a href="index.php?page=kategori_bhp" class="underline font-bold">Kategori</a> dan <a href="index.php?page=satuan_bhp" class="underline font-bold">Satuan</a>. Tambahkan terlebih dahulu.
+          <?php elseif (empty($kategoriList)): ?>
+            Belum ada data <a href="index.php?page=kategori_bhp" class="underline font-bold">Kategori</a>. Tambahkan terlebih dahulu.
+          <?php else: ?>
+            Belum ada data <a href="index.php?page=satuan_bhp" class="underline font-bold">Satuan</a>. Tambahkan terlebih dahulu.
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" onclick="closeBhpModal()"
+          class="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Batal</button>
+        <button type="submit" id="btnSimpanBhp"
+          class="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95 shadow-sm"
+          style="background:linear-gradient(135deg,#006B47 0%,#1DB879 100%);">Simpan Barang</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="w-full p-4 sm:p-6 lg:p-8">
+  <div class="max-w-[1400px] mx-auto space-y-6 w-full">
+
+    <!-- Header Banner -->
+    <div class="relative w-full rounded-2xl overflow-hidden mb-2"
+      style="background:radial-gradient(ellipse at 0% 0%,#006B47 0%,#1A9F70 60%,#1DB879 100%);">
+      <div class="absolute inset-0 pointer-events-none select-none overflow-hidden">
+        <div class="absolute -top-[150px] -right-[50px] md:-top-[250px] md:-right-[100px] w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-white opacity-5"></div>
+        <div class="absolute -bottom-[150px] -right-[50px] md:-bottom-[300px] md:-right-[150px] w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full bg-white opacity-10"></div>
+        <div class="absolute -bottom-[400px] left-[50px] md:-bottom-[850px] md:left-[100px] w-[600px] h-[600px] md:w-[1000px] md:h-[1000px] rounded-full bg-white opacity-5"></div>
+      </div>
+      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 px-6 py-6 sm:px-8 sm:py-7">
+        <div class="flex items-center gap-4 sm:gap-5 min-w-0">
+          <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex-shrink-0"
+            style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);">
+            <i class="fas fa-box-open text-white text-xl sm:text-2xl"></i>
+          </div>
+          <div class="flex flex-col gap-1 min-w-0">
+            <h1 class="font-display font-bold text-white text-xl sm:text-2xl lg:text-3xl leading-tight">Data Bahan Habis Pakai</h1>
+            <p class="font-plex font-medium text-white/90 text-[13px] sm:text-[14px] leading-relaxed hidden sm:block max-w-2xl">
+              Pantau stok, penggunaan, dan ketersediaan bahan habis pakai secara real-time untuk memastikan operasional tetap berjalan lancar.
+            </p>
+          </div>
+        </div>
+        <div class="flex-shrink-0 w-full sm:w-auto">
+          <button id="btnTambahBHP" onclick="openBhpModal()"
+            class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-plex font-bold text-[14px] transition-all duration-200 hover:bg-slate-50 active:scale-95 whitespace-nowrap shadow-sm"
+            style="background:#fff;color:#006B47;border:none;">
+            <span class="text-base font-bold leading-none">+</span> Tambah BHP Baru
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Table Container -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col">
+
+      <!-- Filters -->
+      <form method="GET" action="" class="p-5 sm:p-6 border-b border-slate-100 flex flex-col xl:flex-row gap-4 items-end bg-white rounded-t-2xl relative z-10">
+        <input type="hidden" name="page" value="data_bhp">
+        <!-- Search -->
+        <div class="w-full xl:w-[40%] flex flex-col gap-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Cari</label>
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" name="keyword" value="<?php echo htmlspecialchars($filter['keyword']); ?>"
+              placeholder="Cari nama BHP, kode..."
+              class="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder:text-slate-400 font-medium text-slate-700 shadow-sm hover:border-slate-300">
+          </div>
+        </div>
+        <!-- Category dropdown dinamis -->
+        <div class="w-full sm:w-1/2 xl:w-[20%] flex flex-col gap-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Kategori</label>
+          <div class="relative">
+            <select name="id_kategori"
+              class="w-full h-11 pl-4 pr-10 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-medium text-slate-700 appearance-none cursor-pointer shadow-sm hover:border-slate-300">
+              <option value="">Semua Kategori</option>
+              <?php foreach ($kategoriList as $kat): ?>
+                <option value="<?php echo $kat['id_kategori']; ?>" <?php echo $filter['id_kategori'] == $kat['id_kategori'] ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($kat['Nama_kategori']); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+          </div>
+        </div>
+        <!-- Apply -->
+        <button type="submit"
+          class="w-full xl:w-auto h-11 px-6 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors text-sm shrink-0">
+          Terapkan
+        </button>
+        <?php if ($filter['keyword'] || $filter['id_kategori']): ?>
+          <a href="index.php?page=data_bhp"
+            class="w-full xl:w-auto h-11 px-4 rounded-xl text-sm font-semibold text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0">
+            <i class="fas fa-times mr-1"></i> Reset
+          </a>
+        <?php endif; ?>
+        <!-- Export buttons -->
+        <div class="flex gap-2 ml-auto">
+          <button type="button" onclick="exportBhp('pdf')"
+            class="h-11 px-4 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center gap-2 hover:bg-red-50 transition-colors shrink-0 whitespace-nowrap">
+            <i class="far fa-file-pdf"></i> Export PDF
+          </button>
+          <button type="button" onclick="exportBhp('excel')"
+            class="h-11 px-4 rounded-xl text-sm font-semibold text-emerald-600 border border-emerald-100 bg-emerald-50/50 flex items-center gap-2 hover:bg-emerald-50 transition-colors shrink-0 whitespace-nowrap">
+            <i class="far fa-file-excel"></i> Export Excel
+          </button>
+        </div>
+      </form>
+
+      <!-- Table -->
+      <div class="overflow-x-auto w-full relative z-0">
+        <table class="w-full text-left whitespace-nowrap">
+          <thead>
+            <tr class="bg-white text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-200 font-bold">
+              <th class="py-4 px-6">Kode BHP</th>
+              <th class="py-4 px-6">Nama BHP</th>
+              <th class="py-4 px-6">Kategori</th>
+              <th class="py-4 px-6">Satuan</th>
+              <th class="py-4 px-6">Stok (Unit)</th>
+              <th class="py-4 px-6">Total Pemakaian</th>
+              <th class="py-4 px-6">Status</th>
+              <th class="py-4 px-6 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px] font-plex divide-y divide-slate-100 text-slate-600">
+            <?php if (empty($bhpList)): ?>
+              <tr>
+                <td colspan="8" class="px-6 py-14 text-center text-slate-400">
+                  <i class="fas fa-box-open text-4xl mb-3 opacity-30 block"></i>
+                  <?php echo ($filter['keyword'] || $filter['id_kategori'])
+                    ? 'Tidak ada BHP yang cocok dengan filter.'
+                    : 'Belum ada data BHP. Klik "+ Tambah BHP Baru" untuk memulai.'; ?>
+                </td>
+              </tr>
+            <?php else: ?>
+              <?php
+              $katColors = [
+                ['bg' => 'bg-emerald-100/50', 'text' => 'text-emerald-600', 'border' => 'border-emerald-100/50'],
+                ['bg' => 'bg-amber-100/50',  'text' => 'text-amber-600',  'border' => 'border-amber-100/50'],
+                ['bg' => 'bg-blue-100/50',   'text' => 'text-blue-600',   'border' => 'border-blue-100/50'],
+                ['bg' => 'bg-purple-100/50', 'text' => 'text-purple-600', 'border' => 'border-purple-100/50'],
+                ['bg' => 'bg-rose-100/50',   'text' => 'text-rose-600',   'border' => 'border-rose-100/50'],
+              ];
+              $katColorMap = [];
+              foreach ($kategoriList as $idx => $k) $katColorMap[$k['id_kategori']] = $katColors[$idx % count($katColors)];
+              foreach ($bhpList as $bhp):
+                $status = stokStatus((int)$bhp['Jumlah']);
+                $col    = $katColorMap[$bhp['id_kategori']] ?? $katColors[0];
+              ?>
+                <tr class="hover:bg-slate-50/50 transition-colors group bg-white" id="bhp-row-<?php echo $bhp['id_bhp']; ?>">
+                  <td class="py-5 px-6 font-semibold text-slate-700"><?php echo htmlspecialchars($bhp['Kode_bhp'] ?? '-'); ?></td>
+                  <td class="py-5 px-6 font-semibold text-slate-800"><?php echo htmlspecialchars($bhp['Nama_bhp']); ?></td>
+                  <td class="py-5 px-6">
+                    <?php if ($bhp['Nama_kategori']): ?>
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-md text-[11px] font-bold <?php echo $col['bg'] . ' ' . $col['text'] . ' border ' . $col['border']; ?>">
+                        <?php echo htmlspecialchars($bhp['Nama_kategori']); ?>
+                      </span>
+                    <?php else: ?>
+                      <span class="text-slate-300 text-xs">—</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="py-5 px-6 font-medium text-slate-600"><?php echo $bhp['Nama_satuan'] ? htmlspecialchars($bhp['Nama_satuan']) : '—'; ?></td>
+                  <td class="py-5 px-6 font-medium text-slate-600">
+                    <span class="font-bold text-slate-700 text-sm"><?php echo number_format((int)$bhp['Jumlah']); ?></span>
+                    <span class="text-xs ml-1">Box/Unit</span>
+                  </td>
+                  <td class="py-5 px-6 font-medium text-slate-500">
+                    <div class="font-bold text-emerald-600 text-sm"><?php echo number_format((int)$bhp['Pemakaian']); ?></div>
+                  </td>
+                  <td class="py-5 px-6">
+                    <span class="<?php echo $status['cls']; ?> font-bold text-[11px] tracking-widest uppercase">
+                      <span class="<?php echo $status['dot']; ?> mr-1.5 text-[14px] leading-none tracking-normal">&bull;</span><?php echo $status['label']; ?>
+                    </span>
+                  </td>
+                  <td class="py-5 px-6 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <button onclick="editBhp(<?php echo htmlspecialchars(json_encode($bhp), ENT_QUOTES); ?>)"
+                        class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-blue-100/50 bg-white shadow-sm" title="Edit">
+                        <i class="fa-solid fa-pen-to-square text-[13px]"></i>
+                      </button>
+                      <button onclick="deleteBhp(<?php echo $bhp['id_bhp']; ?>, '<?php echo htmlspecialchars($bhp['Nama_bhp'], ENT_QUOTES); ?>')"
+                        class="text-red-500 hover:text-red-700 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-red-100/50 bg-white shadow-sm" title="Hapus">
+                        <i class="fa-solid fa-trash-can text-[13px]"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <?php if ($totalPages > 1): ?>
+      <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <span class="text-[13px] font-medium text-slate-500">
+          Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalPages; ?></span>
+        </span>
+        <div class="flex items-center gap-1.5">
+          <?php
+          $qParam = $_GET;
+          unset($qParam['p']);
+          $baseQS = http_build_query($qParam);
+          $baseQS = $baseQS ? '&' . $baseQS : '';
+          
+          if ($p > 1): ?>
+            <a href="?p=<?php echo $p - 1; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+              <i class="fas fa-chevron-left text-[11px]"></i>
+            </a>
+          <?php endif; ?>
+          
+          <?php
+          // Simple pagination numbers (max 5 pages)
+          $startPage = max(1, $p - 2);
+          $endPage = min($totalPages, $p + 2);
+          for ($i = $startPage; $i <= $endPage; $i++):
+            $isActive = ($i === $p);
+          ?>
+            <a href="?p=<?php echo $i; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?php echo $isActive ? 'bg-brand-50 border-brand-200 text-brand-600 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium'; ?> transition-colors text-sm">
+              <?php echo $i; ?>
+            </a>
+          <?php endfor; ?>
+
+          <?php if ($p < $totalPages): ?>
+            <a href="?p=<?php echo $p + 1; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+              <i class="fas fa-chevron-right text-[11px]"></i>
+            </a>
+          <?php endif; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastBhp" class="fixed bottom-6 right-6 z-[60] hidden items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-plex font-semibold text-white min-w-[260px]">
+  <i id="toastBhpIcon" class="fas text-base"></i>
+  <span id="toastBhpMsg"></span>
+</div>
+
+<style>
+  @keyframes bhpModalIn2 {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translateY(16px);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes toastIn2 {
+    from {
+      opacity: 0;
+      transform: translateY(12px)
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0)
+    }
+  }
+
+  @keyframes toastOut2 {
+    from {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(12px)
+    }
+  }
+</style>
+
+<script>
+  const BHP_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
+
+  /* -- Helper: sync dropdown text color -------- */
+  function syncSelectColor(el) {
+    el.classList.toggle('text-slate-700', el.value !== '');
+    el.classList.toggle('text-slate-400', el.value === '');
+  }
+
+  /* -- Modal ------------------------------------- */
+  function openBhpModal(id = '', kode = '', nama = '', id_kat = '', id_sat = '') {
+    document.getElementById('bhpId').value = id;
+    document.getElementById('bhpKode').value = kode;
+    document.getElementById('bhpNama').value = nama;
+
+    const katSel = document.getElementById('bhpKategori');
+    const satSel = document.getElementById('bhpSatuan');
+    katSel.value = id_kat;
+    satSel.value = id_sat;
+    syncSelectColor(katSel);
+    syncSelectColor(satSel);
+
+    document.getElementById('bhpAction').value = id ? 'edit_bhp' : 'add_bhp';
+    document.getElementById('bhpModalTitle').textContent = id ? 'Edit Data BHP' : 'Tambah Barang Baru';
+    const m = document.getElementById('modalBhp');
+    if (m.parentNode !== document.body) {
+      document.body.appendChild(m);
+    }
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+  }
+
+  function closeBhpModal() {
+    const m = document.getElementById('modalBhp');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+    document.getElementById('formBhp').reset();
+
+    // Reset dropdown colors to placeholder state
+    const katSel = document.getElementById('bhpKategori');
+    const satSel = document.getElementById('bhpSatuan');
+    katSel.classList.add('text-slate-400');
+    katSel.classList.remove('text-slate-700');
+    satSel.classList.add('text-slate-400');
+    satSel.classList.remove('text-slate-700');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeBhpModal();
+  });
+
+  /* -- Edit -------------------------------------- */
+  function editBhp(d) {
+    openBhpModal(d.id_bhp, d.Kode_bhp || '', d.Nama_bhp, d.id_kategori || '', d.id_satuan || '');
+  }
+
+  /* -- Delete ------------------------------------ */
+  function deleteBhp(id, nama) {
+    showDeleteConfirm(
+      'Hapus BHP?',
+      `Anda akan menghapus BHP "${nama}". Tindakan ini tidak dapat dibatalkan.`,
+      async () => {
+        const fd = new FormData();
+        fd.append('action', 'delete_bhp');
+        fd.append('id', id);
+        try {
+          const res = await fetch(BHP_URL, { method: 'POST', body: fd });
+          const json = await res.json();
+          if (json.success) { showToastBhp(json.message, 'success'); setTimeout(() => location.reload(), 900); }
+          else showToastBhp(json.message, 'error');
+        } catch { showToastBhp('Gagal menghapus BHP.', 'error'); }
+      }
+    );
+  }
+
+  /* -- Form Submit ------------------------------- */
+  document.getElementById('formBhp').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSimpanBhp');
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan...';
+    try {
+      const res = await fetch(BHP_URL, {
+        method: 'POST',
+        body: new FormData(this)
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToastBhp(json.message, 'success');
+        closeBhpModal();
+        setTimeout(() => location.reload(), 900);
+      } else showToastBhp(json.message, 'error');
+    } catch {
+      showToastBhp('Terjadi kesalahan jaringan.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Simpan Barang';
+    }
+  });
+
+  /* -- Toast ------------------------------------- */
+  let _bhpTimer;
+
+  function showToastBhp(msg, type = 'success') {
+    const t = document.getElementById('toastBhp'),
+      ic = document.getElementById('toastBhpIcon'),
+      me = document.getElementById('toastBhpMsg');
+    clearTimeout(_bhpTimer);
+    t.className = 'fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-plex font-semibold text-white min-w-[260px]';
+    t.style.animation = 'toastIn2 .3s ease forwards';
+    if (type === 'success') {
+      t.style.background = 'linear-gradient(135deg,#047857 0%,#059669 100%)';
+      ic.className = 'fas fa-circle-check text-base';
+    } else {
+      t.style.background = 'linear-gradient(135deg,#DC2626 0%,#EF4444 100%)';
+      ic.className = 'fas fa-circle-exclamation text-base';
+    }
+    me.textContent = msg;
+    _bhpTimer = setTimeout(() => {
+      t.style.animation = 'toastOut2 .3s ease forwards';
+      setTimeout(() => t.classList.add('hidden'), 300);
+    }, 3000);
+  }
+
+  function exportBhp(type) {
+    const params = new URLSearchParams(window.location.search);
+    const keyword = document.querySelector('[name="keyword"]')?.value   || params.get('keyword')     || '';
+    const idKat   = document.querySelector('[name="id_kategori"]')?.value || params.get('id_kategori') || '';
+    const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+    url.searchParams.set('type', type);
+    url.searchParams.set('page', 'bhp');
+    if (keyword) url.searchParams.set('keyword', keyword);
+    if (idKat)   url.searchParams.set('id_kategori', idKat);
+    window.location.href = url.toString();
+  }
+</script>

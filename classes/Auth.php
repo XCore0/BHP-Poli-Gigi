@@ -124,7 +124,7 @@ class Auth
      *
      * @param string $loginUrl Path ke halaman login
      */
-    public function requireLogin(string $loginUrl = '/BHP-Poli-Gigi/Login.php'): void
+    public function requireLogin(string $loginUrl = '/BHP-Poli-Gigi/pages/auth/login.php'): void
     {
         if (!$this->isLoggedIn()) {
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
@@ -140,7 +140,7 @@ class Auth
      * @param string|null  $redirectUrl URL redirect jika ditolak (null = tidak redirect)
      * @param bool         $jsonMode    Jika true, kembalikan JSON 403 alih-alih redirect
      */
-    public function requireRole($roles, ?string $redirectUrl = '/BHP-Poli-Gigi/Login.php', bool $jsonMode = false): void
+    public function requireRole($roles, ?string $redirectUrl = '/BHP-Poli-Gigi/pages/auth/login.php', bool $jsonMode = false): void
     {
         if (!$this->isLoggedIn()) {
             if ($jsonMode) {
@@ -149,7 +149,7 @@ class Auth
                 echo json_encode(['success' => false, 'message' => 'Sesi tidak valid. Silakan login kembali.']);
                 exit();
             }
-            header('Location: ' . ($redirectUrl ?? '/BHP-Poli-Gigi/Login.php'));
+            header('Location: ' . ($redirectUrl ?? '/BHP-Poli-Gigi/pages/auth/login.php'));
             exit();
         }
 
