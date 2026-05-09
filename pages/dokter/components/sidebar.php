@@ -101,33 +101,20 @@ $active_submenu = $active_submenu ?? '';
           </a>
         </div>
 
-        <!-- ---- Laporan (Dropdown) ---- -->
-        <?php $is_laporan_open = ($active_page == 'laporan' || $active_page == 'laporan_stok'); ?>
+        <!-- ---- Laporan Pemakaian ---- -->
+        <?php $is_laporan = ($active_page == 'laporan'); ?>
         <div class="mb-1">
-          <button onclick="toggleSubmenu('laporan')"
-            class="flex items-center gap-4 px-4 py-3.5 rounded-xl w-full text-left transition-all duration-200 group <?php echo ($is_laporan_open) ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
+          <a href="index.php?page=laporan"
+            class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group <?php echo $is_laporan ? 'bg-white/10 border border-white/20 shadow-sm' : 'border border-transparent hover:bg-white/5'; ?>">
             <div class="w-5 flex justify-center flex-shrink-0">
-              <i class="fas fa-chart-bar text-[18px] transition-colors <?php echo $is_laporan_open ? 'text-white' : 'text-white/80 group-hover:text-white'; ?>"></i>
+              <i class="fas fa-file-alt text-[17.6px] transition-colors <?php echo $is_laporan ? 'text-white' : 'text-white/70 group-hover:text-white/90'; ?>"></i>
             </div>
-            <span class="flex-1 font-plex text-base font-medium leading-6 transition-colors <?php echo $is_laporan_open ? 'text-white' : 'text-white/90 group-hover:text-white'; ?>">Laporan</span>
-            <i id="laporan-chevron" class="fas fa-chevron-down text-[13px] chevron-icon transition-transform <?php echo $is_laporan_open ? 'open text-white' : 'text-white/80'; ?>"></i>
-          </button>
-
-          <!-- Submenu -->
-          <div id="laporan-submenu" class="submenu <?php echo $is_laporan_open ? 'open' : ''; ?>">
-            <div class="ml-[25px] pl-4 py-1 mt-1 mb-2 flex flex-col gap-1.5 border-l-[1.5px] border-white/20">
-              <a href="index.php?page=laporan"
-                class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'laporan') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
-                Laporan Pemakaian
-              </a>
-              <a href="index.php?page=laporan_stok"
-                class="block px-3 py-2.5 rounded-xl font-plex text-[15px] leading-5 transition-all duration-200 <?php echo ($active_page == 'laporan_stok') ? 'bg-white/10 border border-white/20 shadow-sm text-white font-medium' : 'border border-transparent hover:bg-white/5 text-white/70 hover:text-white font-normal'; ?>">
-                Laporan Stok Masuk
-              </a>
-            </div>
-          </div>
+            <span
+              class="font-plex text-base leading-6 transition-colors <?php echo $is_laporan ? 'text-white font-medium' : 'text-white/70 font-normal group-hover:text-white/90'; ?>">Laporan
+              Pemakaian</span>
+          </a>
         </div>
-
+        
       </div>
       <!-- End scrollable content -->
 
