@@ -29,15 +29,15 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
 <div class="w-full p-4 sm:p-6 lg:p-8">
   <div class="max-w-[1400px] mx-auto space-y-6 w-full">
 
-    <!-- â”€â”€ NOTIFICATION TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-    <div id="toastStok" class="fixed top-6 right-6 z-[200] hidden">
+    <!-- ── NOTIFICATION TOAST ────────────────────────────── -->
+    <div id="toastStok" class="fixed top-6 right-6 z-[10001] hidden">
       <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-plex text-[13px] font-bold max-w-xs" id="toastStokInner">
         <i id="toastStokIcon" class="text-[15px]"></i>
         <span id="toastStokMsg"></span>
       </div>
     </div>
 
-    <!-- â”€â”€ HEADER BANNER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ── HEADER BANNER ────────────────────────────────── -->
     <div
       class="relative w-full rounded-2xl overflow-hidden mb-2"
       style="background: radial-gradient(ellipse at 0% 0%, #006B47 0%, #1A9F70 60%, #1DB879 100%);"
@@ -72,7 +72,7 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
       </div>
     </div>
 
-    <!-- â”€â”€ RIWAYAT STOK MASUK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ── RIWAYAT STOK MASUK ────────────────────────────── -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col p-6 sm:p-8">
 
       <!-- Card Header -->
@@ -117,7 +117,10 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
             <tr class="text-[11px] uppercase tracking-widest text-slate-400 border-b border-slate-100 font-bold">
               <th class="py-4 px-3">TANGGAL</th>
               <th class="py-4 px-3">BARANG</th>
-              <th class="py-4 px-3">JUMLAH</th>
+              <th class="py-4 px-3 text-center">ISI</th>
+              <th class="py-4 px-3 text-center">JUMLAH (KOTAK)</th>
+              <th class="py-4 px-3 text-center">TOTAL UNIT</th>
+              <th class="py-4 px-3">KEDALUARSA</th>
               <th class="py-4 px-3">OLEH</th>
               <th class="py-4 px-3"></th>
             </tr>
@@ -143,13 +146,37 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
                 <td class="py-5 px-3">
                   <div class="font-semibold text-slate-700"><?= htmlspecialchars($row['Nama_bhp']) ?></div>
                   <?php if (!empty($row['Kode_bhp'])): ?>
-                  <div class="text-[11px] text-slate-400 mt-0.5"><?= htmlspecialchars($row['Kode_bhp']) ?></div>
+                    <div class="text-[11px] text-slate-400 mt-0.5"><?= htmlspecialchars($row['Kode_bhp']) ?></div>
+                  <?php endif; ?>
+                  <?php if (!empty($row['catatan'])): ?>
+                    <div class="text-[10px] text-slate-400 mt-1 flex items-start gap-1 max-w-[200px] whitespace-normal">
+                      <i class="fas fa-info-circle mt-0.5"></i>
+                      <span><?= htmlspecialchars($row['catatan']) ?></span>
+                    </div>
                   <?php endif; ?>
                 </td>
-                <td class="py-5 px-3">
-                  <span class="font-bold text-brand-600">
-                    +<?= $row['jumlah'] ?> <?= htmlspecialchars($row['Nama_satuan'] ?? '') ?>
+                <td class="py-5 px-3 text-center font-medium text-slate-500">
+                  <?= $row['isi_per_stok'] ?? 1 ?>
+                </td>
+                <td class="py-5 px-3 text-center">
+                  <span class="font-bold text-slate-700">
+                    <?= $row['jumlah'] ?> <?= htmlspecialchars($row['Nama_satuan'] ?? '') ?>
                   </span>
+                </td>
+                <td class="py-5 px-3 text-center">
+                  <span class="font-bold text-brand-600">
+                    +<?= $row['jumlah'] * ($row['isi_per_stok'] ?? 1) ?> <span class="text-[10px] uppercase">Unit</span>
+                  </span>
+                </td>
+                <td class="py-5 px-3">
+                  <?php if ($row['tgl_kadaluarsa']): ?>
+                    <div class="flex items-center gap-1.5">
+                      <i class="far fa-calendar-times text-amber-500 text-[11px]"></i>
+                      <span class="font-medium text-slate-600"><?= date('d M Y', strtotime($row['tgl_kadaluarsa'])) ?></span>
+                    </div>
+                  <?php else: ?>
+                    <span class="text-slate-300">—</span>
+                  <?php endif; ?>
                 </td>
                 <td class="py-5 px-3 font-medium text-slate-400">
                   <?= htmlspecialchars($row['nama_user'] ?? 'Sistem') ?>
@@ -200,9 +227,9 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
     </div>
   </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ────────────────────────────────────────── -->
   <!-- MODAL: Input Stok Masuk                               -->
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- ────────────────────────────────────────── -->
   <div id="modalStokMasuk" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 font-plex"
     style="background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);"
     onclick="if(event.target===this)closeModalStok()">
@@ -221,6 +248,18 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
       <!-- Form -->
       <form id="formStokMasuk" onsubmit="submitStokMasuk(event)">
         <div class="bg-white px-6 py-6">
+          <!-- Error Area -->
+          <div id="errorStokMasuk" class="hidden mb-6 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
+            <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+            <div class="flex-1">
+              <p class="text-[13px] font-bold text-red-700">Terjadi Kesalahan</p>
+              <p id="errorStokMsg" class="text-[12px] text-red-600 mt-0.5"></p>
+            </div>
+            <button type="button" onclick="document.getElementById('errorStokMasuk').classList.add('hidden')" class="text-red-400 hover:text-red-600">
+              <i class="fas fa-times text-[12px]"></i>
+            </button>
+          </div>
+
           <div class="flex flex-col gap-5">
 
             <!-- Pilih Barang -->
@@ -233,10 +272,13 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
                   class="w-full h-11 pl-10 pr-4 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 transition-colors appearance-none cursor-pointer">
                   <option value="" disabled selected>Pilih item BHP...</option>
                   <?php foreach ($bhpList as $bhp): ?>
-                  <option value="<?= $bhp['id_bhp'] ?>">
+                  <option value="<?= $bhp['id_bhp'] ?>" 
+                    data-isi="<?= (int)($bhp['isi_per_stok'] ?? 1) ?>"
+                    data-stok="<?= (int)($bhp['Jumlah'] ?? 0) ?>"
+                    data-satuan="<?= htmlspecialchars($bhp['Nama_satuan'] ?? 'Unit') ?>">
                     <?= htmlspecialchars($bhp['Nama_bhp']) ?>
                     <?= !empty($bhp['Nama_satuan']) ? '(' . htmlspecialchars($bhp['Nama_satuan']) . ')' : '' ?>
-                    â€” Stok: <?= $bhp['Jumlah'] ?>
+                    — Stok: <?= $bhp['Jumlah'] ?>
                   </option>
                   <?php endforeach; ?>
                 </select>
@@ -281,8 +323,8 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
 
             <!-- Tanggal Kedaluarsa -->
             <div>
-              <label class="block text-[12px] font-bold text-slate-600 mb-2">Tanggal Kedaluarsa <span class="text-slate-400 font-normal">(Opsional)</span></label>
-              <input type="date" name="tgl_kadaluarsa"
+              <label class="block text-[12px] font-bold text-slate-600 mb-2">Tanggal Kedaluarsa <span class="text-red-500">*</span></label>
+              <input type="date" name="tgl_kadaluarsa" required
                 class="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-xl text-[13px] text-slate-700 outline-none focus:border-brand-500 transition-colors">
             </div>
 
@@ -312,20 +354,23 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
 
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ────────────────────────────────────────── -->
 <!-- JAVASCRIPT                                                 -->
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ────────────────────────────────────────── -->
 <script>
-// â”€â”€ Set default tanggal hari ini â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Set default tanggal hari ini ──
 (function () {
   const today = new Date().toISOString().split('T')[0];
   const el = document.getElementById('inputTglTerima');
   if (el) el.value = today;
 })();
 
-// â”€â”€ Modal helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Modal helpers ──
 function openModalStok() {
   const m = document.getElementById('modalStokMasuk');
+  if (document.getElementById('errorStokMasuk')) {
+    document.getElementById('errorStokMasuk').classList.add('hidden');
+  }
   if (m.parentNode !== document.body) {
     document.body.appendChild(m);
   }
@@ -335,17 +380,39 @@ function openModalStok() {
 function updateIsiPerStok(select) {
   const infoEl = document.getElementById('infoIsiPerStok');
   const textEl = document.getElementById('txtIsiPerStok');
+  const inputIsi = document.getElementById('inputIsiPerStok');
+
   if (!select.value) {
     infoEl.classList.add('hidden');
+    inputIsi.readOnly = false;
+    inputIsi.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-400');
     return;
   }
+
   const opt = select.options[select.selectedIndex];
   const isi = parseInt(opt.dataset.isi) || 1;
+  const stok = parseInt(opt.dataset.stok) || 0;
   const satuan = opt.dataset.satuan || '';
-  if (isi > 1) {
-    textEl.textContent = `Setiap 1 box/unit berisi ${isi} ${satuan} (unit kecil)`;
+
+  // Aturan: Jika stok sudah ada (>0) ATAU isi sudah pernah diset (>1), maka LOCK
+  // Mengapa >1? Karena default database adalah 1. Jika masih 1 dan stok 0, dianggap belum diset.
+  if (stok > 0 || isi > 1) {
+    inputIsi.value = isi;
+    inputIsi.readOnly = true;
+    inputIsi.classList.add('bg-slate-100', 'cursor-not-allowed', 'text-slate-400');
+    inputIsi.title = "Kapasitas sudah ditentukan pada input stok pertama kali.";
+    
+    textEl.textContent = `Item ini sudah memiliki kapasitas tetap: 1 ${satuan} = ${isi} unit kecil.`;
     infoEl.classList.remove('hidden');
+    infoEl.style.background = '#f8fafc';
+    infoEl.style.color = '#64748b';
+    infoEl.style.borderColor = '#e2e8f0';
   } else {
+    inputIsi.value = 1;
+    inputIsi.readOnly = false;
+    inputIsi.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-400');
+    inputIsi.title = "";
+    
     infoEl.classList.add('hidden');
   }
 }
@@ -354,13 +421,14 @@ function closeModalStok() {
   m.classList.add('hidden');
   m.classList.remove('flex');
   document.getElementById('formStokMasuk').reset();
+  document.getElementById('errorStokMasuk').classList.add('hidden');
   document.getElementById('inputIsiPerStok').value = 1;
   document.getElementById('infoIsiPerStok').classList.add('hidden');
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('inputTglTerima').value = today;
 }
 
-// â”€â”€ Toast notification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Toast notification ──
 function showToastStok(msg, success = true) {
   const toast = document.getElementById('toastStok');
   const inner = document.getElementById('toastStokInner');
@@ -379,7 +447,7 @@ function showToastStok(msg, success = true) {
   setTimeout(() => toast.classList.add('hidden'), 3500);
 }
 
-// â”€â”€ Tambah baris ke tabel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Tambah baris ke tabel ──
 function appendStokRow(item) {
   const tbody = document.getElementById('tbodyStok');
 
@@ -406,9 +474,17 @@ function appendStokRow(item) {
     <td class="py-5 px-3">
       <div class="font-semibold text-slate-700">${escapeHtml(item.Nama_bhp || '')}</div>
       ${item.Kode_bhp ? `<div class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(item.Kode_bhp)}</div>` : ''}
+      ${item.catatan ? `<div class="text-[10px] text-slate-400 mt-1 flex items-start gap-1 max-w-[200px] whitespace-normal"><i class="fas fa-info-circle mt-0.5"></i><span>${escapeHtml(item.catatan)}</span></div>` : ''}
+    </td>
+    <td class="py-5 px-3 text-center font-medium text-slate-500">${item.isi_per_stok || 1}</td>
+    <td class="py-5 px-3 text-center">
+      <span class="font-bold text-slate-700">${item.jumlah} ${escapeHtml(item.Nama_satuan || '')}</span>
+    </td>
+    <td class="py-5 px-3 text-center">
+      <span class="font-bold text-brand-600">+${(item.jumlah * (item.isi_per_stok || 1))} <span class="text-[10px] uppercase">Unit</span></span>
     </td>
     <td class="py-5 px-3">
-      <span class="font-bold text-brand-600">+${item.jumlah} ${escapeHtml(item.Nama_satuan || '')}</span>
+      ${item.tgl_kadaluarsa ? `<div class="flex items-center gap-1.5"><i class="far fa-calendar-times text-amber-500 text-[11px]"></i><span class="font-medium text-slate-600">${item.tgl_kadaluarsa}</span></div>` : '<span class="text-slate-300">—</span>'}
     </td>
     <td class="py-5 px-3 font-medium text-slate-400">${escapeHtml(item.nama_user || 'Sistem')}</td>
     <td class="py-5 px-3 text-right">
@@ -436,7 +512,7 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-// â”€â”€ Submit tambah stok â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Submit tambah stok ──
 function submitStokMasuk(e) {
   e.preventDefault();
   const form = document.getElementById('formStokMasuk');
@@ -447,23 +523,29 @@ function submitStokMasuk(e) {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[11px]"></i> Menyimpan...';
 
-  fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', {
-    method : 'POST',
-    body   : fd,
-    credentials: 'same-origin'
-  })
+  fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
   .then(r => r.json())
   .then(res => {
     if (res.success) {
       showToastStok(res.message, true);
-      closeModalStok();
-      // Reload halaman agar data refresh (termasuk nama_user dan format dari server)
-      setTimeout(() => window.location.reload(), 900);
+      appendStokRow(res.data);
+      setTimeout(() => closeModalStok(), 500);
     } else {
-      showToastStok(res.message || 'Terjadi kesalahan.', false);
+      // Show error on top of form as requested
+      const errEl = document.getElementById('errorStokMasuk');
+      const errMsg = document.getElementById('errorStokMsg');
+      errMsg.textContent = res.message || 'Gagal menyimpan data.';
+      errEl.classList.remove('hidden');
+      errEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   })
-  .catch(() => showToastStok('Koneksi gagal, coba lagi.', false))
+  .catch(err => {
+    console.error(err);
+    const errEl = document.getElementById('errorStokMasuk');
+    const errMsg = document.getElementById('errorStokMsg');
+    errMsg.textContent = 'Terjadi kesalahan koneksi atau server.';
+    errEl.classList.remove('hidden');
+  })
   .finally(() => {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-save text-[11px]"></i> Simpan Stok Masuk';

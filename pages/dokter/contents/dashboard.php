@@ -26,9 +26,12 @@ foreach ($pemakaianHariIni as $p) {
 // Riwayat terbaru (4 entri terakhir dokter ini)
 $riwayatTerbaru = $pemMgr->getAllPemakaian(['id_user' => $userId, 'limit' => 4]);
 
-// Stok menipis (untuk dokter)
+// Stok menipis (khusus yang berlabel MENIPIS)
 $allBhp = $bhpMgr->getAllBhp();
-$stokMenipis = count(array_filter($allBhp, fn($b) => (int)($b['Jumlah'] ?? 0) <= 10));
+$stokMenipis = count(array_filter($allBhp, function($b) {
+    $status = BhpManager::getStatusStok((int)($b['Jumlah'] ?? 0), (int)($b['Pemakaian'] ?? 0));
+    return $status['level'] == 1; // Level 1 = Menipis
+}));
 
 // Top BHP pemakaian
 usort($allBhp, fn($a, $b) => (int)($b['Pemakaian'] ?? 0) - (int)($a['Pemakaian'] ?? 0));
@@ -87,7 +90,7 @@ $tglLabel = $hari . ', ' . date('d') . ' ' . ['Januari','Februari','Maret','Apri
     <!-- 2. Metrics Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
       <!-- Card 1: Pemakaian Hari Ini -->
-      <div class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow group relative overflow-hidden">
+      <a href="index.php?page=laporan" class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md hover:border-blue-200 transition-all group relative overflow-hidden cursor-pointer">
         <div class="absolute top-0 right-0 w-20 h-20 bg-blue-50 rounded-bl-full -z-10 opacity-50 group-hover:scale-110 transition-transform"></div>
         <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-sm border border-blue-100/50 group-hover:-translate-y-1 transition-transform">
           <i class="text-lg fas fa-box-open"></i>
@@ -99,10 +102,10 @@ $tglLabel = $hari . ', ' . date('d') . ' ' . ['Januari','Februari','Maret','Apri
             <span class="text-[12px] font-semibold text-slate-500 mb-1">Item</span>
           </div>
         </div>
-      </div>
+      </a>
 
       <!-- Card 2: Pasien Ditangani Hari Ini -->
-      <div class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow group relative overflow-hidden">
+      <a href="index.php?page=laporan" class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md hover:border-emerald-200 transition-all group relative overflow-hidden cursor-pointer">
         <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-50 rounded-bl-full -z-10 opacity-50 group-hover:scale-110 transition-transform"></div>
         <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shadow-sm border border-emerald-100/50 group-hover:-translate-y-1 transition-transform">
           <i class="text-lg fas fa-user-check"></i>
@@ -114,10 +117,10 @@ $tglLabel = $hari . ', ' . date('d') . ' ' . ['Januari','Februari','Maret','Apri
             <span class="text-[12px] font-semibold text-slate-500 mb-1">Orang</span>
           </div>
         </div>
-      </div>
+      </a>
 
       <!-- Card 3: Stok Menipis -->
-      <div class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow group relative overflow-hidden">
+      <a href="index.php?page=data_bhp" class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md hover:border-red-200 transition-all group relative overflow-hidden cursor-pointer">
         <div class="absolute top-0 right-0 w-20 h-20 bg-red-50 rounded-bl-full -z-10 opacity-50 group-hover:scale-110 transition-transform"></div>
         <div class="w-12 h-12 rounded-xl bg-red-50 text-red-500 flex items-center justify-center font-bold shadow-sm border border-red-100/50 group-hover:-translate-y-1 transition-transform <?php echo $stokMenipis > 0 ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''; ?>">
           <i class="text-lg fas fa-exclamation-triangle"></i>
@@ -132,10 +135,10 @@ $tglLabel = $hari . ', ' . date('d') . ' ' . ['Januari','Februari','Maret','Apri
             </span>
           </div>
         </div>
-      </div>
+      </a>
 
       <!-- Card 4: Total Catatan (semua waktu) -->
-      <div class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-shadow group relative overflow-hidden">
+      <a href="index.php?page=laporan" class="bg-white rounded-[20px] p-5 shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md hover:border-amber-200 transition-all group relative overflow-hidden cursor-pointer">
         <div class="absolute top-0 right-0 w-20 h-20 bg-amber-50 rounded-bl-full -z-10 opacity-50 group-hover:scale-110 transition-transform"></div>
         <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center font-bold shadow-sm border border-amber-100/50 group-hover:-translate-y-1 transition-transform">
           <i class="text-lg fas fa-clipboard-list"></i>
@@ -147,7 +150,7 @@ $tglLabel = $hari . ', ' . date('d') . ' ' . ['Januari','Februari','Maret','Apri
             <span class="text-[12px] font-semibold text-slate-500 mb-1">Sesi</span>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
     <!-- 3. Bottom Two Columns -->

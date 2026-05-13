@@ -17,9 +17,12 @@ $logObj   = new ActivityLog();
 $totalPengguna = $userMgr->countAll();
 $totalBhp      = count($bhpMgr->getAllBhp());
 
-// BHP dengan stok menipis (jumlah <= 10)
+// BHP dengan stok menipis (khusus yang berlabel MENIPIS)
 $allBhp        = $bhpMgr->getAllBhp();
-$stokMenipis   = array_filter($allBhp, fn($b) => (int)($b['Jumlah'] ?? 0) <= 10);
+$stokMenipis   = array_filter($allBhp, function($b) {
+    $status = BhpManager::getStatusStok((int)($b['Jumlah'] ?? 0), (int)($b['Pemakaian'] ?? 0));
+    return $status['level'] == 1; // Level 1 = Menipis
+});
 $jumlahMenipis = count($stokMenipis);
 
 // Log hari ini
@@ -72,7 +75,7 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
       <!-- Card 1: Total Pengguna -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow group">
+      <a href="?page=pengguna" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-200 transition-all group cursor-pointer">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform" style="background: #EFF6FF;">
           <i class="fas fa-users text-blue-500 text-xl"></i>
         </div>
@@ -81,9 +84,9 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
           <p class="font-display font-bold text-2xl text-slate-800 leading-tight"><?php echo $totalPengguna; ?></p>
           <p class="font-plex text-xs text-slate-400">Akun terdaftar</p>
         </div>
-      </div>
+      </a>
       <!-- Card 2: Total BHP -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow group">
+      <a href="?page=data_bhp" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-emerald-200 transition-all group cursor-pointer">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform" style="background: #ECFDF5;">
           <i class="fas fa-boxes text-emerald-600 text-xl"></i>
         </div>
@@ -92,9 +95,9 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
           <p class="font-display font-bold text-2xl text-slate-800 leading-tight"><?php echo $totalBhp; ?></p>
           <p class="font-plex text-xs text-slate-400">Jenis BHP terdaftar</p>
         </div>
-      </div>
+      </a>
       <!-- Card 3: Stok Menipis -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow group">
+      <a href="?page=data_bhp" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-amber-200 transition-all group cursor-pointer">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform <?php echo $jumlahMenipis > 0 ? 'animate-[pulse_2s_ease-in-out_infinite]' : ''; ?>" style="background: #FFF7ED;">
           <i class="fas fa-exclamation-triangle text-amber-500 text-xl"></i>
         </div>
@@ -103,9 +106,9 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
           <p class="font-display font-bold text-2xl <?php echo $jumlahMenipis > 0 ? 'text-amber-600' : 'text-slate-800'; ?> leading-tight"><?php echo $jumlahMenipis; ?></p>
           <p class="font-plex text-xs text-slate-400">Perlu segera dipenuhi</p>
         </div>
-      </div>
+      </a>
       <!-- Card 4: Log Hari Ini -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-shadow group">
+      <a href="?page=pengguna&tab=log" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-purple-200 transition-all group cursor-pointer">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform" style="background: #F3E8FF;">
           <i class="fas fa-clipboard-list text-purple-500 text-xl"></i>
         </div>
@@ -114,7 +117,7 @@ $stokMenipisArr = array_slice(array_values($stokMenipis), 0, 5);
           <p class="font-display font-bold text-2xl text-slate-800 leading-tight"><?php echo $logHariIni; ?></p>
           <p class="font-plex text-xs text-slate-400">Aktivitas tercatat</p>
         </div>
-      </div>
+      </a>
     </div>
 
     <!-- Bottom 2-column layout -->

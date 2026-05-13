@@ -152,19 +152,21 @@ $prevEmail = htmlspecialchars($_POST['email'] ?? '');
               <p class="text-base text-gray-600 font-normal">Masuk ke akun Anda untuk melanjutkan</p>
             </div>
 
-            <?php if (!empty($errorMsg)): ?>
-            <!-- Error Alert -->
-            <div class="error-box flex items-start gap-3 p-4 mb-6" id="error-alert">
-              <svg class="flex-shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 20 20" fill="none">
-                <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="#EF4444" stroke-width="1.5"/>
-                <path d="M10 6V10M10 14H10.01" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <p class="text-sm font-medium text-red-600"><?php echo htmlspecialchars($errorMsg); ?></p>
-              <button onclick="document.getElementById('error-alert').remove()" class="ml-auto text-red-300 hover:text-red-500 transition-colors flex-shrink-0">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
+            <!-- Error Alert Placeholder -->
+            <div id="alert-container">
+              <?php if (!empty($errorMsg)): ?>
+              <div class="error-box flex items-start gap-3 p-4 mb-6" id="error-alert">
+                <svg class="flex-shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="#EF4444" stroke-width="1.5"/>
+                  <path d="M10 6V10M10 14H10.01" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <p class="text-sm font-medium text-red-600" id="error-msg-text"><?php echo htmlspecialchars($errorMsg); ?></p>
+                <button type="button" onclick="this.parentElement.remove()" class="ml-auto text-red-300 hover:text-red-500 transition-colors flex-shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+              </div>
+              <?php endif; ?>
             </div>
-            <?php endif; ?>
 
             <!-- Form Login -->
             <form method="POST" action="/BHP-Poli-Gigi/process/login_process.php" class="space-y-6" id="login-form" novalidate>

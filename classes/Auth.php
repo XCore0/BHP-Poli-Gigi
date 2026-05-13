@@ -34,52 +34,59 @@ class Auth
      */
     public function login(string $email, string $password): array
     {
-        $email = trim($email);
+        try {
+            $email = trim($email);
 
-        if (empty($email) || empty($password)) {
-            return ['success' => false, 'message' => 'Email dan password tidak boleh kosong.'];
+            if (empty($email) || empty($password)) {
+                return ['success' => false, 'message' => 'Email dan password tidak boleh kosong.'];
+            }
+
+            // Cari user berdasarkan email
+            $stmt = $this->db->prepare(
+                'SELECT id_user, Nama_lengkap, Email, Password, Role, Status_akun
+                 FROM user WHERE Email = ? LIMIT 1'
+            );
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if (!$user) {
+                return ['success' => false, 'message' => 'Email atau password salah.'];
+            }
+
+            if ($user['Status_akun'] !== 'aktif') {
+                return ['success' => false, 'message' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.'];
+            }
+
+            // Verifikasi password menggunakan password_verify() (bcrypt)
+            if (!password_verify($password, $user['Password'])) {
+                return ['success' => false, 'message' => 'Email atau password salah.'];
+            }
+
+            session_regenerate_id(true);
+
+            // Simpan data user ke session (tanpa password)
+            $_SESSION[$this->sessionKey] = [
+                'id'     => $user['id_user'],
+                'nama'   => $user['Nama_lengkap'],
+                'email'  => $user['Email'],
+                'role'   => $user['Role'],
+                'status' => $user['Status_akun'],
+            ];
+
+            // Catat log login
+            (new ActivityLog())->logLogin(
+                (int) $user['id_user'],
+                $user['Nama_lengkap'],
+                $user['Role']
+            );
+
+            return ['success' => true, 'message' => 'Login berhasil.', 'role' => $user['Role']];
+            
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Terjadi kesalahan koneksi database. Silakan coba lagi nanti.'];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()];
         }
-
-        // Cari user berdasarkan email
-        $stmt = $this->db->prepare(
-            'SELECT id_user, Nama_lengkap, Email, Password, Role, Status_akun
-             FROM user WHERE Email = ? LIMIT 1'
-        );
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if (!$user) {
-            return ['success' => false, 'message' => 'Email atau password salah.'];
-        }
-
-        if ($user['Status_akun'] !== 'aktif') {
-            return ['success' => false, 'message' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.'];
-        }
-
-        // Verifikasi password menggunakan password_verify() (bcrypt)
-        if (!password_verify($password, $user['Password'])) {
-            return ['success' => false, 'message' => 'Email atau password salah.'];
-        }
-
-        session_regenerate_id(true);
-
-        // Simpan data user ke session (tanpa password)
-        $_SESSION[$this->sessionKey] = [
-            'id'     => $user['id_user'],
-            'nama'   => $user['Nama_lengkap'],
-            'email'  => $user['Email'],
-            'role'   => $user['Role'],
-            'status' => $user['Status_akun'],
-        ];
-
-        // Catat log login
-        (new ActivityLog())->logLogin(
-            (int) $user['id_user'],
-            $user['Nama_lengkap'],
-            $user['Role']
-        );
-
-        return ['success' => true, 'message' => 'Login berhasil.', 'role' => $user['Role']];
     }
 
     /**

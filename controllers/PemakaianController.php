@@ -97,6 +97,17 @@ class PemakaianController
                     echo json_encode(['success' => true, 'data' => $data]);
                     break;
 
+                // ── AMBIL RIWAYAT PASIEN ───────────────────────
+                case 'get_patient_history':
+                    $nama = $_POST['nama_pasien'] ?? '';
+                    if (!$nama) {
+                        echo json_encode(['success' => false, 'message' => 'Nama pasien tidak boleh kosong.']);
+                        break;
+                    }
+                    $data = $mgr->getPatientHistory($nama);
+                    echo json_encode(['success' => true, 'data' => $data]);
+                    break;
+
                 default:
                     echo json_encode(['success' => false, 'message' => 'Aksi tidak dikenali: ' . htmlspecialchars($action)]);
             }

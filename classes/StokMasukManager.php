@@ -29,6 +29,7 @@ class StokMasukManager
               `id_stok_masuk`  INT UNSIGNED NOT NULL AUTO_INCREMENT,
               `id_bhp`         INT UNSIGNED NOT NULL,
               `jumlah`         INT          NOT NULL DEFAULT 1,
+              `isi_per_stok`   INT          NOT NULL DEFAULT 1,
               `tanggal_terima` DATE         NOT NULL,
               `supplier`       VARCHAR(100) DEFAULT NULL,
               `tgl_kadaluarsa` DATE         DEFAULT NULL,
@@ -40,6 +41,24 @@ class StokMasukManager
               KEY `fk_stok_user` (`id_user`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         ");
+
+        // Periksa & Tambah kolom isi_per_stok di tabel stok_masuk
+        $this->addColIfNotExist('stok_masuk', 'isi_per_stok', 'INT NOT NULL DEFAULT 1 AFTER `jumlah`');
+        // Periksa & Tambah kolom isi_per_stok di tabel bhp
+        $this->addColIfNotExist('bhp', 'isi_per_stok', 'INT NOT NULL DEFAULT 1 AFTER `Pemakaian`');
+    }
+
+    private function addColIfNotExist(string $table, string $column, string $definition): void
+    {
+        try {
+            // Gunakan @ untuk meredam warning jika tabel belum ada sama sekali
+            $check = @$this->db->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+            if ($check instanceof \PDOStatement && $check->rowCount() === 0) {
+                $this->db->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
+            }
+        } catch (\Throwable $e) {
+            // Diamkan agar tidak mengganggu output JSON
+        }
     }
 
     // ══════════════════════════════════════════════
@@ -138,6 +157,7 @@ class StokMasukManager
         if ($id_bhp <= 0)         return ['success' => false, 'message' => 'Pilih barang BHP terlebih dahulu.'];
         if ($jumlah <= 0)         return ['success' => false, 'message' => 'Jumlah harus lebih dari 0.'];
         if ($tanggal_terima === '') return ['success' => false, 'message' => 'Tanggal terima tidak boleh kosong.'];
+        if ($tgl_kadaluarsa === '') return ['success' => false, 'message' => 'Tanggal kedaluarsa tidak boleh kosong.'];
 
         // Cek apakah BHP ada dan ambil isi_per_stok
         $chk = $this->db->prepare('SELECT id_bhp, isi_per_stok FROM bhp WHERE id_bhp = ?');
@@ -162,12 +182,13 @@ class StokMasukManager
             // Insert stok_masuk
             $stmt = $this->db->prepare("
                 INSERT INTO stok_masuk
-                    (id_bhp, jumlah, tanggal_terima, tgl_kadaluarsa, catatan, id_user)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (id_bhp, jumlah, isi_per_stok, tanggal_terima, tgl_kadaluarsa, catatan, id_user)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $id_bhp,
                 $jumlah,
+                $isiPerStok,
                 $tanggal_terima,
                 $tgl_kadaluarsa ?: null,
                 $catatan   ?: null,
@@ -180,11 +201,31 @@ class StokMasukManager
             $upd = $this->db->prepare('UPDATE bhp SET Jumlah = Jumlah + ?, Pemakaian = Pemakaian + ? WHERE id_bhp = ?');
             $upd->execute([$jumlah, $tambahPemakaian, $id_bhp]);
 
+            // Ambil data lengkap untuk dikembalikan ke front-end
+            $getData = $this->db->prepare("
+                SELECT sm.*, b.Nama_bhp, b.Kode_bhp, s.Nama_satuan, u.Nama_lengkap as nama_user
+                FROM stok_masuk sm
+                JOIN bhp b ON sm.id_bhp = b.id_bhp
+                LEFT JOIN satuan_bhp s ON b.id_satuan = s.id_satuan
+                LEFT JOIN user u ON sm.id_user = u.id_user
+                WHERE sm.id_stok_masuk = ?
+            ");
+            $getData->execute([$newId]);
+            $fullData = $getData->fetch(PDO::FETCH_ASSOC);
+
             $this->db->commit();
-            return ['success' => true, 'message' => 'Stok masuk berhasil dicatat.', 'id' => $newId];
+
+            return [
+                'success' => true, 
+                'message' => 'Stok masuk berhasil dicatat.', 
+                'id'      => $newId,
+                'data'    => $fullData
+            ];
 
         } catch (\Throwable $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             return ['success' => false, 'message' => 'Gagal menyimpan: ' . $e->getMessage()];
         }
     }

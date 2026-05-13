@@ -91,9 +91,11 @@ $today    = date('Y-m-d');
                         <?php if ((int)$b['Pemakaian'] > 0): ?>
                           <option value="<?= $b['id_bhp'] ?>"
                             data-nama="<?= htmlspecialchars($b['Nama_bhp']) ?>"
-                            data-satuan="<?= htmlspecialchars($b['Nama_satuan'] ?? '') ?>"
-                            data-stok="<?= $b['Pemakaian'] ?>">
-                            <?= htmlspecialchars($b['Nama_bhp']) ?> — Tersedia: <?= $b['Pemakaian'] ?> (kapasitas/unit kecil)
+                            data-satuan="<?= htmlspecialchars($b['Nama_satuan'] ?? 'Box') ?>"
+                            data-stok="<?= $b['Pemakaian'] ?>"
+                            data-wadah="<?= $b['Jumlah'] ?>"
+                            data-isi="<?= $b['isi_per_stok'] ?>">
+                            <?= htmlspecialchars($b['Nama_bhp']) ?> — Tersedia: <?= $b['Pemakaian'] ?> unit
                           </option>
                         <?php endif; ?>
                       <?php endforeach; ?>
@@ -269,16 +271,38 @@ document.getElementById('selectBhpCatat').addEventListener('change', function(){
   const opt=this.options[this.selectedIndex];
   const nama=opt.dataset.nama||'';
   const satuan=opt.dataset.satuan||'';
-  const stok=opt.dataset.stok||0;
+  const pemakaian=parseInt(opt.dataset.stok)||0;
+  const wadah=parseInt(opt.dataset.wadah)||0;
+  const isi=parseInt(opt.dataset.isi)||1;
+  
   const panel=document.getElementById('panelInfoBhp');
   panel.innerHTML=`
-    <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Nama BHP</span><span class="text-[13px] font-bold text-slate-800">${escapeH(nama)}</span></div>
-    <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Satuan</span><span class="text-[12px] font-semibold text-slate-600">${escapeH(satuan)}</span></div>
-    <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Stok Saat Ini</span><span class="text-[13px] font-bold text-slate-800">${stok} <span class="text-[11px] font-medium text-slate-400">${escapeH(satuan)}</span></span></div>
-    <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Status</span>
-      ${parseInt(stok)>0
-        ?'<span class="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] font-bold">Tersedia</span>'
-        :'<span class="px-2.5 py-1 rounded-md bg-red-50 border border-red-100 text-red-600 text-[11px] font-bold">Habis</span>'}
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Nama BHP</span><span class="text-[13px] font-bold text-slate-800">${escapeH(nama)}</span></div>
+      <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Status</span>
+        ${pemakaian>0
+          ?'<span class="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] font-bold">Tersedia</span>'
+          :'<span class="px-2.5 py-1 rounded-md bg-red-50 border border-red-100 text-red-600 text-[11px] font-bold">Habis</span>'}
+      </div>
+      
+      <div class="mt-2 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Stok Wadah</span>
+          <span class="text-[13px] font-black text-slate-700">${wadah} <span class="text-[10px] text-slate-400 uppercase">${escapeH(satuan)}</span></span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Kapasitas/Stok</span>
+          <span class="text-[13px] font-black text-slate-700">${isi} <span class="text-[10px] text-slate-400 uppercase">unit</span></span>
+        </div>
+        <div class="border-t border-slate-200/60 my-2 pt-2 flex items-center justify-between">
+          <span class="text-[11px] text-brand-600 font-bold uppercase tracking-wider">Total Tersedia</span>
+          <span class="text-[15px] font-black text-brand-600">${pemakaian} <span class="text-[10px] uppercase">unit</span></span>
+        </div>
+      </div>
+      
+      <div class="text-[10px] text-slate-400 italic leading-relaxed px-1">
+        * 1 ${escapeH(satuan)} = ${isi} kali pemakaian. Jika sisa unit < ${isi}, stok wadah akan otomatis berkurang.
+      </div>
     </div>`;
 });
 
@@ -291,7 +315,7 @@ function renderTableBhp(){
   tbody.innerHTML=itemsBhp.map((item,idx)=>`
     <tr class="hover:bg-slate-50/50 transition-colors">
       <td class="px-4 py-3 font-semibold text-slate-700 text-[12px]">${escapeH(item.nama)}</td>
-      <td class="px-4 py-3 text-center text-slate-500 text-[12px]">${item.stok} ${escapeH(item.satuan)}</td>
+      <td class="px-4 py-3 text-center text-slate-500 text-[12px]">${item.stok} <span class="text-[10px] uppercase">unit</span></td>
       <td class="px-4 py-3 text-center">
         <div class="flex items-center justify-center gap-2">
           <button type="button" onclick="ubahJml(${idx},-1)" class="w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition"><i class="fas fa-minus text-[9px]"></i></button>

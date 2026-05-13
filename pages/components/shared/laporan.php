@@ -394,7 +394,8 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
         $ci = abs(crc32($namaPasien)) % count($colorSets);
         [$avatarClass] = $colorSets[$ci];
       ?>
-      <div class="bg-white rounded-[24px] border border-slate-100/80 p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+      <div class="bg-white rounded-[24px] border border-slate-100/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col cursor-pointer hover:border-brand-300 active:scale-[0.98] group"
+           onclick="openPatientDetail('<?= addslashes($namaPasien) ?>')">
 
         <!-- Pasien Header -->
         <div class="flex items-center gap-3 mb-5">
@@ -477,6 +478,77 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
   </div>
 </div>
 
+<!-- ══ MODAL: DETAIL PASIEN ════════════════════════════════════ -->
+<div id="modalPatientDetail" class="fixed inset-0 z-[100000] hidden items-center justify-center p-4 sm:p-6 font-plex"
+  style="background:rgba(15,23,42,0.6);backdrop-filter:blur(8px);"
+  onclick="if(event.target===this)closePatientDetail()">
+  
+  <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[85vh]"
+    style="animation: modalIn .3s cubic-bezier(.34,1.56,.64,1) both;">
+
+    <!-- Theme-Matched Header -->
+    <div class="relative px-8 py-6 flex-shrink-0 bg-white border-b border-slate-100">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-5">
+          <div id="modalPatientAvatar" class="w-14 h-14 rounded-[20px] bg-brand-50 text-brand-600 flex items-center justify-center font-black text-2xl shadow-sm border border-brand-100">
+            ?
+          </div>
+          <div>
+            <h2 id="modalPatientName" class="font-bold text-slate-800 text-2xl tracking-tight leading-none mb-1.5">Detail Pasien</h2>
+            <div class="flex items-center gap-2.5">
+              <span class="px-2 py-0.5 rounded bg-brand-500 text-white text-[9px] font-black uppercase tracking-widest">Medical History</span>
+              <span class="text-slate-300 text-xs">•</span>
+              <p class="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Laporan Penggunaan BHP</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" onclick="closePatientDetail()" 
+          class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all active:scale-90 flex items-center justify-center">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div id="modalPatientContent" class="overflow-y-auto bg-[#FDFEFF] custom-scrollbar" style="max-height: calc(85vh - 120px);">
+      <div class="p-6 sm:p-10">
+        <!-- Loading state -->
+        <div id="modalPatientLoading" class="py-24 text-center">
+          <div class="relative inline-flex mb-8">
+            <div class="w-20 h-20 rounded-3xl border-4 border-slate-50 shadow-inner"></div>
+            <div class="absolute inset-0 w-20 h-20 rounded-3xl border-4 border-brand-500 border-t-transparent animate-spin shadow-lg shadow-brand-500/20"></div>
+          </div>
+          <p class="text-slate-400 text-[11px] font-black uppercase tracking-[0.3em]">Synchronizing Records</p>
+        </div>
+
+        <!-- Detail list (Clean Timeline View) -->
+        <div id="modalPatientHistory" class="hidden relative space-y-10 before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
+          <!-- Will be filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-white">
+      <button type="button" onclick="closePatientDetail()"
+        class="h-10 px-6 rounded-lg font-bold text-[13px] text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+        Tutup
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+</style>
+
 <script>
 function exportLaporan(type) {
   const params = new URLSearchParams(window.location.search);
@@ -492,5 +564,127 @@ function exportLaporan(type) {
   if (keyword)  url.searchParams.set('keyword', keyword);
 
   window.location.href = url.toString();
+}
+
+function openPatientDetail(nama) {
+  const m = document.getElementById('modalPatientDetail');
+  const hist = document.getElementById('modalPatientHistory');
+  const load = document.getElementById('modalPatientLoading');
+  
+  document.getElementById('modalPatientName').textContent = nama;
+  document.getElementById('modalPatientAvatar').textContent = nama.substring(0,1).toUpperCase();
+  
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+  load.classList.remove('hidden');
+  hist.classList.add('hidden');
+  hist.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('action', 'get_patient_history');
+  fd.append('nama_pasien', nama);
+
+  fetch('/BHP-Poli-Gigi/process/pemakaian_process.php', {
+    method: 'POST',
+    body: fd,
+    credentials: 'same-origin'
+  })
+  .then(r => r.json())
+  .then(res => {
+    load.classList.add('hidden');
+    if (res.success && res.data.length > 0) {
+      hist.classList.remove('hidden');
+      res.data.forEach(item => {
+        hist.appendChild(createHistoryCard(item));
+      });
+    } else {
+      hist.classList.remove('hidden');
+      hist.innerHTML = '<div class="py-12 text-center text-slate-400 font-medium">Tidak ada riwayat ditemukan.</div>';
+    }
+  })
+  .catch(err => {
+    load.classList.add('hidden');
+    hist.classList.remove('hidden');
+    hist.innerHTML = '<div class="py-12 text-center text-red-500 font-medium">Gagal memuat data.</div>';
+  });
+}
+
+function closePatientDetail() {
+  const m = document.getElementById('modalPatientDetail');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+
+function createHistoryCard(data) {
+  const div = document.createElement('div');
+  div.className = 'relative pl-14 group/card';
+  
+  // Timeline Indicator
+  const dot = `<div class="absolute left-0 top-0 w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 shadow-sm flex items-center justify-center z-10 transition-all duration-300 group-hover/card:border-brand-300 group-hover/card:scale-105">
+    <div class="flex flex-col items-center">
+      <span class="text-[9px] font-bold leading-none text-slate-400 uppercase tracking-tighter">${new Date(data.tanggal).toLocaleDateString('id-ID', { month:'short' })}</span>
+      <span class="text-[15px] font-black leading-none text-slate-700 mt-0.5">${new Date(data.tanggal).getDate()}</span>
+    </div>
+  </div>`;
+
+  const itemsHtml = data.items.map(it => {
+    const isHabis = it.kondisi === 'habis';
+    return `
+      <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50/50 border border-transparent hover:border-brand-100 hover:bg-brand-50/30 transition-all">
+        <div class="flex items-center gap-3.5">
+          <div class="w-8 h-8 rounded-xl ${isHabis ? 'bg-rose-500' : 'bg-emerald-500'} flex items-center justify-center text-white shadow-sm">
+            <i class="fas ${isHabis ? 'fa-box' : 'fa-box-open'} text-[11px]"></i>
+          </div>
+          <div>
+            <div class="text-[13px] font-bold text-slate-700">${it.Nama_bhp}</div>
+            <div class="text-[9px] ${isHabis ? 'text-rose-500' : 'text-emerald-500'} font-black uppercase tracking-wider mt-0.5">${it.kondisi}</div>
+          </div>
+        </div>
+        <div class="px-3 py-1.5 rounded-xl bg-white border border-slate-100 text-[13px] font-black text-slate-800 shadow-sm">
+          ${it.jumlah} <span class="text-[9px] text-slate-400 uppercase font-black ml-1">${it.Nama_satuan || ''}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  div.innerHTML = `
+    ${dot}
+    <div class="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+      <!-- Session Header -->
+      <div class="px-6 py-4 flex flex-wrap items-center justify-between gap-4 bg-slate-50/50 border-b border-slate-100">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-500 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+            <i class="fas fa-stethoscope text-[12px]"></i>
+          </div>
+          <div>
+            <div class="text-[13px] font-bold text-slate-800">${data.unit_tindakan || 'Poli Umum'}</div>
+            <div class="text-[11px] text-slate-400 font-medium">${data.created_at.substring(11,16)} WIB</div>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <div class="text-right">
+            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Operator</div>
+            <div class="text-[12px] font-black text-slate-700">${data.nama_dokter || '-'}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item Grid -->
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          ${itemsHtml}
+        </div>
+
+        ${data.catatan ? `
+          <div class="mt-4 p-4 rounded-xl bg-slate-50 border-l-4 border-brand-400">
+            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1.5">Catatan Medis</div>
+            <p class="text-[13px] text-slate-600 leading-relaxed font-medium italic">"${data.catatan}"</p>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  return div;
 }
 </script>

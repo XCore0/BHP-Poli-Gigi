@@ -133,6 +133,28 @@ class PemakaianManager
         return $stmt->fetchAll();
     }
 
+    /**
+     * Ambil sejarah lengkap pemakaian BHP untuk satu pasien
+     */
+    public function getPatientHistory(string $namaPasien): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT p.*, u.Nama_lengkap AS nama_dokter
+            FROM   pemakaian_bhp p
+            LEFT JOIN user u ON p.id_user = u.id_user
+            WHERE  p.nama_pasien = ?
+            ORDER BY p.tanggal DESC, p.created_at DESC
+        ");
+        $stmt->execute([$namaPasien]);
+        $headers = $stmt->fetchAll();
+
+        foreach ($headers as &$h) {
+            $h['items'] = $this->getPemakaianDetail((int)$h['id_pemakaian']);
+        }
+
+        return $headers;
+    }
+
     // ══════════════════════════════════════════════
     //  CREATE
     // ══════════════════════════════════════════════
@@ -178,17 +200,18 @@ class PemakaianManager
             ]);
             $idPemakaian = (int)$this->db->lastInsertId();
 
-            // Insert detail + update stok bhp
+            // Insert detail
             $stmtD = $this->db->prepare("
                 INSERT INTO pemakaian_bhp_detail (id_pemakaian, id_bhp, jumlah, kondisi)
                 VALUES (?, ?, ?, ?)
             ");
+
             // Update: kurangi Pemakaian (unit kecil), recalculate Jumlah (kotak)
             // Jumlah = FLOOR(sisa_Pemakaian / isi_per_stok)
             $stmtUpd = $this->db->prepare("
-                UPDATE bhp
+                UPDATE bhp 
                 SET Pemakaian = GREATEST(0, Pemakaian - ?),
-                    Jumlah    = FLOOR(GREATEST(0, Pemakaian - ?) / NULLIF(isi_per_stok, 0))
+                    Jumlah    = FLOOR(GREATEST(0, Pemakaian) / NULLIF(isi_per_stok, 0))
                 WHERE id_bhp = ?
             ");
 
@@ -203,7 +226,7 @@ class PemakaianManager
 
                 // Kurangi Pemakaian (unit kecil) lalu recalculate Jumlah (kotak/stok)
                 // Jumlah = FLOOR(sisa_pemakaian / isi_per_stok)
-                $stmtUpd->execute([$jumlah, $jumlah, $id_bhp]);
+                $stmtUpd->execute([$jumlah, $id_bhp]);
             }
 
             $this->db->commit();
@@ -244,11 +267,11 @@ class PemakaianManager
                 $stmtUpd = $this->db->prepare("
                     UPDATE bhp
                     SET Pemakaian = Pemakaian + ?,
-                        Jumlah    = FLOOR((Pemakaian + ?) / NULLIF(isi_per_stok, 0))
+                        Jumlah    = FLOOR(Pemakaian / NULLIF(isi_per_stok, 0))
                     WHERE id_bhp = ?
                 ");
                 foreach ($details as $d) {
-                    $stmtUpd->execute([$d['jumlah'], $d['jumlah'], $d['id_bhp']]);
+                    $stmtUpd->execute([$d['jumlah'], $d['id_bhp']]);
                 }
             }
 

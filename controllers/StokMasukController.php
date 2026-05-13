@@ -55,12 +55,17 @@ class StokMasukController
                 case 'add_stok_masuk':
                     $result = $mgr->addStokMasuk($_POST, $uid);
                     if ($result['success']) {
-                        // Ambil nama BHP untuk log
-                        $bhpList = $bhpMgr->getAllBhp(['id_bhp_exact' => (int)($_POST['id_bhp'] ?? 0)]);
-                        $namaBhp = $_POST['id_bhp'] ?? '?';
+                        $item  = $result['data'] ?? [];
+                        $nama  = $item['Nama_bhp']    ?? ('ID '.$_POST['id_bhp']);
+                        $sat   = $item['Nama_satuan'] ?? 'Wadah';
+                        $jml   = (int)($item['jumlah']       ?? 0);
+                        $isi   = (int)($item['isi_per_stok'] ?? 1);
+                        $total = $jml * $isi;
+
                         $log->catat($uid, $uname, $urole, 'tambah_stok_masuk', 'stok',
-                            "Input stok masuk BHP ID {$namaBhp} sejumlah " . ($_POST['jumlah'] ?? 0) . " unit.");
+                            "Input stok masuk: $nama +$jml $sat (Total +$total Unit pemakaian).");
                     }
+                    if (ob_get_length()) ob_clean();
                     echo json_encode($result);
                     break;
 
@@ -72,6 +77,7 @@ class StokMasukController
                         $log->catat($uid, $uname, $urole, 'hapus_stok_masuk', 'stok',
                             "Menghapus stok masuk ID {$id}.");
                     }
+                    if (ob_get_length()) ob_clean();
                     echo json_encode($result);
                     break;
 
