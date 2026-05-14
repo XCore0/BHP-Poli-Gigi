@@ -65,6 +65,8 @@ class ProfilController
                     $uploadDir = __DIR__ . '/../assets/uploads/foto_profil';
                     $result    = $mgr->uploadFoto($uid, $_FILES['foto'], $uploadDir);
                     if ($result['success']) {
+                        // Refresh session foto
+                        $_SESSION['poli_user']['foto'] = $result['foto_url'];
                         $log->catat($uid, $uname, $urole, 'upload_foto', 'pengguna', 'Mengganti foto profil.');
                     }
                     echo json_encode($result);

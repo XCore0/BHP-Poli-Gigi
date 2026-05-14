@@ -6,6 +6,7 @@ $role_avatar_initial = $role_avatar_initial ?? 'U';
 $role_avatar_bg = $role_avatar_bg ?? 'linear-gradient(135deg, #a8edea 0%, #5b9bd5 100%)';
 $role_avatar_color = $role_avatar_color ?? '#1e4a7a';
 $role_label_color = $role_label_color ?? 'text-brand-600';
+$role_photo = $role_photo ?? null;
 ?>
 
 <!-- ======================== LOGOUT MODAL ======================== -->
@@ -94,14 +95,18 @@ $role_label_color = $role_label_color ?? 'text-brand-600';
 
       <button class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
         onclick="toggleDropdown(event)">
-        <div
-          class="w-9 h-9 rounded-full flex items-center justify-center font-plex font-semibold text-sm shrink-0"
+        <div id="header-user-avatar"
+          class="w-9 h-9 rounded-full flex items-center justify-center font-plex font-semibold text-sm shrink-0 overflow-hidden"
           style="background: <?php echo $role_avatar_bg; ?>; color: <?php echo $role_avatar_color; ?>;">
-          <?php echo $role_avatar_initial; ?>
+          <?php if ($role_photo): ?>
+            <img id="header-user-photo" src="<?php echo htmlspecialchars($role_photo); ?>" alt="Profile" class="w-full h-full object-cover">
+          <?php else: ?>
+            <span id="header-user-initial"><?php echo htmlspecialchars($role_avatar_initial); ?></span>
+          <?php endif; ?>
         </div>
         <div class="flex flex-col items-start gap-0 text-left hidden sm:flex">
-          <span class="font-plex font-semibold text-sm text-[#101828] leading-5 whitespace-nowrap"><?php echo htmlspecialchars($role_name); ?></span>
-          <span class="font-plex font-medium text-xs leading-4 <?php echo $role_label_color; ?> whitespace-nowrap"><?php echo htmlspecialchars($role_label); ?></span>
+          <span id="header-user-name" class="font-plex font-semibold text-sm text-[#101828] leading-5 whitespace-nowrap"><?php echo htmlspecialchars($role_name); ?></span>
+          <span id="header-user-role" class="font-plex font-medium text-xs leading-4 <?php echo $role_label_color; ?> whitespace-nowrap"><?php echo htmlspecialchars($role_label); ?></span>
         </div>
         <i id="user-chevron"
           class="fas fa-chevron-down text-[#9CA3AF] text-xs transition-transform duration-200 hidden sm:block"></i>

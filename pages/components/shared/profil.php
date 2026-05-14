@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 use App\Classes\UserManager;
 use App\Classes\Auth;
 
@@ -207,6 +207,16 @@ function uploadFoto(input) {
     showToastProfil(res.message, res.success);
     if (res.success && res.foto_url) {
       document.getElementById('previewFoto').src = res.foto_url;
+      
+      // Update header photo langsung tanpa reload
+      const headerPhoto = document.getElementById('header-user-photo');
+      const headerAvatar = document.getElementById('header-user-avatar');
+      
+      if (headerPhoto) {
+        headerPhoto.src = res.foto_url;
+      } else if (headerAvatar) {
+        headerAvatar.innerHTML = `<img id="header-user-photo" src="${res.foto_url}" alt="Profile" class="w-full h-full object-cover">`;
+      }
     }
   })
   .catch(() => showToastProfil('Upload gagal, coba lagi.', false))
@@ -229,7 +239,16 @@ function simpanProfil(e) {
   .then(r => r.json())
   .then(res => {
     showToastProfil(res.message, res.success);
-    if (res.success) setTimeout(() => window.location.reload(), 1200);
+    if (res.success) {
+      // Update nama di tampilan profil & header
+      const newNama = fd.get('nama');
+      if (newNama) {
+        document.getElementById('displayNama').textContent = newNama;
+        const headerName = document.getElementById('header-user-name');
+        if (headerName) headerName.textContent = newNama;
+      }
+      setTimeout(() => window.location.reload(), 1500);
+    }
   })
   .catch(() => showToastProfil('Koneksi gagal.', false))
   .finally(() => { btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Simpan Perubahan'; });

@@ -25,6 +25,7 @@ $role_avatar_initial = strtoupper(substr($currentUser['nama'] ?? 'D', 0, 1));
 $role_avatar_bg = 'linear-gradient(135deg, #a8edea 0%, #5b9bd5 100%)';
 $role_avatar_color = '#1e4a7a';
 $role_label_color = 'text-brand-600';
+$role_photo = $currentUser['foto'] ?? null;
 
 if ($page == 'data_bhp') {
   $active_submenu = 'bhp';

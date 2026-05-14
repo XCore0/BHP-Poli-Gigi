@@ -43,7 +43,7 @@ class Auth
 
             // Cari user berdasarkan email
             $stmt = $this->db->prepare(
-                'SELECT id_user, Nama_lengkap, Email, Password, Role, Status_akun
+                'SELECT id_user, Nama_lengkap, Email, Password, Role, Status_akun, Foto
                  FROM user WHERE Email = ? LIMIT 1'
             );
             $stmt->execute([$email]);
@@ -71,6 +71,7 @@ class Auth
                 'email'  => $user['Email'],
                 'role'   => $user['Role'],
                 'status' => $user['Status_akun'],
+                'foto'   => $user['Foto'],
             ];
 
             // Catat log login

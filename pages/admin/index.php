@@ -26,6 +26,7 @@ $role_avatar_initial = strtoupper(substr($currentUser['nama'] ?? 'A', 0, 1));
 $role_avatar_bg = 'linear-gradient(135deg, #c7d2fe 0%, #6366f1 100%)';
 $role_avatar_color = '#1e1b4b';
 $role_label_color = 'text-indigo-600';
+$role_photo = $currentUser['foto'] ?? null;
 
 if ($page == 'dashboard') {
   $page_title = 'Dashboard Admin';
