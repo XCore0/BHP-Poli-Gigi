@@ -325,8 +325,8 @@ function renderTableBhp(){
       </td>
       <td class="px-4 py-3 text-center">
         <select onchange="itemsBhp[${idx}].kondisi=this.value" class="border border-slate-200 bg-slate-50 rounded-lg h-7 pl-2 pr-6 text-[11px] text-slate-600 font-medium outline-none focus:border-brand-500 appearance-none">
+        <option value="sisa" ${item.kondisi==='sisa'?'selected':''}>Sisa</option>
           <option value="habis" ${item.kondisi==='habis'?'selected':''}>Habis</option>
-          <option value="sisa" ${item.kondisi==='sisa'?'selected':''}>Sisa</option>
         </select>
       </td>
       <td class="px-4 py-3 text-center">
@@ -343,7 +343,7 @@ function tambahItemBhp(){
   const opt=sel.options[sel.selectedIndex];
   // Cek duplikat
   if(itemsBhp.find(x=>x.id_bhp===id)){showToastCatat('BHP ini sudah ditambahkan.',false);return;}
-  itemsBhp.push({id_bhp:id,nama:opt.dataset.nama||opt.text,satuan:opt.dataset.satuan||'',stok:opt.dataset.stok||0,jumlah:jml,kondisi:'habis'});
+  itemsBhp.push({id_bhp:id,nama:opt.dataset.nama||opt.text,satuan:opt.dataset.satuan||'',stok:opt.dataset.stok||0,jumlah:jml,kondisi:'sisa'});
   renderTableBhp();
   sel.value='';
   document.getElementById('inputJmlCatat').value=1;
