@@ -631,6 +631,8 @@ if ($export === 'excel' || $export === 'pdf') {
 
     <!-- ========== TAB 2: LOG AKTIVITAS ========== -->
     <div id="content-log" class="<?= $activeTab === 'log' ? '' : 'hidden' ?>">
+      <!-- Anchor untuk scroll ke atas saat ganti halaman pagination -->
+      <div id="log-aktivitas-top"></div>
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -816,19 +818,19 @@ if ($export === 'excel' || $export === 'pdf') {
           </p>
           <div class="flex items-center gap-1.5">
             <?php if ($logPage > 1): ?>
-            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage-1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
+            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage-1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>#log-aktivitas-top"
               class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
               <i class="fas fa-chevron-left text-xs"></i>
             </a>
             <?php endif; ?>
             <?php for ($p = max(1, $logPage-2); $p <= min($totalPages, $logPage+2); $p++): ?>
-            <a href="?page=pengguna&tab=log&log_page=<?php echo $p; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
+            <a href="?page=pengguna&tab=log&log_page=<?php echo $p; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>#log-aktivitas-top"
               class="w-9 h-9 rounded-lg flex items-center justify-center font-plex text-sm transition-colors <?php echo $p === $logPage ? 'bg-brand-600 text-white font-semibold' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'; ?>">
               <?php echo $p; ?>
             </a>
             <?php endfor; ?>
             <?php if ($logPage < $totalPages): ?>
-            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage+1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>"
+            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage+1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>#log-aktivitas-top"
               class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
               <i class="fas fa-chevron-right text-xs"></i>
             </a>
@@ -1159,3 +1161,23 @@ function exportPengguna(type) {
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
 </style>
+
+<script>
+  // Scroll ke atas section Log Aktivitas saat pindah halaman pagination
+  // Layout memakai <main class="overflow-y-auto"> sehingga window tidak bisa di-scroll langsung
+  (function () {
+    if (window.location.hash === '#log-aktivitas-top') {
+      const mainEl   = document.querySelector('main');
+      const anchorEl = document.getElementById('log-aktivitas-top');
+      if (mainEl && anchorEl) {
+        // Hitung posisi anchor relatif terhadap <main>
+        const offsetTop = anchorEl.getBoundingClientRect().top
+                        - mainEl.getBoundingClientRect().top
+                        + mainEl.scrollTop;
+        mainEl.scrollTo({ top: offsetTop, behavior: 'instant' });
+      }
+      // Bersihkan hash dari URL agar tidak mengganggu navigasi berikutnya
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  })();
+</script>

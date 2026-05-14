@@ -105,13 +105,13 @@ $keyword    = $_GET['keyword'] ?? '';
       <div class="overflow-x-auto w-full relative z-0">
         <table class="w-full text-left whitespace-nowrap">
           <thead>
-            <tr class="bg-slate-50/50 border-b border-slate-200">
-              <th class="py-4 px-6 text-[11px] uppercase tracking-wider text-slate-500 font-bold w-16">No</th>
-              <th class="py-4 px-6 text-[11px] uppercase tracking-wider text-slate-500 font-bold">Nama Satuan</th>
-              <th class="py-4 px-6 text-[11px] uppercase tracking-wider text-slate-500 font-bold text-right">Aksi</th>
+            <tr class="bg-white text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-200 font-bold">
+              <th class="py-4 px-6 w-[25%]">No</th>
+              <th class="py-4 px-6 w-[50%]">Nama Satuan</th>
+              <th class="py-4 px-6 w-[25%] text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody id="satuanTableBody" class="text-sm font-plex divide-y divide-slate-100 text-slate-700">
+          <tbody id="satuanTableBody" class="text-[13px] font-plex divide-y divide-slate-100 text-slate-600">
             <?php if (empty($satuanList)): ?>
             <tr id="satuanEmptyRow">
               <td colspan="3" class="px-6 py-12 text-center text-slate-400">
@@ -121,8 +121,8 @@ $keyword    = $_GET['keyword'] ?? '';
             </tr>
             <?php else: ?>
             <?php foreach ($satuanList as $i => $sat): ?>
-            <tr class="hover:bg-slate-50 transition-colors group satuan-row" data-nama="<?php echo strtolower(htmlspecialchars($sat['Nama_satuan'])); ?>">
-              <td class="py-5 px-6 font-bold text-slate-500"><?php echo str_pad($i + 1, 2, '0', STR_PAD_LEFT); ?></td>
+            <tr class="hover:bg-slate-50/50 transition-colors group bg-white satuan-row" data-nama="<?php echo strtolower(htmlspecialchars($sat['Nama_satuan'])); ?>">
+              <td class="py-5 px-6 font-semibold text-slate-700"><?php echo str_pad($i + 1, 2, '0', STR_PAD_LEFT); ?></td>
               <td class="py-5 px-6">
                 <span class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide"
                   style="background:<?php echo satBadgeColor($i)['bg']; ?>;color:<?php echo satBadgeColor($i)['text']; ?>;">

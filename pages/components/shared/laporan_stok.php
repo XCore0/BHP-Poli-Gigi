@@ -9,7 +9,7 @@ $tglAkhir = $_GET['tgl_akhir'] ?? date('Y-m-d');
 $keyword  = trim($_GET['keyword'] ?? '');
 
 // ── Pagination ─────────────────────────────────────────────────
-$limit  = 15;
+$limit  = 10;
 $page_n = max(1, (int)($_GET['p'] ?? 1));
 $offset = ($page_n - 1) * $limit;
 
@@ -186,7 +186,7 @@ $rows = $stmtData->fetchAll();
           $qp = $_GET; unset($qp['p']);
           $qs = http_build_query($qp); $qs = $qs ? '&' . $qs : '';
           if ($page_n > 1): ?>
-          <a href="?p=<?= $page_n - 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm">
+          <a href="?p=<?= $page_n - 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
             <i class="fas fa-chevron-left text-[10px]"></i>
           </a>
           <?php endif; ?>
@@ -197,7 +197,7 @@ $rows = $stmtData->fetchAll();
           </a>
           <?php endfor; ?>
           <?php if ($page_n < $totalPages): ?>
-          <a href="?p=<?= $page_n + 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm">
+          <a href="?p=<?= $page_n + 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
             <i class="fas fa-chevron-right text-[10px]"></i>
           </a>
           <?php endif; ?>

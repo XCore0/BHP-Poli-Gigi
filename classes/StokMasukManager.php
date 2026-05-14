@@ -231,6 +231,127 @@ class StokMasukManager
     }
 
     // ══════════════════════════════════════════════
+    //  UPDATE
+    // ══════════════════════════════════════════════
+
+    /**
+     * Edit record stok masuk + sesuaikan jumlah stok BHP
+     * Mendukung pergantian BHP: balikkan stok lama, terapkan ke BHP baru.
+     */
+    public function editStokMasuk(int $id, array $data): array
+    {
+        $idBhpBaru      = (int)($data['id_bhp']        ?? 0);
+        $jumlahBaru     = (int)($data['jumlah']        ?? 0);
+        $tanggal_terima = trim($data['tanggal_terima'] ?? '');
+        $tgl_kadaluarsa = trim($data['tgl_kadaluarsa'] ?? '');
+        $catatan        = trim($data['catatan']        ?? '');
+
+        if ($idBhpBaru <= 0)        return ['success' => false, 'message' => 'Pilih barang BHP terlebih dahulu.'];
+        if ($jumlahBaru <= 0)       return ['success' => false, 'message' => 'Jumlah harus lebih dari 0.'];
+        if ($tanggal_terima === '')  return ['success' => false, 'message' => 'Tanggal terima tidak boleh kosong.'];
+        if ($tgl_kadaluarsa === '')  return ['success' => false, 'message' => 'Tanggal kedaluarsa tidak boleh kosong.'];
+
+        // Ambil data lama stok_masuk
+        $sel = $this->db->prepare('SELECT sm.*, b.isi_per_stok as bhp_isi FROM stok_masuk sm JOIN bhp b ON sm.id_bhp = b.id_bhp WHERE sm.id_stok_masuk = ?');
+        $sel->execute([$id]);
+        $lama = $sel->fetch();
+        if (!$lama) return ['success' => false, 'message' => 'Data stok masuk tidak ditemukan.'];
+
+        $idBhpLama  = (int)$lama['id_bhp'];
+        $jumlahLama = (int)$lama['jumlah'];
+        $isiLama    = (int)($lama['isi_per_stok'] ?? 1);
+
+        // Cek BHP baru
+        $cekBhp = $this->db->prepare('SELECT id_bhp, isi_per_stok FROM bhp WHERE id_bhp = ?');
+        $cekBhp->execute([$idBhpBaru]);
+        $bhpBaru = $cekBhp->fetch();
+        if (!$bhpBaru) return ['success' => false, 'message' => 'Data BHP baru tidak ditemukan.'];
+
+        $isiBaru = (int)($bhpBaru['isi_per_stok'] ?? 1);
+        $bhpGanti = ($idBhpBaru !== $idBhpLama);
+
+        try {
+            $this->db->beginTransaction();
+
+            if ($bhpGanti) {
+                // ── BHP DIGANTI: balikkan stok BHP lama ──
+                $deltaLamaUnit   = $jumlahLama * $isiLama;
+                $updLama = $this->db->prepare("
+                    UPDATE bhp
+                    SET Jumlah    = GREATEST(0, Jumlah    - ?),
+                        Pemakaian = GREATEST(0, Pemakaian - ?)
+                    WHERE id_bhp = ?
+                ");
+                $updLama->execute([$jumlahLama, $deltaLamaUnit, $idBhpLama]);
+
+                // Tambahkan stok ke BHP baru
+                $deltaBaruUnit = $jumlahBaru * $isiBaru;
+                $updBaru = $this->db->prepare("
+                    UPDATE bhp
+                    SET Jumlah    = Jumlah    + ?,
+                        Pemakaian = Pemakaian + ?
+                    WHERE id_bhp = ?
+                ");
+                $updBaru->execute([$jumlahBaru, $deltaBaruUnit, $idBhpBaru]);
+
+                // Update stok_masuk: ganti id_bhp, jumlah, isi_per_stok
+                $upd = $this->db->prepare("
+                    UPDATE stok_masuk
+                    SET id_bhp = ?, jumlah = ?, isi_per_stok = ?,
+                        tanggal_terima = ?, tgl_kadaluarsa = ?, catatan = ?
+                    WHERE id_stok_masuk = ?
+                ");
+                $upd->execute([
+                    $idBhpBaru, $jumlahBaru, $isiBaru,
+                    $tanggal_terima, $tgl_kadaluarsa ?: null,
+                    $catatan ?: null, $id,
+                ]);
+            } else {
+                // ── BHP SAMA: sesuaikan selisih ──
+                $selisihJumlah = $jumlahBaru - $jumlahLama;
+                $selisihUnit   = ($jumlahBaru * $isiBaru) - ($jumlahLama * $isiLama);
+                $updBhp = $this->db->prepare("
+                    UPDATE bhp
+                    SET Jumlah    = GREATEST(0, Jumlah    + ?),
+                        Pemakaian = GREATEST(0, Pemakaian + ?)
+                    WHERE id_bhp = ?
+                ");
+                $updBhp->execute([$selisihJumlah, $selisihUnit, $idBhpLama]);
+
+                $upd = $this->db->prepare("
+                    UPDATE stok_masuk
+                    SET jumlah = ?, tanggal_terima = ?, tgl_kadaluarsa = ?, catatan = ?
+                    WHERE id_stok_masuk = ?
+                ");
+                $upd->execute([
+                    $jumlahBaru,
+                    $tanggal_terima, $tgl_kadaluarsa ?: null,
+                    $catatan ?: null, $id,
+                ]);
+            }
+
+            // Ambil data lengkap untuk dikembalikan ke front-end
+            $getData = $this->db->prepare("
+                SELECT sm.*, b.Nama_bhp, b.Kode_bhp, s.Nama_satuan, u.Nama_lengkap as nama_user
+                FROM stok_masuk sm
+                JOIN bhp b ON sm.id_bhp = b.id_bhp
+                LEFT JOIN satuan_bhp s ON b.id_satuan = s.id_satuan
+                LEFT JOIN user u ON sm.id_user = u.id_user
+                WHERE sm.id_stok_masuk = ?
+            ");
+            $getData->execute([$id]);
+            $fullData = $getData->fetch(PDO::FETCH_ASSOC);
+
+            $this->db->commit();
+            return ['success' => true, 'message' => 'Data stok masuk berhasil diperbarui.', 'data' => $fullData];
+
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            return ['success' => false, 'message' => 'Gagal memperbarui: ' . $e->getMessage()];
+        }
+    }
+
+    // ══════════════════════════════════════════════
     //  DELETE
     // ══════════════════════════════════════════════
 

@@ -71,6 +71,28 @@ class PemakaianController
                     echo json_encode($result);
                     break;
 
+                // ── EDIT PEMAKAIAN ─────────────────────────────
+                case 'edit_pemakaian':
+                    $id = (int)($_POST['id'] ?? 0);
+                    $header = [
+                        'tanggal'       => $_POST['tanggal']       ?? '',
+                        'unit_tindakan' => $_POST['unit_tindakan'] ?? '',
+                        'lokasi'        => $_POST['lokasi']        ?? '',
+                        'nama_pasien'   => $_POST['nama_pasien']   ?? '',
+                        'catatan'       => $_POST['catatan']       ?? '',
+                    ];
+                    $itemsJson = $_POST['items'] ?? '[]';
+                    $items     = json_decode($itemsJson, true);
+                    if (!is_array($items)) $items = [];
+
+                    $result = $mgr->editPemakaian($id, $header, $items);
+                    if ($result['success']) {
+                        $log->catat($uid, $uname, $urole, 'edit_pemakaian', 'stok',
+                            "Mengedit catatan pemakaian ID {$id} tgl " . ($header['tanggal']) . " - " . count($items) . " item.");
+                    }
+                    echo json_encode($result);
+                    break;
+
                 // ── HAPUS PEMAKAIAN ────────────────────────────
                 case 'delete_pemakaian':
                     $id     = (int)($_POST['id'] ?? 0);

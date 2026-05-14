@@ -69,6 +69,22 @@ class StokMasukController
                     echo json_encode($result);
                     break;
 
+                // ── EDIT STOK MASUK ────────────────────────────
+                case 'edit_stok_masuk':
+                    $id     = (int)($_POST['id'] ?? 0);
+                    $result = $mgr->editStokMasuk($id, $_POST);
+                    if ($result['success']) {
+                        $item  = $result['data'] ?? [];
+                        $nama  = $item['Nama_bhp']    ?? ('ID '.$id);
+                        $jml   = (int)($item['jumlah'] ?? 0);
+                        $sat   = $item['Nama_satuan']  ?? 'Wadah';
+                        $log->catat($uid, $uname, $urole, 'edit_stok_masuk', 'stok',
+                            "Edit stok masuk ID $id: $nama menjadi $jml $sat.");
+                    }
+                    if (ob_get_length()) ob_clean();
+                    echo json_encode($result);
+                    break;
+
                 // ── HAPUS STOK MASUK ───────────────────────────
                 case 'delete_stok_masuk':
                     $id     = (int)($_POST['id'] ?? 0);

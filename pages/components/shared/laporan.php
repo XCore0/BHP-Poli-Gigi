@@ -338,7 +338,10 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
           <?php
           $qParam = $_GET; unset($qParam['p1']); $baseQS = http_build_query($qParam); $baseQS = $baseQS ? '&' . $baseQS : '';
           if ($p1 > 1): ?>
-            <a href="?p1=<?= $p1 - 1 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+            <a href="?p1=1<?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Pertama">
+              <i class="fas fa-angles-left mr-1.5"></i> First
+            </a>
+            <a href="?p1=<?= $p1 - 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Sebelumnya">
               <i class="fas fa-chevron-left text-[11px]"></i>
             </a>
           <?php endif; ?>
@@ -352,8 +355,11 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
           <?php endfor; ?>
 
           <?php if ($p1 < $totalPage1): ?>
-            <a href="?p1=<?= $p1 + 1 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+            <a href="?p1=<?= $p1 + 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Selanjutnya">
               <i class="fas fa-chevron-right text-[11px]"></i>
+            </a>
+            <a href="?p1=<?= $totalPage1 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Terakhir">
+              Last <i class="fas fa-angles-right ml-1.5"></i>
             </a>
           <?php endif; ?>
         </div>
@@ -458,7 +464,10 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
           <?php
           $qParam = $_GET; unset($qParam['p2']); $baseQS = http_build_query($qParam); $baseQS = $baseQS ? '&' . $baseQS : '';
           if ($p2 > 1): ?>
-            <a href="?p2=<?= $p2 - 1 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"><i class="fas fa-chevron-left text-[11px]"></i></a>
+            <a href="?p2=1<?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Pertama">
+              <i class="fas fa-angles-left mr-1.5"></i> First
+            </a>
+            <a href="?p2=<?= $p2 - 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Sebelumnya"><i class="fas fa-chevron-left text-[11px]"></i></a>
           <?php endif; ?>
           <?php
           $sPage2 = max(1, $p2 - 2); $ePage2 = min($totalPage2, $p2 + 2);
@@ -466,7 +475,10 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
             <a href="?p2=<?= $i ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?= $isActive ? 'bg-brand-50 border-brand-200 text-brand-600 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium' ?> transition-colors text-sm"><?= $i ?></a>
           <?php endfor; ?>
           <?php if ($p2 < $totalPage2): ?>
-            <a href="?p2=<?= $p2 + 1 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"><i class="fas fa-chevron-right text-[11px]"></i></a>
+            <a href="?p2=<?= $p2 + 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Selanjutnya"><i class="fas fa-chevron-right text-[11px]"></i></a>
+            <a href="?p2=<?= $totalPage2 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Terakhir">
+              Last <i class="fas fa-angles-right ml-1.5"></i>
+            </a>
           <?php endif; ?>
         </div>
       </div>
@@ -479,33 +491,27 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
 </div>
 
 <!-- ══ MODAL: DETAIL PASIEN ════════════════════════════════════ -->
-<div id="modalPatientDetail" class="fixed inset-0 z-[100000] hidden items-center justify-center p-4 sm:p-6 font-plex"
-  style="background:rgba(15,23,42,0.6);backdrop-filter:blur(8px);"
+<div id="modalPatientDetail" class="fixed inset-0 z-[100000] hidden items-center justify-center p-4 sm:p-6 font-plex bg-slate-900/50 backdrop-blur-sm transition-all duration-300"
   onclick="if(event.target===this)closePatientDetail()">
   
   <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[85vh]"
     style="animation: modalIn .3s cubic-bezier(.34,1.56,.64,1) both;">
 
     <!-- Theme-Matched Header -->
-    <div class="relative px-8 py-6 flex-shrink-0 bg-white border-b border-slate-100">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-5">
-          <div id="modalPatientAvatar" class="w-14 h-14 rounded-[20px] bg-brand-50 text-brand-600 flex items-center justify-center font-black text-2xl shadow-sm border border-brand-100">
-            ?
-          </div>
-          <div>
-            <h2 id="modalPatientName" class="font-bold text-slate-800 text-2xl tracking-tight leading-none mb-1.5">Detail Pasien</h2>
-            <div class="flex items-center gap-2.5">
-              <span class="px-2 py-0.5 rounded bg-brand-500 text-white text-[9px] font-black uppercase tracking-widest">Medical History</span>
-              <span class="text-slate-300 text-xs">•</span>
-              <p class="text-slate-400 text-[11px] font-medium uppercase tracking-wider">Laporan Penggunaan BHP</p>
-            </div>
+    <div class="relative px-8 py-6 flex-shrink-0 border-b border-white/10" style="background:radial-gradient(ellipse at 0% 0%,#006B47 0%,#1A9F70 60%,#1DB879 100%);">
+      <button type="button" onclick="closePatientDetail()" class="absolute top-5 right-6 text-white/70 hover:text-white text-2xl leading-none transition-colors">&times;</button>
+      <div class="flex items-center gap-5">
+        <div id="modalPatientAvatar" class="w-14 h-14 rounded-[20px] bg-white/20 text-white flex items-center justify-center font-black text-2xl border border-white/30 backdrop-blur-sm shadow-inner">
+          ?
+        </div>
+        <div>
+          <h2 id="modalPatientName" class="font-bold text-white text-2xl tracking-tight leading-none mb-1.5 drop-shadow-sm">Detail Pasien</h2>
+          <div class="flex items-center gap-2.5">
+            <span class="px-2 py-0.5 rounded bg-white/20 text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-sm border border-white/10">Medical History</span>
+            <span class="text-white/40 text-xs">•</span>
+            <p class="text-white/80 text-[11px] font-medium uppercase tracking-wider">Laporan Penggunaan BHP</p>
           </div>
         </div>
-        <button type="button" onclick="closePatientDetail()" 
-          class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all active:scale-90 flex items-center justify-center">
-          <i class="fas fa-times text-lg"></i>
-        </button>
       </div>
     </div>
 
@@ -573,6 +579,10 @@ function openPatientDetail(nama) {
   
   document.getElementById('modalPatientName').textContent = nama;
   document.getElementById('modalPatientAvatar').textContent = nama.substring(0,1).toUpperCase();
+  
+  if (m.parentNode !== document.body) {
+    document.body.appendChild(m);
+  }
   
   m.classList.remove('hidden');
   m.classList.add('flex');

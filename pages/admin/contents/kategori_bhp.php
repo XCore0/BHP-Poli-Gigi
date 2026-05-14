@@ -116,10 +116,10 @@ if (session_status() === PHP_SESSION_NONE) {
       <div class="overflow-x-auto w-full relative z-0">
         <table class="w-full text-left whitespace-nowrap">
           <thead>
-            <tr class="bg-slate-50/50 border-b border-slate-200">
-              <th class="py-4 px-6 text-[11px] uppercase tracking-wider text-slate-500 font-bold w-[25%]">Kode Kategori</th>
-              <th class="py-4 px-6 text-[11px] uppercase tracking-wider text-slate-500 font-bold w-[50%]">Kategori</th>
-              <th class="py-4 px-6 text-[11px] uppercase tracking-wider text-slate-500 font-bold w-[25%] text-right">Aksi</th>
+            <tr class="bg-white text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-200 font-bold">
+              <th class="py-4 px-6 w-[25%]">Kode Kategori</th>
+              <th class="py-4 px-6 w-[50%]">Kategori</th>
+              <th class="py-4 px-6 w-[25%] text-right">Aksi</th>
             </tr>
           </thead>
           <tbody id="kategoriTableBody" class="text-sm font-plex divide-y divide-slate-100 text-slate-700">
@@ -143,14 +143,14 @@ if (session_status() === PHP_SESSION_NONE) {
                 $col = $katColors[$i % count($katColors)];
                 $kode = $kat['Kode_kategori'] ?? '-';
               ?>
-                <tr class="hover:bg-slate-50 transition-colors group kategori-row" data-nama="<?php echo strtolower(htmlspecialchars($kat['Nama_kategori'])); ?>">
+                <tr class="hover:bg-slate-50/50 transition-colors group bg-white kategori-row" data-nama="<?php echo strtolower(htmlspecialchars($kat['Nama_kategori'])); ?>">
                   <td class="py-5 px-6">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide bg-slate-100 text-slate-600 border border-slate-200">
+                    <span class="font-semibold text-slate-700">
                       <?php echo htmlspecialchars($kode); ?>
                     </span>
                   </td>
                   <td class="py-5 px-6">
-                    <span class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold <?php echo $col['bg'] . ' ' . $col['text'] . ' border ' . $col['border']; ?>">
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold <?php echo $col['bg'] . ' ' . $col['text'] . ' border ' . $col['border']; ?>">
                       <?php echo htmlspecialchars($kat['Nama_kategori']); ?>
                     </span>
                   </td>

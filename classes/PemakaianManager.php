@@ -123,7 +123,7 @@ class PemakaianManager
     public function getPemakaianDetail(int $idPemakaian): array
     {
         $stmt = $this->db->prepare("
-            SELECT d.*, b.Nama_bhp, b.Kode_bhp, s.Nama_satuan
+            SELECT d.*, b.Nama_bhp, b.Kode_bhp, s.Nama_satuan, b.Pemakaian, b.Jumlah AS wadah, b.isi_per_stok
             FROM   pemakaian_bhp_detail d
             LEFT JOIN bhp        b ON d.id_bhp    = b.id_bhp
             LEFT JOIN satuan_bhp s ON b.id_satuan = s.id_satuan
@@ -239,6 +239,102 @@ class PemakaianManager
     }
 
     // ══════════════════════════════════════════════
+    //  UPDATE
+    // ══════════════════════════════════════════════
+
+    /**
+     * Edit sesi pemakaian + detail item BHP
+     * Mengembalikan stok item lama, lalu mengurangi dengan stok item baru
+     */
+    public function editPemakaian(int $id, array $header, array $items): array
+    {
+        $tanggal       = trim($header['tanggal']       ?? '');
+        $unit_tindakan = trim($header['unit_tindakan'] ?? '');
+        $nama_pasien   = trim($header['nama_pasien']   ?? '');
+        $catatan       = trim($header['catatan']       ?? '');
+
+        if ($tanggal === '') {
+            return ['success' => false, 'message' => 'Tanggal pemakaian tidak boleh kosong.'];
+        }
+        if (empty($items)) {
+            return ['success' => false, 'message' => 'Minimal harus ada 1 BHP yang digunakan.'];
+        }
+
+        // Cek header
+        $chk = $this->db->prepare('SELECT id_pemakaian FROM pemakaian_bhp WHERE id_pemakaian = ?');
+        $chk->execute([$id]);
+        if (!$chk->fetch()) {
+            return ['success' => false, 'message' => 'Data pemakaian tidak ditemukan.'];
+        }
+
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Kembalikan stok BHP dari detail lama
+            $detailsLama = $this->getPemakaianDetail($id);
+            if (!empty($detailsLama)) {
+                $stmtRevert = $this->db->prepare("
+                    UPDATE bhp
+                    SET Pemakaian = Pemakaian + ?,
+                        Jumlah    = FLOOR((Pemakaian + ?) / NULLIF(isi_per_stok, 0))
+                    WHERE id_bhp = ?
+                ");
+                foreach ($detailsLama as $d) {
+                    $stmtRevert->execute([$d['jumlah'], $d['jumlah'], $d['id_bhp']]);
+                }
+            }
+
+            // 2. Hapus detail lama
+            $delDetail = $this->db->prepare('DELETE FROM pemakaian_bhp_detail WHERE id_pemakaian = ?');
+            $delDetail->execute([$id]);
+
+            // 3. Update header
+            $updHeader = $this->db->prepare("
+                UPDATE pemakaian_bhp
+                SET tanggal = ?, unit_tindakan = ?, nama_pasien = ?, catatan = ?
+                WHERE id_pemakaian = ?
+            ");
+            $updHeader->execute([
+                $tanggal,
+                $unit_tindakan ?: null,
+                $nama_pasien   ?: null,
+                $catatan       ?: null,
+                $id
+            ]);
+
+            // 4. Insert detail baru & Kurangi stok BHP baru
+            $stmtD = $this->db->prepare("
+                INSERT INTO pemakaian_bhp_detail (id_pemakaian, id_bhp, jumlah, kondisi)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmtUpd = $this->db->prepare("
+                UPDATE bhp 
+                SET Pemakaian = GREATEST(0, Pemakaian - ?),
+                    Jumlah    = FLOOR(GREATEST(0, Pemakaian - ?) / NULLIF(isi_per_stok, 0))
+                WHERE id_bhp = ?
+            ");
+
+            foreach ($items as $item) {
+                $id_bhp  = (int)($item['id_bhp']  ?? 0);
+                $jumlah  = max(1, (int)($item['jumlah']  ?? 1));
+                $kondisi = in_array($item['kondisi'] ?? '', ['habis', 'sisa']) ? $item['kondisi'] : 'habis';
+
+                if ($id_bhp <= 0) continue;
+
+                $stmtD->execute([$id, $id_bhp, $jumlah, $kondisi]);
+                $stmtUpd->execute([$jumlah, $jumlah, $id_bhp]);
+            }
+
+            $this->db->commit();
+            return ['success' => true, 'message' => 'Catatan pemakaian berhasil diperbarui.'];
+
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            return ['success' => false, 'message' => 'Gagal memperbarui: ' . $e->getMessage()];
+        }
+    }
+
+    // ══════════════════════════════════════════════
     //  DELETE
     // ══════════════════════════════════════════════
 
@@ -267,11 +363,11 @@ class PemakaianManager
                 $stmtUpd = $this->db->prepare("
                     UPDATE bhp
                     SET Pemakaian = Pemakaian + ?,
-                        Jumlah    = FLOOR(Pemakaian / NULLIF(isi_per_stok, 0))
+                        Jumlah    = FLOOR((Pemakaian + ?) / NULLIF(isi_per_stok, 0))
                     WHERE id_bhp = ?
                 ");
                 foreach ($details as $d) {
-                    $stmtUpd->execute([$d['jumlah'], $d['id_bhp']]);
+                    $stmtUpd->execute([$d['jumlah'], $d['jumlah'], $d['id_bhp']]);
                 }
             }
 

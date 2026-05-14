@@ -12,17 +12,20 @@ $namaDokter = $user['nama'] ?? 'Dokter';
 $bhpMgr   = new BhpManager();
 $pemMgr   = new PemakaianManager();
 $bhpList  = $bhpMgr->getAllBhp();
-$riwayat  = $pemMgr->getAllPemakaian(['limit' => 20]);
+$p      = max(1, (int)($_GET['p'] ?? 1));
+$limit  = 10;
+$offset = ($p - 1) * $limit;
+$totalPemakaian = $pemMgr->countPemakaian();
+$totalPages     = max(1, ceil($totalPemakaian / $limit));
+$riwayat  = $pemMgr->getAllPemakaian(['limit' => $limit, 'offset' => $offset]);
 $today    = date('Y-m-d');
 ?>
 <div class="w-full p-3 sm:p-6 lg:p-8">
 
   <!-- Toast -->
-  <div id="toastCatat" class="fixed top-6 right-6 z-[200] hidden">
-    <div id="toastCatatInner" class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-plex text-[13px] font-bold max-w-xs">
-      <i id="toastCatatIcon" class="text-[15px]"></i>
-      <span id="toastCatatMsg"></span>
-    </div>
+  <div id="toastCatat" class="fixed bottom-6 right-6 z-[60] hidden items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-plex font-semibold text-white min-w-[260px]">
+    <i id="toastCatatIcon" class="fas text-base"></i>
+    <span id="toastCatatMsg"></span>
   </div>
 
   <div class="max-w-[1400px] mx-auto flex flex-col xl:flex-row gap-6 lg:gap-8 w-full font-plex">
@@ -36,6 +39,8 @@ $today    = date('Y-m-d');
         <p class="text-[13px] text-slate-500 mb-8 font-medium">Catat penggunaan Bahan Habis Pakai (BHP) untuk setiap tindakan medis.</p>
 
         <form id="formCatat" onsubmit="submitPemakaian(event)">
+          <input type="hidden" id="idPemakaianEdit" name="id_pemakaian" value="">
+          
           <!-- Row 1 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
@@ -151,11 +156,14 @@ $today    = date('Y-m-d');
           </div>
 
           <!-- Submit -->
-          <div class="flex justify-end">
+          <div class="flex justify-end gap-3">
+            <button type="button" id="btnBatalEdit" onclick="batalEditPemakaian()" class="hidden h-12 px-6 rounded-xl text-[14px] font-bold text-slate-500 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+              Batal Edit
+            </button>
             <button type="submit" id="btnSimpanCatat"
               class="h-12 px-8 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98] shadow-md flex items-center gap-2"
               style="background: linear-gradient(135deg, #00B47A 0%, #008D5B 100%);">
-              <i class="fas fa-save text-[12px]"></i> Simpan Catatan Pemakaian
+              <i class="fas fa-save text-[12px]"></i> <span id="txtBtnSimpan">Simpan Catatan Pemakaian</span>
             </button>
           </div>
         </form>
@@ -170,7 +178,7 @@ $today    = date('Y-m-d');
             </div>
             <div>
               <h3 class="font-bold text-[15px] text-slate-800">Riwayat Pemakaian</h3>
-              <p class="text-[12px] text-slate-400 font-medium mt-0.5">20 catatan terbaru</p>
+              <p class="text-[12px] text-slate-400 font-medium mt-0.5">Total <?= $totalPemakaian ?> catatan</p>
             </div>
           </div>
         </div>
@@ -203,10 +211,16 @@ $today    = date('Y-m-d');
                   <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-bold text-[11px]"><?= $r['jumlah_item'] ?> item</span>
                 </td>
                 <td class="py-4 px-3 text-right">
-                  <button onclick="deletePemakaian(<?= $r['id_pemakaian'] ?>, this)"
-                    class="text-red-400 hover:text-red-600 transition-colors" title="Hapus">
-                    <i class="far fa-trash-alt text-[13px]"></i>
-                  </button>
+                  <div class="flex justify-end gap-2">
+                    <button onclick="editPemakaianForm(<?= $r['id_pemakaian'] ?>)"
+                      class="w-7 h-7 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 flex items-center justify-center transition-colors" title="Edit">
+                      <i class="fas fa-pen text-[11px]"></i>
+                    </button>
+                    <button onclick="deletePemakaian(<?= $r['id_pemakaian'] ?>, this)"
+                      class="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors" title="Hapus">
+                      <i class="far fa-trash-alt text-[12px]"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -214,6 +228,51 @@ $today    = date('Y-m-d');
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <div class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2 bg-slate-50/50 rounded-b-2xl">
+          <span class="text-[13px] font-medium text-slate-500">
+            Menampilkan <span class="font-bold text-slate-700"><?php echo count($riwayat); ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalPemakaian; ?></span> data
+            (Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span>/<?php echo $totalPages; ?>)
+          </span>
+          <div class="flex items-center gap-1.5">
+            <?php
+            $qParam = $_GET;
+            unset($qParam['p']);
+            $baseQS = http_build_query($qParam);
+            $baseQS = $baseQS ? '&' . $baseQS : '';
+            
+            // Button: First
+            if ($p > 1): ?>
+              <a href="?p=<?php echo $p - 1; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all" title="Sebelumnya">
+                <i class="fas fa-chevron-left text-[11px]"></i>
+              </a>
+            <?php endif; ?>
+            
+            <?php
+            // dynamic range
+            $range = 2;
+            $startPage = max(1, $p - $range);
+            $endPage = min($totalPages, $p + $range);
+            
+            for ($i = $startPage; $i <= $endPage; $i++):
+              $isActive = ($i === $p);
+            ?>
+              <a href="?p=<?php echo $i; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?php echo $isActive ? 'bg-brand-600 border-brand-600 text-white shadow-sm shadow-brand-200 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium'; ?> transition-all text-sm">
+                <?php echo $i; ?>
+              </a>
+            <?php endfor; ?>
+
+            <?php if ($p < $totalPages): ?>
+              <a href="?p=<?php echo $p + 1; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all" title="Selanjutnya">
+                <i class="fas fa-chevron-right text-[11px]"></i>
+              </a>
+            <?php endif; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
       </div>
     </div>
 
@@ -253,15 +312,26 @@ $today    = date('Y-m-d');
 // Item BHP array (state di client)
 let itemsBhp = [];
 
-function showToastCatat(msg, ok=true) {
-  const t=document.getElementById('toastCatat');
-  const i=document.getElementById('toastCatatInner');
-  const ic=document.getElementById('toastCatatIcon');
-  document.getElementById('toastCatatMsg').textContent=msg;
-  if(ok){i.className='flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-plex text-[13px] font-bold max-w-xs bg-emerald-500 text-white';ic.className='fas fa-check-circle text-[15px]';}
-  else{i.className='flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-plex text-[13px] font-bold max-w-xs bg-red-500 text-white';ic.className='fas fa-exclamation-circle text-[15px]';}
-  t.classList.remove('hidden');
-  setTimeout(()=>t.classList.add('hidden'),3500);
+let _catatTimer;
+function showToastCatat(msg, success=true) {
+  const t = document.getElementById('toastCatat'),
+        ic = document.getElementById('toastCatatIcon'),
+        me = document.getElementById('toastCatatMsg');
+  clearTimeout(_catatTimer);
+  t.className = 'fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-plex font-semibold text-white min-w-[260px]';
+  t.style.animation = 'toastIn2 .3s ease forwards';
+  if (success) {
+    t.style.background = 'linear-gradient(135deg,#047857 0%,#059669 100%)';
+    ic.className = 'fas fa-circle-check text-base';
+  } else {
+    t.style.background = 'linear-gradient(135deg,#DC2626 0%,#EF4444 100%)';
+    ic.className = 'fas fa-circle-exclamation text-base';
+  }
+  me.textContent = msg;
+  _catatTimer = setTimeout(() => {
+    t.style.animation = 'toastOut2 .3s ease forwards';
+    setTimeout(() => t.classList.add('hidden'), 300);
+  }, 3000);
 }
 
 function escapeH(s){const d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;}
@@ -364,22 +434,147 @@ function submitPemakaian(e){
   if(itemsBhp.length===0){showToastCatat('Tambahkan minimal 1 BHP.',false);return;}
   const form=document.getElementById('formCatat');
   const fd=new FormData(form);
-  fd.append('action','add_pemakaian');
+  
+  const isEdit = !!document.getElementById('idPemakaianEdit').value;
+  fd.append('action', isEdit ? 'edit_pemakaian' : 'add_pemakaian');
+  if (isEdit) {
+    fd.append('id', document.getElementById('idPemakaianEdit').value);
+  }
+
   fd.append('items',JSON.stringify(itemsBhp.map(x=>({id_bhp:x.id_bhp,jumlah:x.jumlah,kondisi:x.kondisi}))));
   const btn=document.getElementById('btnSimpanCatat');
+  const txtBtn=document.getElementById('txtBtnSimpan');
   btn.disabled=true;
-  btn.innerHTML='<i class="fas fa-spinner fa-spin text-[12px]"></i> Menyimpan...';
+  txtBtn.textContent = 'Menyimpan...';
   fetch('/BHP-Poli-Gigi/process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
   .then(r=>r.json()).then(res=>{
     if(res.success){
       showToastCatat(res.message,true);
       itemsBhp=[];renderTableBhp();
       form.reset();
+      batalEditPemakaian(); // Reset mode
       document.getElementById('inputTglCatat').value='<?= $today ?>';
       setTimeout(()=>window.location.reload(),1200);
     }else{showToastCatat(res.message||'Gagal menyimpan.',false);}
   }).catch(()=>showToastCatat('Koneksi gagal.',false))
-  .finally(()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-save text-[12px]"></i> Simpan Catatan Pemakaian';});
+  .finally(()=>{
+    btn.disabled=false;
+    txtBtn.textContent=isEdit ? 'Update Catatan Pemakaian' : 'Simpan Catatan Pemakaian';
+  });
+}
+
+function editPemakaianForm(id) {
+  showToastCatat('Mengambil data...', true);
+  const fd = new FormData();
+  fd.append('action', 'get_pemakaian_detail');
+  fd.append('id', id);
+
+  fetch('/BHP-Poli-Gigi/process/pemakaian_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        // Cari header dari tabel HTML
+        const row = document.querySelector(`.riwayat-row[data-id="${id}"]`);
+        if (row) {
+          const cells = row.querySelectorAll('td');
+          // Parsing tanggal dari teks di tabel (atau kita bisa ambil dari database, tapi tabel lebih cepat)
+          // Sebaiknya kita ambil dari row
+          const tglStr = cells[0].querySelector('.font-medium').textContent; 
+          // tglStr e.g. "15 May 2026"
+          const d = new Date(tglStr);
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          
+          document.getElementById('inputTglCatat').value = `${yyyy}-${mm}-${dd}`;
+          document.querySelector('input[name="nama_pasien"]').value = cells[2].textContent.trim();
+          document.querySelector('input[name="unit_tindakan"]').value = cells[3].textContent.trim();
+          
+          // Set ID edit
+          document.getElementById('idPemakaianEdit').value = id;
+          document.getElementById('txtBtnSimpan').textContent = 'Update Catatan Pemakaian';
+          document.getElementById('btnBatalEdit').classList.remove('hidden');
+
+          // Scroll ke form
+          const formEl = document.getElementById('formCatat');
+          if (formEl) {
+            formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            document.querySelector('main').scrollTo({ top: 0, behavior: 'smooth' });
+          }
+
+          // Reset items
+          itemsBhp = [];
+          res.data.forEach(d => {
+            const pemakaianSisa = parseInt(d.Pemakaian || 0);
+            const jumlahPakai = parseInt(d.jumlah || 0);
+            // Stok asli sebelum diedit (untuk tampilan) adalah sisa stok + yang dipakai di sesi ini
+            const stokAsli = pemakaianSisa + jumlahPakai;
+            
+            itemsBhp.push({
+              id_bhp: d.id_bhp,
+              nama: d.Nama_bhp,
+              satuan: d.Nama_satuan || '',
+              stok: stokAsli,
+              jumlah: jumlahPakai,
+              kondisi: d.kondisi,
+              wadah: parseInt(d.wadah || 0),
+              isi: parseInt(d.isi_per_stok || 1)
+            });
+          });
+          renderTableBhp();
+
+          // Jika ada item, tampilkan informasi item pertama di panel Info BHP
+          if (itemsBhp.length > 0) {
+            const first = itemsBhp[0];
+            const panel = document.getElementById('panelInfoBhp');
+            panel.innerHTML = `
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Nama BHP</span><span class="text-[13px] font-bold text-slate-800">${escapeH(first.nama)}</span></div>
+                <div class="flex items-center justify-between"><span class="text-[12px] text-slate-500">Status</span>
+                  ${first.stok > 0
+                    ? '<span class="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-600 text-[11px] font-bold">Tersedia</span>'
+                    : '<span class="px-2.5 py-1 rounded-md bg-red-50 border border-red-100 text-red-600 text-[11px] font-bold">Habis</span>'}
+                </div>
+                
+                <div class="mt-2 p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Stok Wadah</span>
+                    <span class="text-[13px] font-black text-slate-700">${first.wadah} <span class="text-[10px] text-slate-400 uppercase">${escapeH(first.satuan)}</span></span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Kapasitas/Stok</span>
+                    <span class="text-[13px] font-black text-slate-700">${first.isi} <span class="text-[10px] text-slate-400 uppercase">unit</span></span>
+                  </div>
+                  <div class="border-t border-slate-200/60 my-2 pt-2 flex items-center justify-between">
+                    <span class="text-[11px] text-brand-600 font-bold uppercase tracking-wider">Total Tersedia</span>
+                    <span class="text-[15px] font-black text-brand-600">${first.stok} <span class="text-[10px] uppercase">unit</span></span>
+                  </div>
+                </div>
+                
+                <div class="text-[10px] text-slate-400 italic leading-relaxed px-1">
+                  * 1 ${escapeH(first.satuan)} = ${first.isi} kali pemakaian. Jika sisa unit < ${first.isi}, stok wadah akan otomatis berkurang.
+                </div>
+              </div>`;
+          }
+
+          showToastCatat('Data siap diedit.', true);
+        }
+      } else {
+        showToastCatat(res.message || 'Gagal mengambil data detail.', false);
+      }
+    })
+    .catch(() => showToastCatat('Gagal koneksi saat mengambil detail.', false));
+}
+
+function batalEditPemakaian() {
+  document.getElementById('idPemakaianEdit').value = '';
+  document.getElementById('txtBtnSimpan').textContent = 'Simpan Catatan Pemakaian';
+  document.getElementById('btnBatalEdit').classList.add('hidden');
+  document.getElementById('formCatat').reset();
+  document.getElementById('inputTglCatat').value = '<?= $today ?>';
+  itemsBhp = [];
+  renderTableBhp();
 }
 
 function deletePemakaian(id,btn){
@@ -398,3 +593,15 @@ function deletePemakaian(id,btn){
   });
 }
 </script>
+
+<style>
+  @keyframes toastIn2 {
+    from { opacity: 0; transform: translateY(12px) }
+    to { opacity: 1; transform: translateY(0) }
+  }
+
+  @keyframes toastOut2 {
+    from { opacity: 1; transform: translateY(0) }
+    to { opacity: 0; transform: translateY(12px) }
+  }
+</style>
