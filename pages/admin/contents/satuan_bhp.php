@@ -1,14 +1,25 @@
 <?php
 /**
- * Halaman Satuan BHP - Admin
+ * Halaman Satuan BHP - Admin (Dinamis)
  */
-require_once __DIR__ . '/../../../vendor/autoload.php';
 use App\Classes\BhpManager;
 $mgr    = new BhpManager();
 $satuanList = $mgr->getAllSatuan();
 $keyword    = $_GET['keyword'] ?? '';
 
-// Filter client-side (untuk simplisitas, kita render semua lalu JS yang filter)
+if (!function_exists('satBadgeColor')) {
+    function satBadgeColor(int $i): array {
+        $colors = [
+            ['bg' => '#DCFCE7', 'text' => '#166534'],
+            ['bg' => '#FEF9C3', 'text' => '#854D0E'],
+            ['bg' => '#DBEAFE', 'text' => '#1E40AF'],
+            ['bg' => '#FCE7F3', 'text' => '#9D174D'],
+            ['bg' => '#E0E7FF', 'text' => '#3730A3'],
+            ['bg' => '#CCFBF1', 'text' => '#134E4A'],
+        ];
+        return $colors[$i % count($colors)];
+    }
+}
 ?>
 
 <!-- ===== MODAL TAMBAH SATUAN ===== -->
@@ -158,20 +169,6 @@ $keyword    = $_GET['keyword'] ?? '';
   <span id="toastSatuanMsg"></span>
 </div>
 
-<?php
-function satBadgeColor(int $i): array {
-    $colors = [
-        ['bg' => '#DCFCE7', 'text' => '#166534'],
-        ['bg' => '#FEF9C3', 'text' => '#854D0E'],
-        ['bg' => '#DBEAFE', 'text' => '#1E40AF'],
-        ['bg' => '#FCE7F3', 'text' => '#9D174D'],
-        ['bg' => '#E0E7FF', 'text' => '#3730A3'],
-        ['bg' => '#CCFBF1', 'text' => '#134E4A'],
-    ];
-    return $colors[$i % count($colors)];
-}
-?>
-
 <style>
 @keyframes satuanModalIn {
   from { opacity:0; transform:scale(0.92) translateY(16px); }
@@ -206,7 +203,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSatuanM
 /* â”€â”€ Edit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function editSatuan(id, nama) { openSatuanModal(id, nama); }
 
-/* ── Delete ────────────────────────────────────────────────── */
+/* â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function deleteSatuan(id, nama) {
   showDeleteConfirm(
     'Hapus Satuan?',

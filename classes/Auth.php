@@ -15,6 +15,7 @@ class Auth
 {
     private PDO $db;
     private string $sessionKey = 'poli_user';
+    private int $inactivityTimeout = 1800; // 30 menit (dalam detik)
 
     public function __construct()
     {
@@ -22,6 +23,11 @@ class Auth
             session_start();
         }
         $this->db = Database::getInstance()->getConnection();
+        
+        // Cek inactivity pada setiap inisialisasi jika sudah login
+        if ($this->isLoggedIn()) {
+            $this->checkInactivity();
+        }
     }
 
     /**
@@ -74,6 +80,9 @@ class Auth
                 'foto'   => $user['Foto'],
             ];
 
+            // Inisialisasi waktu aktivitas terakhir
+            $_SESSION['last_activity'] = time();
+
             // Catat log login
             (new ActivityLog())->logLogin(
                 (int) $user['id_user'],
@@ -108,7 +117,28 @@ class Auth
             );
         }
         unset($_SESSION[$this->sessionKey]);
+        unset($_SESSION['last_activity']);
         session_destroy();
+    }
+
+    /**
+     * Cek apakah terjadi inactivity (idle timeout)
+     */
+    private function checkInactivity(): void
+    {
+        if (isset($_SESSION['last_activity'])) {
+            $inactiveTime = time() - $_SESSION['last_activity'];
+            
+            if ($inactiveTime > $this->inactivityTimeout) {
+                // Sesi kadaluarsa
+                $this->logout();
+                header('Location: /BHP-Poli-Gigi/pages/auth/login.php?reason=timeout');
+                exit();
+            }
+        }
+        
+        // Update waktu aktivitas terakhir
+        $_SESSION['last_activity'] = time();
     }
 
     /**

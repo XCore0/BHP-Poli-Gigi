@@ -203,3 +203,44 @@ function updatePageContent(newDoc) {
     }
   });
 })();
+
+// ═══════════════════════════════════════════════════════════════════
+// Idle Timeout Tracker
+// Otomatis logout jika tidak ada aktivitas selama 30 menit
+// ═══════════════════════════════════════════════════════════════════
+(function initIdleTimeout() {
+  const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 menit dalam milidetik
+  let idleTimer;
+
+  function resetTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(logout, IDLE_TIMEOUT);
+  }
+
+  function logout() {
+    // Redirect ke logout script
+    window.location.href = '/BHP-Poli-Gigi/pages/auth/logout.php?reason=timeout';
+  }
+
+  // Event listener untuk berbagai jenis aktivitas user
+  const activityEvents = [
+    'mousedown', 'mousemove', 'keypress', 
+    'scroll', 'touchstart', 'click'
+  ];
+
+  activityEvents.forEach(event => {
+    document.addEventListener(event, resetTimer, true);
+  });
+
+  // Reset juga saat terjadi navigasi SPA
+  const originalFetchAndRenderPage = window.fetchAndRenderPage;
+  if (typeof originalFetchAndRenderPage === 'function') {
+    window.fetchAndRenderPage = async function(url) {
+      resetTimer();
+      return await originalFetchAndRenderPage(url);
+    };
+  }
+
+  // Inisialisasi timer pertama kali
+  resetTimer();
+})();

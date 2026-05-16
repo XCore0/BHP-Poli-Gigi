@@ -3,7 +3,6 @@
 /**
  * Halaman Data BHP - Admin (Dinamis)
  */
-require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Classes\BhpManager;
 
@@ -31,13 +30,7 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-// Warna status stok
-function stokStatus(int $jumlah): array
-{
-  if ($jumlah <= 0)  return ['label' => 'Habis',   'cls' => 'text-red-600',   'dot' => 'text-red-500'];
-  if ($jumlah <= 10) return ['label' => 'Menipis', 'cls' => 'text-amber-600', 'dot' => 'text-amber-500'];
-  return             ['label' => 'Aman',   'cls' => 'text-emerald-600', 'dot' => 'text-emerald-500'];
-}
+// Warna status stok (Telah dipindah ke BhpManager::getStatusStok)
 ?>
 
 <!-- ===== MODAL TAMBAH / EDIT BHP ===== -->
@@ -57,6 +50,18 @@ function stokStatus(int $jumlah): array
     </div>
     <!-- Body -->
     <form id="formBhp" class="p-7 space-y-5">
+      <!-- Error Area -->
+      <div id="errorBhp" class="hidden p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
+        <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+        <div class="flex-1">
+          <p class="text-[13px] font-bold text-red-700">Terjadi Kesalahan</p>
+          <p id="errorBhpMsg" class="text-[12px] text-red-600 mt-0.5"></p>
+        </div>
+        <button type="button" onclick="document.getElementById('errorBhp').classList.add('hidden')" class="text-red-400 hover:text-red-600">
+          <i class="fas fa-times text-[12px]"></i>
+        </button>
+      </div>
+
       <input type="hidden" id="bhpId" name="id" value="">
       <input type="hidden" id="bhpAction" name="action" value="add_bhp">
 
@@ -95,7 +100,7 @@ function stokStatus(int $jumlah): array
       <!-- Row 3: Satuan -->
       <div class="grid grid-cols-1 gap-5">
         <div class="flex flex-col gap-1.5">
-          <label for="bhpSatuan" class="text-sm font-semibold text-slate-700">Satuan</label>
+          <label for="bhpSatuan" class="text-sm font-semibold text-slate-700">Satuan Stok (Wadah)</label>
           <div class="relative group">
             <i class="fa-solid fa-ruler absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none group-focus-within:text-emerald-500 transition-colors"></i>
             <select id="bhpSatuan" name="id_satuan" onchange="this.classList.toggle('text-slate-700',this.value!=='');this.classList.toggle('text-slate-400',this.value==='');"
@@ -157,7 +162,7 @@ function stokStatus(int $jumlah): array
           <div class="flex flex-col gap-1 min-w-0">
             <h1 class="font-display font-bold text-white text-xl sm:text-2xl lg:text-3xl leading-tight">Data Bahan Habis Pakai</h1>
             <p class="font-plex font-medium text-white/90 text-[13px] sm:text-[14px] leading-relaxed hidden sm:block max-w-2xl">
-              Pantau stok, penggunaan, dan ketersediaan bahan habis pakai secara real-time untuk memastikan operasional tetap berjalan lancar.
+              Pantau stok wadah, kapasitas penggunaan per stok, dan total unit yang tersedia secara real-time.
             </p>
           </div>
         </div>
@@ -214,17 +219,6 @@ function stokStatus(int $jumlah): array
             <i class="fas fa-times mr-1"></i> Reset
           </a>
         <?php endif; ?>
-        <!-- Export buttons -->
-        <div class="flex gap-2 ml-auto">
-          <button type="button" onclick="exportBhp('pdf')"
-            class="h-11 px-4 rounded-xl text-sm font-semibold text-red-500 border border-red-100 bg-red-50/50 flex items-center gap-2 hover:bg-red-50 transition-colors shrink-0 whitespace-nowrap">
-            <i class="far fa-file-pdf"></i> Export PDF
-          </button>
-          <button type="button" onclick="exportBhp('excel')"
-            class="h-11 px-4 rounded-xl text-sm font-semibold text-emerald-600 border border-emerald-100 bg-emerald-50/50 flex items-center gap-2 hover:bg-emerald-50 transition-colors shrink-0 whitespace-nowrap">
-            <i class="far fa-file-excel"></i> Export Excel
-          </button>
-        </div>
       </form>
 
       <!-- Table -->
@@ -235,9 +229,9 @@ function stokStatus(int $jumlah): array
               <th class="py-4 px-6">Kode BHP</th>
               <th class="py-4 px-6">Nama BHP</th>
               <th class="py-4 px-6">Kategori</th>
-              <th class="py-4 px-6">Satuan</th>
-              <th class="py-4 px-6">Stok (Unit)</th>
-              <th class="py-4 px-6">Total Pemakaian</th>
+              <th class="py-4 px-6 text-center">Stok (Wadah)</th>
+              <th class="py-4 px-6 text-center">Isi/Stok</th>
+              <th class="py-4 px-6 text-center">Pemakaian Tersedia</th>
               <th class="py-4 px-6">Status</th>
               <th class="py-4 px-6 text-right">Aksi</th>
             </tr>
@@ -264,7 +258,7 @@ function stokStatus(int $jumlah): array
               $katColorMap = [];
               foreach ($kategoriList as $idx => $k) $katColorMap[$k['id_kategori']] = $katColors[$idx % count($katColors)];
               foreach ($bhpList as $bhp):
-                $status = stokStatus((int)$bhp['Jumlah']);
+                $status = BhpManager::getStatusStok((int)$bhp['Jumlah'], (int)$bhp['Pemakaian']);
                 $col    = $katColorMap[$bhp['id_kategori']] ?? $katColors[0];
               ?>
                 <tr class="hover:bg-slate-50/50 transition-colors group bg-white" id="bhp-row-<?php echo $bhp['id_bhp']; ?>">
@@ -276,16 +270,23 @@ function stokStatus(int $jumlah): array
                         <?php echo htmlspecialchars($bhp['Nama_kategori']); ?>
                       </span>
                     <?php else: ?>
-                      <span class="text-slate-300 text-xs">�</span>
+                      <span class="text-slate-300 text-xs">—</span>
                     <?php endif; ?>
                   </td>
-                  <td class="py-5 px-6 font-medium text-slate-600"><?php echo $bhp['Nama_satuan'] ? htmlspecialchars($bhp['Nama_satuan']) : '�'; ?></td>
-                  <td class="py-5 px-6 font-medium text-slate-600">
+                  <td class="py-5 px-6 text-center">
                     <span class="font-bold text-slate-700 text-sm"><?php echo number_format((int)$bhp['Jumlah']); ?></span>
-                    <span class="text-xs ml-1">Box/Unit</span>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase ml-1"><?php echo htmlspecialchars($bhp['Nama_satuan'] ?? 'Box'); ?></span>
                   </td>
-                  <td class="py-5 px-6 font-medium text-slate-500">
-                    <div class="font-bold text-emerald-600 text-sm"><?php echo number_format((int)$bhp['Pemakaian']); ?></div>
+                  <td class="py-5 px-6 text-center font-bold text-slate-500">
+                    <?php if ((int)$bhp['Jumlah'] > 0): ?>
+                      <?php echo (int)($bhp['isi_per_stok'] ?? 1); ?> <span class="text-[10px] font-medium">unit</span>
+                    <?php else: ?>
+                      <span class="text-slate-300">—</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="py-5 px-6 text-center">
+                    <div class="font-black text-brand-600 text-[15px]"><?php echo number_format((int)$bhp['Pemakaian']); ?></div>
+                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Pemakaian Tersedia</div>
                   </td>
                   <td class="py-5 px-6">
                     <span class="<?php echo $status['cls']; ?> font-bold text-[11px] tracking-widest uppercase">
@@ -313,9 +314,10 @@ function stokStatus(int $jumlah): array
 
       <!-- Pagination -->
       <?php if ($totalPages > 1): ?>
-      <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/50">
         <span class="text-[13px] font-medium text-slate-500">
-          Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalPages; ?></span>
+          Menampilkan <span class="font-bold text-slate-700"><?php echo count($bhpList); ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalBhp; ?></span> data
+          (Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span>/<?php echo $totalPages; ?>)
         </span>
         <div class="flex items-center gap-1.5">
           <?php
@@ -324,27 +326,36 @@ function stokStatus(int $jumlah): array
           $baseQS = http_build_query($qParam);
           $baseQS = $baseQS ? '&' . $baseQS : '';
           
+          // Button: First
           if ($p > 1): ?>
-            <a href="?p=<?php echo $p - 1; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+            <a href="?p=1<?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-[11px] font-bold uppercase tracking-wider" title="Halaman Pertama">
+              <i class="fas fa-angles-left mr-1.5"></i> First
+            </a>
+            <a href="?p=<?php echo $p - 1; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all" title="Sebelumnya">
               <i class="fas fa-chevron-left text-[11px]"></i>
             </a>
           <?php endif; ?>
           
           <?php
-          // Simple pagination numbers (max 5 pages)
-          $startPage = max(1, $p - 2);
-          $endPage = min($totalPages, $p + 2);
+          // dynamic range
+          $range = 2;
+          $startPage = max(1, $p - $range);
+          $endPage = min($totalPages, $p + $range);
+          
           for ($i = $startPage; $i <= $endPage; $i++):
             $isActive = ($i === $p);
           ?>
-            <a href="?p=<?php echo $i; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?php echo $isActive ? 'bg-brand-50 border-brand-200 text-brand-600 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium'; ?> transition-colors text-sm">
+            <a href="?p=<?php echo $i; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?php echo $isActive ? 'bg-brand-600 border-brand-600 text-white shadow-sm shadow-brand-200 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium'; ?> transition-all text-sm">
               <?php echo $i; ?>
             </a>
           <?php endfor; ?>
 
           <?php if ($p < $totalPages): ?>
-            <a href="?p=<?php echo $p + 1; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium">
+            <a href="?p=<?php echo $p + 1; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all" title="Selanjutnya">
               <i class="fas fa-chevron-right text-[11px]"></i>
+            </a>
+            <a href="?p=<?php echo $totalPages; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-[11px] font-bold uppercase tracking-wider" title="Halaman Terakhir">
+              Last <i class="fas fa-angles-right ml-1.5"></i>
             </a>
           <?php endif; ?>
         </div>
@@ -403,14 +414,15 @@ function stokStatus(int $jumlah): array
 <script>
   const BHP_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
-  /* -- Helper: sync dropdown text color -------- */
+  /* ── Helper: sync dropdown text color ──────── */
   function syncSelectColor(el) {
     el.classList.toggle('text-slate-700', el.value !== '');
     el.classList.toggle('text-slate-400', el.value === '');
   }
 
-  /* -- Modal ------------------------------------- */
+  /* ── Modal ───────────────────────────────────── */
   function openBhpModal(id = '', kode = '', nama = '', id_kat = '', id_sat = '') {
+    document.getElementById('errorBhp').classList.add('hidden');
     document.getElementById('bhpId').value = id;
     document.getElementById('bhpKode').value = kode;
     document.getElementById('bhpNama').value = nama;
@@ -450,16 +462,16 @@ function stokStatus(int $jumlah): array
     if (e.key === 'Escape') closeBhpModal();
   });
 
-  /* -- Edit -------------------------------------- */
+  /* ── Edit ────────────────────────────────────── */
   function editBhp(d) {
     openBhpModal(d.id_bhp, d.Kode_bhp || '', d.Nama_bhp, d.id_kategori || '', d.id_satuan || '');
   }
 
-  /* -- Delete ------------------------------------ */
+  /* ── Delete ──────────────────────────────────── */
   function deleteBhp(id, nama) {
     showDeleteConfirm(
       'Hapus BHP?',
-      `Anda akan menghapus BHP "${nama}". Tindakan ini tidak dapat dibatalkan.`,
+      `Anda akan menghapus "${nama}". Tindakan ini tidak dapat dibatalkan.`,
       async () => {
         const fd = new FormData();
         fd.append('action', 'delete_bhp');
@@ -467,39 +479,47 @@ function stokStatus(int $jumlah): array
         try {
           const res = await fetch(BHP_URL, { method: 'POST', body: fd });
           const json = await res.json();
-          if (json.success) { showToastBhp(json.message, 'success'); setTimeout(() => location.reload(), 900); }
-          else showToastBhp(json.message, 'error');
+          if (json.success) {
+            showToastBhp(json.message, 'success');
+            setTimeout(() => location.reload(), 900);
+          } else showToastBhp(json.message, 'error');
         } catch { showToastBhp('Gagal menghapus BHP.', 'error'); }
       }
     );
   }
 
-  /* -- Form Submit ------------------------------- */
+  /* ── Form Submit ─────────────────────────────── */
   document.getElementById('formBhp').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('btnSimpanBhp');
     btn.disabled = true;
     btn.textContent = 'Menyimpan...';
     try {
-      const res = await fetch(BHP_URL, {
-        method: 'POST',
-        body: new FormData(this)
-      });
+      const fd = new FormData(this);
+      const res = await fetch('/BHP-Poli-Gigi/process/bhp_process.php', { method: 'POST', body: fd, credentials: 'same-origin' });
       const json = await res.json();
       if (json.success) {
         showToastBhp(json.message, 'success');
         closeBhpModal();
         setTimeout(() => location.reload(), 900);
-      } else showToastBhp(json.message, 'error');
+      } else {
+        const errEl = document.getElementById('errorBhp');
+        const errMsg = document.getElementById('errorBhpMsg');
+        errMsg.textContent = json.message || 'Gagal menyimpan data.';
+        errEl.classList.remove('hidden');
+      }
     } catch {
-      showToastBhp('Terjadi kesalahan jaringan.', 'error');
+      const errEl = document.getElementById('errorBhp');
+      const errMsg = document.getElementById('errorBhpMsg');
+      errMsg.textContent = 'Terjadi kesalahan jaringan atau server.';
+      errEl.classList.remove('hidden');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Simpan Barang';
     }
   });
 
-  /* -- Toast ------------------------------------- */
+  /* ── Toast ───────────────────────────────────── */
   let _bhpTimer;
 
   function showToastBhp(msg, type = 'success') {

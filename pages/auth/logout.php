@@ -9,5 +9,11 @@ use App\Classes\Auth;
 $auth = new Auth();
 $auth->logout();
 
-header('Location: /BHP-Poli-Gigi/pages/auth/login.php');
+$reason = $_GET['reason'] ?? '';
+$redirectUrl = '/BHP-Poli-Gigi/pages/auth/login.php';
+if ($reason) {
+    $redirectUrl .= '?reason=' . urlencode($reason);
+}
+
+header("Location: $redirectUrl");
 exit();

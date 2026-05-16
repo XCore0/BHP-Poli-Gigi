@@ -1,18 +1,10 @@
 <?php
-
 /**
  * Halaman Kategori BHP - Admin (Dinamis)
  */
-require_once __DIR__ . '/../../../vendor/autoload.php';
-
 use App\Classes\BhpManager;
-
 $mgr        = new BhpManager();
 $kategoriList = $mgr->getAllKategori();
-
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
 ?>
 
 <!-- ===== MODAL TAMBAH / EDIT KATEGORI ===== -->
@@ -34,18 +26,18 @@ if (session_status() === PHP_SESSION_NONE) {
     <form id="formKategori" class="px-7 py-6 space-y-4">
       <input type="hidden" id="kategoriId" name="id" value="">
       <input type="hidden" id="kategoriAction" name="action" value="add_kategori">
-      <!-- Row: Nama Kategori (full width) -->
-      <div class="flex flex-col gap-1.5">
-        <label for="namaKategori" class="text-sm font-semibold text-slate-700">Nama Kategori <span class="text-red-500">*</span></label>
-        <input id="namaKategori" name="nama_kategori" type="text" placeholder="cth: Alat Pelindung"
-          class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" required />
-      </div>
-      <!-- Kode Kategori (readonly saat tambah, editable saat edit) -->
-      <div class="flex flex-col gap-1.5">
-        <label for="kodeKategori" class="text-sm font-semibold text-slate-700">Kode Kategori</label>
-        <input id="kodeKategori" name="kode_kategori" type="text" placeholder="Otomatis dari nama kategori"
-          class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm bg-slate-50 cursor-not-allowed" readonly />
-        <p id="kodeKategoriHint" class="text-xs text-slate-400 mt-0.5"><i class="fas fa-info-circle mr-1"></i>Kode akan di-generate otomatis berdasarkan nama, contoh: <strong>AP-001</strong></p>
+      <!-- Row: Kode + Nama -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="kodeKategori" class="text-sm font-semibold text-slate-700">Kode Kategori</label>
+          <input id="kodeKategori" name="kode_kategori" type="text" placeholder="cth: AP - 001"
+            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="namaKategori" class="text-sm font-semibold text-slate-700">Nama Kategori <span class="text-red-500">*</span></label>
+          <input id="namaKategori" name="nama_kategori" type="text" placeholder="cth: Alat Pelindung"
+            class="h-11 px-4 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder:text-slate-300 shadow-sm" required />
+        </div>
       </div>
       <div class="flex justify-end gap-3 pt-1">
         <button type="button" onclick="closeKategoriModal()"
@@ -124,50 +116,50 @@ if (session_status() === PHP_SESSION_NONE) {
           </thead>
           <tbody id="kategoriTableBody" class="text-sm font-plex divide-y divide-slate-100 text-slate-700">
             <?php if (empty($kategoriList)): ?>
-              <tr id="kategoriEmptyRow">
-                <td colspan="3" class="px-6 py-12 text-center text-slate-400">
-                  <i class="fas fa-tags text-4xl mb-3 opacity-30 block"></i>
-                  Belum ada kategori. Klik "+ Tambah Kategori BHP" untuk memulai.
-                </td>
-              </tr>
+            <tr id="kategoriEmptyRow">
+              <td colspan="3" class="px-6 py-12 text-center text-slate-400">
+                <i class="fas fa-tags text-4xl mb-3 opacity-30 block"></i>
+                Belum ada kategori. Klik "+ Tambah Kategori BHP" untuk memulai.
+              </td>
+            </tr>
             <?php else: ?>
-              <?php
-              $katColors = [
-                ['bg' => 'bg-emerald-100/50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-100/50'],
-                ['bg' => 'bg-amber-100/50',  'text' => 'text-amber-700',  'border' => 'border-amber-100/50'],
-                ['bg' => 'bg-blue-100/50',   'text' => 'text-blue-700',   'border' => 'border-blue-100/50'],
-                ['bg' => 'bg-purple-100/50', 'text' => 'text-purple-700', 'border' => 'border-purple-100/50'],
-                ['bg' => 'bg-rose-100/50',   'text' => 'text-rose-700',   'border' => 'border-rose-100/50'],
-              ];
-              foreach ($kategoriList as $i => $kat):
-                $col = $katColors[$i % count($katColors)];
-                $kode = $kat['Kode_kategori'] ?? '-';
-              ?>
-                <tr class="hover:bg-slate-50/50 transition-colors group bg-white kategori-row" data-nama="<?php echo strtolower(htmlspecialchars($kat['Nama_kategori'])); ?>">
-                  <td class="py-5 px-6">
-                    <span class="font-semibold text-slate-700">
-                      <?php echo htmlspecialchars($kode); ?>
-                    </span>
-                  </td>
-                  <td class="py-5 px-6">
-                    <span class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold <?php echo $col['bg'] . ' ' . $col['text'] . ' border ' . $col['border']; ?>">
-                      <?php echo htmlspecialchars($kat['Nama_kategori']); ?>
-                    </span>
-                  </td>
-                  <td class="py-5 px-6 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                      <button onclick="editKategori(<?php echo $kat['id_kategori']; ?>, '<?php echo htmlspecialchars($kat['Nama_kategori'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($kat['Kode_kategori'] ?? '', ENT_QUOTES); ?>')"
-                        class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-blue-100/50 bg-white shadow-sm" title="Edit">
-                        <i class="fa-solid fa-pen-to-square text-[13px]"></i>
-                      </button>
-                      <button onclick="deleteKategori(<?php echo $kat['id_kategori']; ?>, '<?php echo htmlspecialchars($kat['Nama_kategori'], ENT_QUOTES); ?>')"
-                        class="text-red-500 hover:text-red-700 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-red-100/50 bg-white shadow-sm" title="Hapus">
-                        <i class="fa-solid fa-trash-can text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
+            <?php
+            $katColors = [
+              ['bg'=>'bg-emerald-100/50','text'=>'text-emerald-700','border'=>'border-emerald-100/50'],
+              ['bg'=>'bg-amber-100/50',  'text'=>'text-amber-700',  'border'=>'border-amber-100/50'],
+              ['bg'=>'bg-blue-100/50',   'text'=>'text-blue-700',   'border'=>'border-blue-100/50'],
+              ['bg'=>'bg-purple-100/50', 'text'=>'text-purple-700', 'border'=>'border-purple-100/50'],
+              ['bg'=>'bg-rose-100/50',   'text'=>'text-rose-700',   'border'=>'border-rose-100/50'],
+            ];
+            foreach ($kategoriList as $i => $kat):
+              $col = $katColors[$i % count($katColors)];
+              // Generate simple kode dari inisial
+              $words = explode(' ', $kat['Nama_kategori']);
+              $kode  = '';
+              foreach ($words as $w) $kode .= strtoupper(substr($w,0,1));
+              $kode .= ' - ' . str_pad($kat['id_kategori'], 3, '0', STR_PAD_LEFT);
+            ?>
+            <tr class="hover:bg-slate-50/50 transition-colors group bg-white kategori-row" data-nama="<?php echo strtolower(htmlspecialchars($kat['Nama_kategori'])); ?>">
+              <td class="py-5 px-6 font-semibold text-slate-700"><?php echo htmlspecialchars($kode); ?></td>
+              <td class="py-5 px-6">
+                <span class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold <?php echo $col['bg'].' '.$col['text'].' border '.$col['border']; ?>">
+                  <?php echo htmlspecialchars($kat['Nama_kategori']); ?>
+                </span>
+              </td>
+              <td class="py-5 px-6 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button onclick="editKategori(<?php echo $kat['id_kategori']; ?>, '<?php echo htmlspecialchars($kat['Nama_kategori'], ENT_QUOTES); ?>')"
+                    class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-blue-100/50 bg-white shadow-sm" title="Edit">
+                    <i class="fa-solid fa-pen-to-square text-[13px]"></i>
+                  </button>
+                  <button onclick="deleteKategori(<?php echo $kat['id_kategori']; ?>, '<?php echo htmlspecialchars($kat['Nama_kategori'], ENT_QUOTES); ?>')"
+                    class="text-red-500 hover:text-red-700 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-lg transition-colors border border-red-100/50 bg-white shadow-sm" title="Hapus">
+                    <i class="fa-solid fa-trash-can text-[13px]"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <?php endforeach; ?>
             <?php endif; ?>
           </tbody>
         </table>
@@ -184,161 +176,83 @@ if (session_status() === PHP_SESSION_NONE) {
 </div>
 
 <style>
-  @keyframes katModalIn2 {
-    from {
-      opacity: 0;
-      transform: scale(0.92) translateY(16px);
-    }
-
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
+@keyframes katModalIn2 {
+  from { opacity:0;transform:scale(0.92) translateY(16px); }
+  to   { opacity:1;transform:scale(1)   translateY(0); }
+}
 </style>
 
 <script>
-  const KAT_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
+const KAT_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
 
-  function openKategoriModal(id = '', nama = '', kode = '') {
-    const kodeInput = document.getElementById('kodeKategori');
-    const kodeHint = document.getElementById('kodeKategoriHint');
-    document.getElementById('kategoriId').value = id;
-    document.getElementById('namaKategori').value = nama;
-    kodeInput.value = kode;
-    document.getElementById('kategoriAction').value = id ? 'edit_kategori' : 'add_kategori';
-    document.getElementById('kategoriModalTitle').textContent = id ? 'Edit Kategori' : 'Tambah Kategori Baru';
-
-    // Saat tambah: readonly + hint. Saat edit: bisa diubah manual.
-    if (id) {
-      kodeInput.readOnly = false;
-      kodeInput.classList.remove('bg-slate-50', 'cursor-not-allowed');
-      kodeInput.placeholder = 'Masukkan kode kategori';
-      kodeHint.classList.add('hidden');
-    } else {
-      kodeInput.readOnly = true;
-      kodeInput.classList.add('bg-slate-50', 'cursor-not-allowed');
-      kodeInput.placeholder = 'Otomatis dari nama kategori';
-      kodeHint.classList.remove('hidden');
-    }
-
-    const m = document.getElementById('modalKategori');
-    if (m.parentNode !== document.body) {
-      document.body.appendChild(m);
-    }
-    m.classList.remove('hidden');
-    m.classList.add('flex');
+function openKategoriModal(id='', nama='', kode='') {
+  document.getElementById('kategoriId').value     = id;
+  document.getElementById('namaKategori').value   = nama;
+  document.getElementById('kodeKategori').value   = kode;
+  document.getElementById('kategoriAction').value = id ? 'edit_kategori' : 'add_kategori';
+  document.getElementById('kategoriModalTitle').textContent = id ? 'Edit Kategori' : 'Tambah Kategori Baru';
+  const m = document.getElementById('modalKategori');
+  if (m.parentNode !== document.body) {
+    document.body.appendChild(m);
   }
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+function closeKategoriModal() {
+  const m = document.getElementById('modalKategori');
+  m.classList.add('hidden'); m.classList.remove('flex');
+  document.getElementById('formKategori').reset();
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeKategoriModal(); });
 
-  function closeKategoriModal() {
-    const m = document.getElementById('modalKategori');
-    m.classList.add('hidden');
-    m.classList.remove('flex');
-    document.getElementById('formKategori').reset();
-  }
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeKategoriModal();
-  });
+function editKategori(id, nama, kode='') { openKategoriModal(id, nama, kode); }
 
-  function editKategori(id, nama, kode = '') {
-    openKategoriModal(id, nama, kode);
-  }
-
-  // ── Auto-generate kode preview saat mengetik nama kategori ──
-  function generateKodePreview(nama) {
-    nama = nama.trim();
-    if (!nama) return '';
-    const words = nama.split(/\s+/).filter(w => w.length > 0);
-    let prefix = '';
-    if (words.length >= 2) {
-      words.forEach(w => prefix += w.charAt(0).toUpperCase());
-    } else {
-      prefix = nama.substring(0, Math.min(3, nama.length)).toUpperCase();
-    }
-    const num = String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
-    return prefix + '-' + num;
-  }
-
-  document.getElementById('namaKategori').addEventListener('input', function() {
-    const isAdd = document.getElementById('kategoriAction').value === 'add_kategori';
-    if (!isAdd) return;
-    document.getElementById('kodeKategori').value = generateKodePreview(this.value);
-  });
-
-  function deleteKategori(id, nama) {
-    showDeleteConfirm(
-      'Hapus Kategori?',
-      `Hapus kategori "${nama}"? BHP terkait akan menjadi tanpa kategori.`,
-      async () => {
-        const fd = new FormData();
-        fd.append('action', 'delete_kategori');
-        fd.append('id', id);
-        try {
-          const res = await fetch(KAT_URL, { method: 'POST', body: fd });
-          const json = await res.json();
-          if (json.success) { showToastKat(json.message, 'success'); setTimeout(() => location.reload(), 900); }
-          else showToastKat(json.message, 'error');
-        } catch { showToastKat('Gagal menghapus kategori.', 'error'); }
-      }
-    );
-  }
-
-  document.getElementById('formKategori').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btnSimpanKategori');
-    btn.disabled = true;
-    btn.textContent = 'Menyimpan...';
+function deleteKategori(id, nama) {
+  showDeleteConfirm('Hapus Kategori?', `Hapus kategori "${nama}"? BHP yang menggunakan kategori ini akan menjadi tanpa kategori.`, async () => {
+    const fd = new FormData();
+    fd.append('action','delete_kategori'); fd.append('id',id);
     try {
-      const res = await fetch(KAT_URL, {
-        method: 'POST',
-        body: new FormData(this)
-      });
+      const res  = await fetch(KAT_URL,{method:'POST',body:fd});
       const json = await res.json();
-      if (json.success) {
-        showToastKat(json.message, 'success');
-        closeKategoriModal();
-        setTimeout(() => location.reload(), 900);
-      } else showToastKat(json.message, 'error');
-    } catch {
-      showToastKat('Terjadi kesalahan jaringan.', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Simpan Barang';
-    }
+      if(json.success){showToastKat(json.message,'success');setTimeout(()=>location.reload(),900);}
+      else showToastKat(json.message,'error');
+    } catch { showToastKat('Gagal menghapus kategori.','error'); }
   });
+}
 
-  function filterKategori(val) {
-    const v = val.toLowerCase().trim();
-    let vis = 0;
-    document.querySelectorAll('.kategori-row').forEach(row => {
-      const m = row.dataset.nama.includes(v);
-      row.style.display = m ? '' : 'none';
-      if (m) vis++;
-    });
-    const empty = document.getElementById('kategoriEmptyRow');
-    if (empty) empty.style.display = vis === 0 ? '' : 'none';
-  }
+document.getElementById('formKategori').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('btnSimpanKategori');
+  btn.disabled=true; btn.textContent='Menyimpan...';
+  try {
+    const res  = await fetch(KAT_URL,{method:'POST',body:new FormData(this)});
+    const json = await res.json();
+    if(json.success){showToastKat(json.message,'success');closeKategoriModal();setTimeout(()=>location.reload(),900);}
+    else showToastKat(json.message,'error');
+  } catch { showToastKat('Terjadi kesalahan jaringan.','error'); }
+  finally { btn.disabled=false; btn.textContent='Simpan Barang'; }
+});
 
-  let _ktimer;
+function filterKategori(val) {
+  const v = val.toLowerCase().trim();
+  let vis = 0;
+  document.querySelectorAll('.kategori-row').forEach(row => {
+    const m = row.dataset.nama.includes(v);
+    row.style.display = m?'':'none';
+    if(m) vis++;
+  });
+  const empty = document.getElementById('kategoriEmptyRow');
+  if(empty) empty.style.display = vis===0?'':'none';
+}
 
-  function showToastKat(msg, type = 'success') {
-    const t = document.getElementById('toastKat'),
-      ic = document.getElementById('toastKatIcon'),
-      me = document.getElementById('toastKatMsg');
-    clearTimeout(_ktimer);
-    t.className = 'fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-plex font-semibold text-white min-w-[260px]';
-    t.style.animation = 'toastIn2 .3s ease forwards';
-    if (type === 'success') {
-      t.style.background = 'linear-gradient(135deg,#047857 0%,#059669 100%)';
-      ic.className = 'fas fa-circle-check text-base';
-    } else {
-      t.style.background = 'linear-gradient(135deg,#DC2626 0%,#EF4444 100%)';
-      ic.className = 'fas fa-circle-exclamation text-base';
-    }
-    me.textContent = msg;
-    _ktimer = setTimeout(() => {
-      t.style.animation = 'toastOut2 .3s ease forwards';
-      setTimeout(() => t.classList.add('hidden'), 300);
-    }, 3000);
-  }
+let _ktimer;
+function showToastKat(msg,type='success'){
+  const t=document.getElementById('toastKat'),ic=document.getElementById('toastKatIcon'),me=document.getElementById('toastKatMsg');
+  clearTimeout(_ktimer);
+  t.className='fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-plex font-semibold text-white min-w-[260px]';
+  t.style.animation='toastIn2 .3s ease forwards';
+  if(type==='success'){t.style.background='linear-gradient(135deg,#047857 0%,#059669 100%)';ic.className='fas fa-circle-check text-base';}
+  else{t.style.background='linear-gradient(135deg,#DC2626 0%,#EF4444 100%)';ic.className='fas fa-circle-exclamation text-base';}
+  me.textContent=msg;
+  _ktimer=setTimeout(()=>{t.style.animation='toastOut2 .3s ease forwards';setTimeout(()=>t.classList.add('hidden'),300);},3000);
+}
 </script>
