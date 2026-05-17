@@ -202,29 +202,27 @@ $totalPages  = max(1, ceil($totalRecord / $limit));
 
       <!-- Pagination -->
       <?php if ($totalPages > 1): ?>
-      <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <span class="text-[12px] font-medium text-slate-400">
-          Menampilkan <span class="font-bold text-slate-700"><?php echo count($stokList); ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalRecord; ?></span> data
-          (Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span>/<?php echo $totalPages; ?>)
-        </span>
+      <div class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/30">
+        <p class="font-plex text-sm text-slate-500 font-medium">
+          Menampilkan <span class="font-bold text-slate-700"><?= min($offset + 1, $totalRecord ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($offset + $limit, $totalRecord) ?></span> dari <span class="font-bold text-slate-700"><?= $totalRecord ?></span> data
+        </p>
         <div class="flex items-center gap-1.5">
           <?php 
             $q = $_GET; unset($q['p']);
-            $qs = http_build_query($q);
-            $qs = $qs ? '&'.$qs : '';
+            $qs = http_build_query($q); $qs = $qs ? '&'.$qs : '';
             if ($p > 1): 
           ?>
-            <a href="?p=<?= $p - 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all font-medium" title="Sebelumnya">
+            <a href="?p=<?= $p - 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
               <i class="fas fa-chevron-left text-[10px]"></i>
             </a>
           <?php endif; ?>
           <?php 
           $start = max(1, $p - 2); $end = min($totalPages, $p + 2);
           for ($i = $start; $i <= $end; $i++): $isActive = ($i === $p); ?>
-            <a href="?p=<?= $i ?><?= $qs ?>" class="h-9 w-9 rounded-xl flex items-center justify-center text-xs font-bold transition-all <?= $isActive ? 'bg-brand-600 text-white shadow-md shadow-brand-100' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' ?>"><?= $i ?></a>
+            <a href="?p=<?= $i ?><?= $qs ?>" class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $isActive ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>"><?= $i ?></a>
           <?php endfor; ?>
           <?php if ($p < $totalPages): ?>
-            <a href="?p=<?= $p + 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all font-medium" title="Selanjutnya">
+            <a href="?p=<?= $p + 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
               <i class="fas fa-chevron-right text-[10px]"></i>
             </a>
           <?php endif; ?>

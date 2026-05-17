@@ -328,39 +328,29 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
           </tbody>
         </table>
       </div>
-      <div class="border-t border-slate-100 px-6 py-4 bg-slate-50/30 flex items-center justify-between">
-        <span class="text-[13px] font-medium text-slate-400">
-          Halaman <span class="font-bold text-slate-700"><?= $p1 ?></span> dari <?= $totalPage1 ?> (Total <?= $totalDetail ?> record)
-        </span>
-        
+      <div class="border-t border-slate-100 px-6 py-4 bg-slate-50/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="font-plex text-sm text-slate-500 font-medium">
+          Menampilkan <span class="font-bold text-slate-700"><?= min($off1 + 1, $totalDetail ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($off1 + $limit1, $totalDetail) ?></span> dari <span class="font-bold text-slate-700"><?= $totalDetail ?></span> data
+        </p>
         <?php if ($totalPage1 > 1): ?>
         <div class="flex items-center gap-1.5">
           <?php
           $qParam = $_GET; unset($qParam['p1']); $baseQS = http_build_query($qParam); $baseQS = $baseQS ? '&' . $baseQS : '';
           if ($p1 > 1): ?>
-            <a href="?p1=1<?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Pertama">
-              <i class="fas fa-angles-left mr-1.5"></i> First
-            </a>
-            <a href="?p1=<?= $p1 - 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Sebelumnya">
-              <i class="fas fa-chevron-left text-[11px]"></i>
-            </a>
+          <a href="?p1=<?= $p1 - 1 ?><?= $baseQS ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
+            <i class="fas fa-chevron-left text-[10px]"></i>
+          </a>
           <?php endif; ?>
-          
-          <?php
-          $sPage = max(1, $p1 - 2); $ePage = min($totalPage1, $p1 + 2);
-          for ($i = $sPage; $i <= $ePage; $i++): $isActive = ($i === $p1); ?>
-            <a href="?p1=<?= $i ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?= $isActive ? 'bg-brand-50 border-brand-200 text-brand-600 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium' ?> transition-colors text-sm">
-              <?= $i ?>
-            </a>
+          <?php for ($i = max(1, $p1 - 2); $i <= min($totalPage1, $p1 + 2); $i++): ?>
+          <a href="?p1=<?= $i ?><?= $baseQS ?>"
+            class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $i === $p1 ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>">
+            <?= $i ?>
+          </a>
           <?php endfor; ?>
-
           <?php if ($p1 < $totalPage1): ?>
-            <a href="?p1=<?= $p1 + 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Selanjutnya">
-              <i class="fas fa-chevron-right text-[11px]"></i>
-            </a>
-            <a href="?p1=<?= $totalPage1 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Terakhir">
-              Last <i class="fas fa-angles-right ml-1.5"></i>
-            </a>
+          <a href="?p1=<?= $p1 + 1 ?><?= $baseQS ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
+            <i class="fas fa-chevron-right text-[10px]"></i>
+          </a>
           <?php endif; ?>
         </div>
         <?php endif; ?>
@@ -458,27 +448,28 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
 
       <!-- Pagination Section 2 -->
       <?php if ($totalPage2 > 1): ?>
-      <div class="flex items-center gap-4">
-        <span class="text-[13px] font-medium text-slate-400">Halaman <span class="font-bold text-slate-700"><?= $p2 ?></span> dari <?= $totalPage2 ?> (Total <?= $totalPasien ?> pasien)</span>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+        <p class="font-plex text-sm text-slate-500 font-medium">
+          Menampilkan <span class="font-bold text-slate-700"><?= min($off2 + 1, $totalPasien ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($off2 + $limit2, $totalPasien) ?></span> dari <span class="font-bold text-slate-700"><?= $totalPasien ?></span> data
+        </p>
         <div class="flex items-center gap-1.5">
           <?php
           $qParam = $_GET; unset($qParam['p2']); $baseQS = http_build_query($qParam); $baseQS = $baseQS ? '&' . $baseQS : '';
           if ($p2 > 1): ?>
-            <a href="?p2=1<?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Pertama">
-              <i class="fas fa-angles-left mr-1.5"></i> First
-            </a>
-            <a href="?p2=<?= $p2 - 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Sebelumnya"><i class="fas fa-chevron-left text-[11px]"></i></a>
+          <a href="?p2=<?= $p2 - 1 ?><?= $baseQS ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
+            <i class="fas fa-chevron-left text-[10px]"></i>
+          </a>
           <?php endif; ?>
-          <?php
-          $sPage2 = max(1, $p2 - 2); $ePage2 = min($totalPage2, $p2 + 2);
-          for ($i = $sPage2; $i <= $ePage2; $i++): $isActive = ($i === $p2); ?>
-            <a href="?p2=<?= $i ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?= $isActive ? 'bg-brand-50 border-brand-200 text-brand-600 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium' ?> transition-colors text-sm"><?= $i ?></a>
+          <?php for ($i = max(1, $p2 - 2); $i <= min($totalPage2, $p2 + 2); $i++): ?>
+          <a href="?p2=<?= $i ?><?= $baseQS ?>"
+            class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $i === $p2 ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>">
+            <?= $i ?>
+          </a>
           <?php endfor; ?>
           <?php if ($p2 < $totalPage2): ?>
-            <a href="?p2=<?= $p2 + 1 ?><?= $baseQS ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium" title="Selanjutnya"><i class="fas fa-chevron-right text-[11px]"></i></a>
-            <a href="?p2=<?= $totalPage2 ?><?= $baseQS ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors text-[11px] font-bold uppercase tracking-wider" title="Halaman Terakhir">
-              Last <i class="fas fa-angles-right ml-1.5"></i>
-            </a>
+          <a href="?p2=<?= $p2 + 1 ?><?= $baseQS ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
+            <i class="fas fa-chevron-right text-[10px]"></i>
+          </a>
           <?php endif; ?>
         </div>
       </div>

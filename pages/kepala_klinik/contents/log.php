@@ -291,29 +291,29 @@ function logUrl(array $override = []): string {
 
             <!-- ── Pagination ── -->
             <?php if ($totalPages > 1): ?>
-            <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-4 border-t border-slate-100 gap-3">
-              <p class="font-plex text-sm text-slate-500">
-                Menampilkan <?php echo min($logOffset + 1, $logTotal); ?>–<?php echo min($logOffset + $logLimit, $logTotal); ?> dari <?php echo $logTotal; ?> log
+            <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-4 border-t border-slate-100 gap-4 bg-slate-50/30">
+              <p class="font-plex text-sm text-slate-500 font-medium">
+                Menampilkan <span class="font-bold text-slate-700"><?= min($logOffset + 1, $logTotal ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($logOffset + $logLimit, $logTotal) ?></span> dari <span class="font-bold text-slate-700"><?= $logTotal ?></span> data
               </p>
               <div class="flex items-center gap-1.5">
                 <?php if ($logPage > 1): ?>
-                <a href="<?php echo logUrl(['log_page' => $logPage - 1]); ?>"
-                  class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
-                  <i class="fas fa-chevron-left text-xs"></i>
+                <a href="<?= logUrl(['log_page' => $logPage - 1]) ?>"
+                  class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
+                  <i class="fas fa-chevron-left text-[10px]"></i>
                 </a>
                 <?php endif; ?>
 
                 <?php for ($p = max(1, $logPage - 2); $p <= min($totalPages, $logPage + 2); $p++): ?>
-                <a href="<?php echo logUrl(['log_page' => $p]); ?>"
-                  class="w-9 h-9 rounded-lg flex items-center justify-center font-plex text-sm transition-colors <?php echo $p === $logPage ? 'bg-brand-600 text-white font-semibold' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'; ?>">
-                  <?php echo $p; ?>
+                <a href="<?= logUrl(['log_page' => $p]) ?>"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $p === $logPage ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>">
+                  <?= $p ?>
                 </a>
                 <?php endfor; ?>
 
                 <?php if ($logPage < $totalPages): ?>
-                <a href="<?php echo logUrl(['log_page' => $logPage + 1]); ?>"
-                  class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
-                  <i class="fas fa-chevron-right text-xs"></i>
+                <a href="<?= logUrl(['log_page' => $logPage + 1]) ?>"
+                  class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
+                  <i class="fas fa-chevron-right text-[10px]"></i>
                 </a>
                 <?php endif; ?>
               </div>

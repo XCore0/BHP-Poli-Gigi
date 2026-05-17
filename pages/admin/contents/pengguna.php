@@ -587,37 +587,31 @@ if ($export === 'excel' || $export === 'pdf') {
 
       <!-- User Pagination -->
       <?php if ($u_total_pages > 1): ?>
-      <div class="px-5 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <span class="text-xs font-plex font-medium text-slate-500">
-          Menampilkan <span class="font-bold text-slate-700"><?php echo count($users); ?></span> dari <?php echo $total; ?> pengguna
-        </span>
-        <div class="flex items-center gap-1">
+      <div class="px-5 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/30">
+        <p class="font-plex text-sm text-slate-500 font-medium">
+          Menampilkan <span class="font-bold text-slate-700"><?= min($u_offset + 1, $total ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($u_offset + $u_limit, $total) ?></span> dari <span class="font-bold text-slate-700"><?= $total ?></span> data
+        </p>
+        <div class="flex items-center gap-1.5">
           <?php
             $q = $_GET; unset($q['u_p']);
             $q['tab'] = 'kelola';
-            $qs = http_build_query($q);
-            $qs = $qs ? '&'.$qs : '';
+            $qs = http_build_query($q); $qs = $qs ? '&'.$qs : '';
             if ($u_p > 1): 
           ?>
-          <a href="?u_p=<?php echo $u_p - 1; ?><?php echo $qs; ?>" class="h-8 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all">
+          <a href="?u_p=<?= $u_p - 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
             <i class="fas fa-chevron-left text-[10px]"></i>
           </a>
           <?php endif; ?>
 
-          <?php 
-          $u_start = max(1, $u_p - 2); $u_end = min($u_total_pages, $u_p + 2);
-          for ($i = $u_start; $i <= $u_end; $i++): 
-            $isActive = ($i === $u_p);
-          ?>
-          <a href="?u_p=<?php echo $i; ?><?php echo $qs; ?>" 
-            class="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all
-            <?php echo $isActive ? 'bg-brand-600 text-white shadow-md shadow-brand-100' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'; ?>">
-            <?php echo $i; ?>
+          <?php for ($i = max(1, $u_p - 2); $i <= min($u_total_pages, $u_p + 2); $i++): ?>
+          <a href="?u_p=<?= $i ?><?= $qs ?>" 
+            class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $i === $u_p ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>">
+            <?= $i ?>
           </a>
           <?php endfor; ?>
 
           <?php if ($u_p < $u_total_pages): ?>
-          <a href="?u_p=<?php echo $u_p + 1; ?><?php echo $qs; ?>" class="h-8 px-3 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-all">
+          <a href="?u_p=<?= $u_p + 1 ?><?= $qs ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
             <i class="fas fa-chevron-right text-[10px]"></i>
           </a>
           <?php endif; ?>
@@ -812,27 +806,27 @@ if ($export === 'excel' || $export === 'pdf') {
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-        <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-4 border-t border-slate-100 gap-3">
-          <p class="font-plex text-sm text-slate-500">
-            Menampilkan <?php echo min($logOffset + 1, $logTotal); ?>â€“<?php echo min($logOffset + $logLimit, $logTotal); ?> dari <?php echo $logTotal; ?> log
+        <div class="flex flex-col sm:flex-row items-center justify-between px-5 py-4 border-t border-slate-100 gap-4 bg-slate-50/30">
+          <p class="font-plex text-sm text-slate-500 font-medium">
+            Menampilkan <span class="font-bold text-slate-700"><?= min($logOffset + 1, $logTotal ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($logOffset + $logLimit, $logTotal) ?></span> dari <span class="font-bold text-slate-700"><?= $logTotal ?></span> data
           </p>
           <div class="flex items-center gap-1.5">
             <?php if ($logPage > 1): ?>
-            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage-1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>#log-aktivitas-top"
-              class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
-              <i class="fas fa-chevron-left text-xs"></i>
+            <a href="?page=pengguna&tab=log&log_page=<?= $logPage-1 ?>&log_keyword=<?= urlencode($logFilter['keyword']) ?>&log_kategori=<?= urlencode($logFilter['kategori']) ?>&log_role=<?= urlencode($logFilter['role']) ?>#log-aktivitas-top"
+              class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
+              <i class="fas fa-chevron-left text-[10px]"></i>
             </a>
             <?php endif; ?>
             <?php for ($p = max(1, $logPage-2); $p <= min($totalPages, $logPage+2); $p++): ?>
-            <a href="?page=pengguna&tab=log&log_page=<?php echo $p; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>#log-aktivitas-top"
-              class="w-9 h-9 rounded-lg flex items-center justify-center font-plex text-sm transition-colors <?php echo $p === $logPage ? 'bg-brand-600 text-white font-semibold' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'; ?>">
-              <?php echo $p; ?>
+            <a href="?page=pengguna&tab=log&log_page=<?= $p ?>&log_keyword=<?= urlencode($logFilter['keyword']) ?>&log_kategori=<?= urlencode($logFilter['kategori']) ?>&log_role=<?= urlencode($logFilter['role']) ?>#log-aktivitas-top"
+              class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $p === $logPage ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>">
+              <?= $p ?>
             </a>
             <?php endfor; ?>
             <?php if ($logPage < $totalPages): ?>
-            <a href="?page=pengguna&tab=log&log_page=<?php echo $logPage+1; ?>&log_keyword=<?php echo urlencode($logFilter['keyword']); ?>&log_kategori=<?php echo urlencode($logFilter['kategori']); ?>&log_role=<?php echo urlencode($logFilter['role']); ?>#log-aktivitas-top"
-              class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
-              <i class="fas fa-chevron-right text-xs"></i>
+            <a href="?page=pengguna&tab=log&log_page=<?= $logPage+1 ?>&log_keyword=<?= urlencode($logFilter['keyword']) ?>&log_kategori=<?= urlencode($logFilter['kategori']) ?>&log_role=<?= urlencode($logFilter['role']) ?>#log-aktivitas-top"
+              class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
+              <i class="fas fa-chevron-right text-[10px]"></i>
             </a>
             <?php endif; ?>
           </div>

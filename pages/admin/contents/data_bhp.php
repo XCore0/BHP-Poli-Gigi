@@ -314,49 +314,29 @@ if (session_status() === PHP_SESSION_NONE) {
 
       <!-- Pagination -->
       <?php if ($totalPages > 1): ?>
-      <div class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/50">
-        <span class="text-[13px] font-medium text-slate-500">
-          Menampilkan <span class="font-bold text-slate-700"><?php echo count($bhpList); ?></span> dari <span class="font-bold text-slate-700"><?php echo $totalBhp; ?></span> data
-          (Halaman <span class="font-bold text-slate-700"><?php echo $p; ?></span>/<?php echo $totalPages; ?>)
-        </span>
+      <div class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/30">
+        <p class="font-plex text-sm text-slate-500 font-medium">
+          Menampilkan <span class="font-bold text-slate-700"><?= min($offset + 1, $totalBhp ?: 0) ?></span> hingga <span class="font-bold text-slate-700"><?= min($offset + $limit, $totalBhp) ?></span> dari <span class="font-bold text-slate-700"><?= $totalBhp ?></span> data
+        </p>
         <div class="flex items-center gap-1.5">
           <?php
-          $qParam = $_GET;
-          unset($qParam['p']);
-          $baseQS = http_build_query($qParam);
-          $baseQS = $baseQS ? '&' . $baseQS : '';
-          
-          // Button: First
+          $qParam = $_GET; unset($qParam['p']);
+          $baseQS = http_build_query($qParam); $baseQS = $baseQS ? '&' . $baseQS : '';
           if ($p > 1): ?>
-            <a href="?p=1<?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-[11px] font-bold uppercase tracking-wider" title="Halaman Pertama">
-              <i class="fas fa-angles-left mr-1.5"></i> First
-            </a>
-            <a href="?p=<?php echo $p - 1; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all" title="Sebelumnya">
-              <i class="fas fa-chevron-left text-[11px]"></i>
-            </a>
+          <a href="?p=<?= $p - 1 ?><?= $baseQS ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Sebelumnya">
+            <i class="fas fa-chevron-left text-[10px]"></i>
+          </a>
           <?php endif; ?>
-          
-          <?php
-          // dynamic range
-          $range = 2;
-          $startPage = max(1, $p - $range);
-          $endPage = min($totalPages, $p + $range);
-          
-          for ($i = $startPage; $i <= $endPage; $i++):
-            $isActive = ($i === $p);
-          ?>
-            <a href="?p=<?php echo $i; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border <?php echo $isActive ? 'bg-brand-600 border-brand-600 text-white shadow-sm shadow-brand-200 font-bold' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium'; ?> transition-all text-sm">
-              <?php echo $i; ?>
-            </a>
+          <?php for ($i = max(1, $p - 2); $i <= min($totalPages, $p + 2); $i++): ?>
+          <a href="?p=<?= $i ?><?= $baseQS ?>"
+            class="w-9 h-9 rounded-xl flex items-center justify-center font-plex text-sm transition-colors shadow-sm <?= $i === $p ? 'bg-brand-600 border-brand-600 text-white font-bold' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand-500 hover:text-brand-500 font-medium' ?>">
+            <?= $i ?>
+          </a>
           <?php endfor; ?>
-
           <?php if ($p < $totalPages): ?>
-            <a href="?p=<?php echo $p + 1; ?><?php echo $baseQS; ?>" class="h-9 w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all" title="Selanjutnya">
-              <i class="fas fa-chevron-right text-[11px]"></i>
-            </a>
-            <a href="?p=<?php echo $totalPages; ?><?php echo $baseQS; ?>" class="h-9 px-3 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-[11px] font-bold uppercase tracking-wider" title="Halaman Terakhir">
-              Last <i class="fas fa-angles-right ml-1.5"></i>
-            </a>
+          <a href="?p=<?= $p + 1 ?><?= $baseQS ?>" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-white hover:border-brand-500 hover:text-brand-500 transition-colors bg-white shadow-sm" title="Selanjutnya">
+            <i class="fas fa-chevron-right text-[10px]"></i>
+          </a>
           <?php endif; ?>
         </div>
       </div>
