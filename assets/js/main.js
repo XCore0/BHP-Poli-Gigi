@@ -37,6 +37,7 @@ function toggleSubmenu(id) {
 
 function toggleDropdown(e) {
   if (e) e.stopPropagation();
+  closeNotificationDropdown();
   const dropdown = document.getElementById("user-dropdown");
   const chevron = document.getElementById("user-chevron");
   if (dropdown) {
@@ -47,13 +48,127 @@ function toggleDropdown(e) {
   }
 }
 
+function closeDropdowns() {
+  const userDropdown = document.getElementById("user-dropdown");
+  const userChevron = document.getElementById("user-chevron");
+  const notificationDropdown = document.getElementById("notification-dropdown");
+
+  if (userDropdown && !userDropdown.classList.contains("hidden")) {
+    userDropdown.classList.add("hidden");
+    if (userChevron) userChevron.style.transform = "rotate(0deg)";
+  }
+
+  if (notificationDropdown && !notificationDropdown.classList.contains("hidden")) {
+    notificationDropdown.classList.add("hidden");
+  }
+}
+
+function toggleNotificationDropdown(e) {
+  if (e) e.stopPropagation();
+  const dropdown = document.getElementById("notification-dropdown");
+  if (!dropdown) return;
+
+  const isHidden = dropdown.classList.contains("hidden");
+  closeDropdowns();
+  if (isHidden) {
+    dropdown.classList.remove("hidden");
+  }
+}
+
+function closeNotificationDropdown() {
+  const dropdown = document.getElementById("notification-dropdown");
+  if (dropdown && !dropdown.classList.contains("hidden")) {
+    dropdown.classList.add("hidden");
+  }
+}
+
 document.addEventListener("click", function (e) {
   const dropdown = document.getElementById("user-dropdown");
+  const notifDropdown = document.getElementById("notification-dropdown");
   const btn = e.target.closest("button[onclick='toggleDropdown(event)']");
-  if (!btn && dropdown && !dropdown.classList.contains("hidden")) {
-    dropdown.classList.add("hidden");
-    const chevron = document.getElementById("user-chevron");
-    if (chevron) chevron.style.transform = "rotate(0deg)";
+  const notifBtn = e.target.closest("button[onclick='toggleNotificationDropdown(event)']");
+
+  if (!btn && !notifBtn) {
+    if (dropdown && !dropdown.classList.contains("hidden")) {
+      dropdown.classList.add("hidden");
+      const chevron = document.getElementById("user-chevron");
+      if (chevron) chevron.style.transform = "rotate(0deg)";
+    }
+    if (notifDropdown && !notifDropdown.classList.contains("hidden")) {
+      notifDropdown.classList.add("hidden");
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Notifications Read State Tracker (localStorage)
+// ═══════════════════════════════════════════════════════════════════
+(function initNotifications() {
+
+  function getReadNotifs() {
+    return JSON.parse(localStorage.getItem('read_notifications') || '[]');
+  }
+
+  function saveReadNotif(id) {
+    const read = getReadNotifs();
+    if (!read.includes(id)) {
+      read.push(id);
+      localStorage.setItem('read_notifications', JSON.stringify(read));
+    }
+  }
+
+  function updateBadge() {
+    const badge = document.getElementById('notification-count-badge');
+    if (!badge) return;
+
+    const read = getReadNotifs();
+    const items = document.querySelectorAll('a[data-notif-id]');
+    let unreadCount = 0;
+
+    items.forEach(item => {
+      const id = item.getAttribute('data-notif-id');
+      if (id && read.includes(id)) {
+        item.classList.add('opacity-60');
+        // Optional: change dot color or hide it
+        const dot = item.querySelector('.rounded-full');
+        if (dot) dot.classList.add('bg-slate-300');
+      } else {
+        unreadCount++;
+      }
+    });
+
+    const badgeText = document.querySelector('#notification-dropdown span.bg-red-100');
+
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+      badge.classList.remove('hidden');
+      if (badgeText) badgeText.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    } else {
+      badge.classList.add('hidden');
+      if (badgeText) badgeText.textContent = '0';
+    }
+  }
+
+  // Initial update
+  updateBadge();
+  window.updateNotifications = updateBadge;
+
+  // Click listener for notifications
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[data-notif-id]');
+    if (link) {
+      const id = link.getAttribute('data-notif-id');
+      if (id) {
+        saveReadNotif(id);
+        updateBadge(); // Update immediately before navigation
+      }
+    }
+  });
+})();
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeDropdowns();
   }
 });
 
@@ -115,6 +230,7 @@ function updatePageContent(newDoc) {
       oldScript.parentNode.replaceChild(newScript, oldScript);
     });
   }
+  if (typeof window.updateNotifications === 'function') window.updateNotifications();
 }
 
 // ═══════════════════════════════════════════════════════════════════

@@ -7,6 +7,44 @@ $role_avatar_bg = $role_avatar_bg ?? 'linear-gradient(135deg, #a8edea 0%, #5b9bd
 $role_avatar_color = $role_avatar_color ?? '#1e4a7a';
 $role_label_color = $role_label_color ?? 'text-brand-600';
 $role_photo = $role_photo ?? null;
+
+$notificationData = [
+  'count' => 0,
+  'items' => [],
+  'heading' => 'Notifikasi',
+  'empty_message' => 'Belum ada notifikasi baru.',
+  'cta_label' => 'Lihat halaman',
+  'cta_url' => 'index.php',
+];
+
+if (class_exists('\App\Classes\NotificationManager')) {
+  try {
+    $notificationManager = new \App\Classes\NotificationManager();
+    $notificationData = $notificationManager->getHeaderNotifications($currentUser ?? [], 6);
+  } catch (Throwable $e) {
+    $notificationData = [
+      'count' => 0,
+      'items' => [],
+      'heading' => 'Notifikasi',
+      'empty_message' => 'Belum ada notifikasi baru.',
+      'cta_label' => 'Lihat halaman',
+      'cta_url' => 'index.php',
+    ];
+  }
+}
+
+$notificationCount = (int)($notificationData['count'] ?? 0);
+$notificationItems = $notificationData['items'] ?? [];
+$notificationHeading = $notificationData['heading'] ?? 'Notifikasi';
+$notificationEmptyMessage = $notificationData['empty_message'] ?? 'Belum ada notifikasi baru.';
+$notificationCtaLabel = $notificationData['cta_label'] ?? 'Lihat halaman';
+$notificationCtaUrl = $notificationData['cta_url'] ?? 'index.php';
+
+if ($notificationCount > 99) {
+  $notificationCountLabel = '99+';
+} else {
+  $notificationCountLabel = (string)$notificationCount;
+}
 ?>
 
 <!-- ======================== LOGOUT MODAL ======================== -->
@@ -86,9 +124,98 @@ $role_photo = $role_photo ?? null;
 
     <!-- RIGHT: Notifications + User dropdown -->
     <div class="flex items-center gap-6 px-4 sm:px-8 bg-white/80 shrink-0">
-      <div class="relative flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
-        <i class="far fa-bell text-[#9CA3AF] text-xl"></i>
-        <span class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-red-500"></span>
+      <div class="relative">
+        <button type="button" onclick="toggleNotificationDropdown(event)"
+          class="relative flex items-center justify-center w-11 h-11 rounded-xl hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600">
+          <i class="far fa-bell text-xl"></i>
+          <?php if ($notificationCount > 0): ?>
+            <span id="notification-count-badge"
+              class="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none flex items-center justify-center shadow-sm">
+              <?php echo htmlspecialchars($notificationCountLabel); ?>
+            </span>
+          <?php endif; ?>
+        </button>
+
+        <div id="notification-dropdown"
+          class="hidden fixed right-4 lg:right-6 top-20 bg-white rounded-2xl shadow-2xl border border-slate-100 min-w-[340px] max-w-[calc(100vw-1.5rem)] z-50 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 bg-white/80 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-50 text-slate-600">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <h4 class="font-display font-bold text-slate-800 text-sm">Notifikasi</h4>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold whitespace-nowrap">
+              <?php echo htmlspecialchars($notificationCountLabel); ?>
+            </span>
+          </div>
+          <div class="max-h-[220px] overflow-y-auto divide-y divide-slate-50">
+            <?php if (empty($notificationItems)): ?>
+              <div class="px-4 py-8 text-center text-slate-400">
+                <i class="far fa-bell-slash text-3xl mb-2 opacity-30 block"></i>
+                <p class="text-xs font-medium"><?php echo htmlspecialchars($notificationEmptyMessage); ?></p>
+              </div>
+            <?php else: ?>
+              <?php foreach ($notificationItems as $item):
+                $toneClass = match (($item['tone'] ?? 'neutral')) {
+                  'danger'  => 'bg-red-50 text-red-600 border-red-100',
+                  'warning' => 'bg-amber-50 text-amber-600 border-amber-100',
+                  'success' => 'bg-emerald-50 text-emerald-600 border-emerald-100',
+                  'info'    => 'bg-blue-50 text-blue-600 border-blue-100',
+                  default   => 'bg-slate-100 text-slate-500 border-slate-200',
+                };
+              ?>
+              <a href="<?php echo htmlspecialchars($item['url'] ?? 'index.php'); ?>"
+                data-notif-id="<?php echo htmlspecialchars($item['id'] ?? ''); ?>"
+                class="flex items-start gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors group">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border <?php echo $toneClass; ?>">
+                  <?php
+                    $rawIcon = $item['icon'] ?? '';
+                    if (!is_string($rawIcon) || trim($rawIcon) === '') {
+                      // choose default icon based on tone to match design
+                      $tone = $item['tone'] ?? '';
+                      switch ($tone) {
+                        case 'danger':
+                          $iconClass = 'fas fa-exclamation-triangle';
+                          break;
+                        case 'warning':
+                          $iconClass = 'fas fa-clock';
+                          break;
+                        case 'success':
+                          $iconClass = 'fas fa-check';
+                          break;
+                        case 'info':
+                          $iconClass = 'fas fa-info-circle';
+                          break;
+                        default:
+                          $iconClass = 'fas fa-bell';
+                      }
+                    } else {
+                      $iconClass = preg_match('/\\b(fa[srldb]|fab|fa-solid|fa-regular|fa-light)\\b/i', $rawIcon) ? $rawIcon : 'fas ' . $rawIcon;
+                    }
+                  ?>
+                  <i class="<?php echo htmlspecialchars($iconClass); ?> text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h5 class="font-plex font-semibold text-xs text-slate-800 leading-tight line-clamp-2"><?php echo htmlspecialchars($item['title'] ?? 'Notifikasi'); ?></h5>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[9px] font-semibold text-slate-400 whitespace-nowrap"><?php echo htmlspecialchars($item['time_label'] ?? ''); ?></span>
+                      <span class="w-2 h-2 rounded-full inline-block <?php echo (
+                        ($item['tone'] ?? '') === 'danger' ? 'bg-red-500' : (
+                        ($item['tone'] ?? '') === 'warning' ? 'bg-amber-400' : (
+                        ($item['tone'] ?? '') === 'success' ? 'bg-emerald-400' : (
+                        ($item['tone'] ?? '') === 'info' ? 'bg-blue-400' : 'bg-slate-300')))
+                      ); ?>" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                  <p class="font-plex text-xs text-slate-500 leading-snug mt-0.5 line-clamp-2"><?php echo htmlspecialchars($item['message'] ?? ''); ?></p>
+                </div>
+              </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </div>
+        </div>
       </div>
 
       <div class="w-px h-8 bg-slate-200 hidden sm:block"></div>
