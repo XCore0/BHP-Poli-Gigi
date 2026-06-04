@@ -17,7 +17,7 @@ return array(
     'Dompdf\\' => array($vendorDir . '/dompdf/dompdf/src'),
     'Composer\\Pcre\\' => array($vendorDir . '/composer/pcre/src'),
     'Complex\\' => array($vendorDir . '/markbaker/complex/classes/src'),
-    'App\\Controllers\\' => array($baseDir . '/controllers'),
-    'App\\Config\\' => array($baseDir . '/config'),
-    'App\\Classes\\' => array($baseDir . '/classes'),
+    'App\\Controllers\\' => array($baseDir . '/Controllers'),
+    'App\\Config\\' => array($baseDir . '/Config'),
+    'App\\Classes\\' => array($baseDir . '/Classes'),
 );

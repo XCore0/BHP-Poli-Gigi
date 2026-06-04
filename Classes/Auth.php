@@ -132,7 +132,7 @@ class Auth
             if ($inactiveTime > $this->inactivityTimeout) {
                 // Sesi kadaluarsa
                 $this->logout();
-                header('Location: /BHP-Poli-Gigi/pages/auth/login.php?reason=timeout');
+                header('Location: /Pages/auth/login.php?reason=timeout');
                 exit();
             }
         }
@@ -162,7 +162,7 @@ class Auth
      *
      * @param string $loginUrl Path ke halaman login
      */
-    public function requireLogin(string $loginUrl = '/BHP-Poli-Gigi/pages/auth/login.php'): void
+    public function requireLogin(string $loginUrl = '/Pages/auth/login.php'): void
     {
         if (!$this->isLoggedIn()) {
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
@@ -178,7 +178,7 @@ class Auth
      * @param string|null  $redirectUrl URL redirect jika ditolak (null = tidak redirect)
      * @param bool         $jsonMode    Jika true, kembalikan JSON 403 alih-alih redirect
      */
-    public function requireRole($roles, ?string $redirectUrl = '/BHP-Poli-Gigi/pages/auth/login.php', bool $jsonMode = false): void
+    public function requireRole($roles, ?string $redirectUrl = '/Pages/auth/login.php', bool $jsonMode = false): void
     {
         if (!$this->isLoggedIn()) {
             if ($jsonMode) {
@@ -187,7 +187,7 @@ class Auth
                 echo json_encode(['success' => false, 'message' => 'Sesi tidak valid. Silakan login kembali.']);
                 exit();
             }
-            header('Location: ' . ($redirectUrl ?? '/BHP-Poli-Gigi/pages/auth/login.php'));
+            header('Location: ' . ($redirectUrl ?? '/Pages/auth/login.php'));
             exit();
         }
 

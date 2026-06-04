@@ -553,7 +553,7 @@ function exportLaporan(type) {
   const tglAkhir = document.querySelector('[name="tgl_akhir"]')?.value || params.get('tgl_akhir') || '';
   const keyword  = document.querySelector('[name="keyword"]')?.value  || params.get('keyword')  || '';
 
-  const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+  const url = new URL('/api/export.php', window.location.origin);
   url.searchParams.set('type', type);
   url.searchParams.set('page', 'laporan');
   if (tglMulai) url.searchParams.set('tgl_mulai', tglMulai);
@@ -585,7 +585,7 @@ function openPatientDetail(nama) {
   fd.append('action', 'get_patient_history');
   fd.append('nama_pasien', nama);
 
-  fetch('/BHP-Poli-Gigi/process/pemakaian_process.php', {
+  fetch('/Process/pemakaian_process.php', {
     method: 'POST',
     body: fd,
     credentials: 'same-origin'

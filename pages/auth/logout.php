@@ -10,7 +10,7 @@ $auth = new Auth();
 $auth->logout();
 
 $reason = $_GET['reason'] ?? '';
-$redirectUrl = '/BHP-Poli-Gigi/pages/auth/login.php';
+$redirectUrl = '/Pages/auth/login.php';
 if ($reason) {
     $redirectUrl .= '?reason=' . urlencode($reason);
 }

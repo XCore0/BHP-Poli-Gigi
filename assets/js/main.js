@@ -335,7 +335,7 @@ function updatePageContent(newDoc) {
 
   function logout() {
     // Redirect ke logout script
-    window.location.href = '/BHP-Poli-Gigi/pages/auth/logout.php?reason=timeout';
+    window.location.href = '/Pages/auth/logout.php?reason=timeout';
   }
 
   // Event listener untuk berbagai jenis aktivitas user

@@ -666,7 +666,7 @@ function submitStokMasuk(e) {
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[11px]"></i> Menyimpan...';
 
-  fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+  fetch('/Process/stok_masuk_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
   .then(r => r.json())
   .then(res => {
     if (res.success) {
@@ -749,7 +749,7 @@ function submitEditStok(e) {
   fd.append('action', 'edit_stok_masuk');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[11px]"></i> Menyimpan...';
-  fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+  fetch('/Process/stok_masuk_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
   .then(r => r.json())
   .then(res => {
     if (res.success) {
@@ -783,7 +783,7 @@ function deleteStok(id, btn) {
     fd.append('action', 'delete_stok_masuk');
     fd.append('id', id);
 
-    fetch('/BHP-Poli-Gigi/process/stok_masuk_process.php', {
+    fetch('/Process/stok_masuk_process.php', {
       method : 'POST',
       body   : fd,
       credentials: 'same-origin'

@@ -4,6 +4,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 use App\Classes\Auth;
 
 $auth = new Auth();
-$auth->requireRole(['kepala_klinik'], '/BHP-Poli-Gigi/pages/auth/login.php');
+$auth->requireRole(['kepala_klinik'], '/Pages/auth/login.php');
 
 include __DIR__ . '/../../components/shared/laporan_stok.php';

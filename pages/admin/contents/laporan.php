@@ -5,6 +5,6 @@ use App\Classes\Auth;
 use App\Config\Database;
 
 $auth = new Auth();
-$auth->requireRole(['admin'], '/BHP-Poli-Gigi/pages/auth/login.php');
+$auth->requireRole(['admin'], '/Pages/auth/login.php');
 
 include __DIR__ . '/../../components/shared/laporan.php';

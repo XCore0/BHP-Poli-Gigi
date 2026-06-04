@@ -306,7 +306,7 @@ if ($notificationCount > 99) {
     icon.className = 'fas fa-spinner fa-spin text-sm';
     text.textContent = 'Keluar...';
     // Navigasi langsung (bypass SPA interceptor) â€” hanya SATU request ke logout.php
-    window.location.href = '/BHP-Poli-Gigi/pages/auth/logout.php';
+    window.location.href = '/Pages/auth/logout.php';
   }
 
   // Tutup modal saat klik backdrop

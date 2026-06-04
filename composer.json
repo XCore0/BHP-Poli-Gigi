@@ -4,9 +4,9 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "App\\Classes\\": "classes/",
-            "App\\Config\\": "config/",
-            "App\\Controllers\\": "controllers/"
+            "App\\Classes\\": "Classes/",
+            "App\\Config\\": "Config/",
+            "App\\Controllers\\": "Controllers/"
         }
     },
     "require": {

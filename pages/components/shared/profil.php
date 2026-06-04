@@ -201,7 +201,7 @@ function uploadFoto(input) {
   fd.append('action', 'upload_foto');
   fd.append('foto', file);
 
-  fetch('/BHP-Poli-Gigi/process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
+  fetch('/Process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
   .then(r => r.json())
   .then(res => {
     showToastProfil(res.message, res.success);
@@ -235,7 +235,7 @@ function simpanProfil(e) {
   fd.append('action', 'update_profil');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-  fetch('/BHP-Poli-Gigi/process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
+  fetch('/Process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
   .then(r => r.json())
   .then(res => {
     showToastProfil(res.message, res.success);

@@ -317,7 +317,7 @@ class UserManager
             @unlink(rtrim($uploadDir, '/\\') . DIRECTORY_SEPARATOR . basename($oldFoto));
         }
 
-        $webPath = '/BHP-Poli-Gigi/assets/uploads/foto_profil/' . $filename;
+        $webPath = '/assets/uploads/foto_profil/' . $filename;
         $upd = $this->db->prepare('UPDATE user SET Foto = ? WHERE id_user = ?');
         $upd->execute([$webPath, $id]);
 

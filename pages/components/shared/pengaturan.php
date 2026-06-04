@@ -169,7 +169,7 @@ function gantiPassword(e) {
   fd.append('action', 'ganti_password');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin text-[11px]"></i> Memperbarui...';
-  fetch('/BHP-Poli-Gigi/process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
+  fetch('/Process/profil_process.php', {method:'POST', body:fd, credentials:'same-origin'})
   .then(r=>r.json()).then(res=>{
     showToastSet(res.message, res.success);
     if (res.success) document.getElementById('formPassword').reset();

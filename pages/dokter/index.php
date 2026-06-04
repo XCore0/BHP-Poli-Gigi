@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Classes\Auth;
 
 $auth = new Auth();
-$auth->requireRole('dokter', '/BHP-Poli-Gigi/pages/auth/Login.php');
+$auth->requireRole('dokter', '/Pages/auth/login.php');
 
 $currentUser = $auth->getCurrentUser();
 
@@ -83,13 +83,13 @@ if ($page == 'data_bhp') {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
-  <script src="/BHP-Poli-Gigi/assets/js/tailwind-config.js"></script>
+  <script src="/assets/js/tailwind-config.js"></script>
   <style type="text/tailwindcss">
     @layer base {
       body { @apply bg-slate-50 text-slate-800 antialiased m-0 p-0; }
     }
   </style>
-  <link rel="stylesheet" href="/BHP-Poli-Gigi/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 
 <body class="flex flex-col h-screen overflow-hidden bg-slate-50 font-sans text-slate-800">
@@ -128,7 +128,7 @@ if ($page == 'data_bhp') {
     </main>
   </div> <!-- Close Container for Sidebar + Main Content -->
 
-  <script src="/BHP-Poli-Gigi/assets/js/main.js?v=<?= time() ?>"></script>
+  <script src="/assets/js/main.js?v=<?= time() ?>"></script>
 </body>
 
 </html>

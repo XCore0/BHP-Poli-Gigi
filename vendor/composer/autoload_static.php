@@ -94,15 +94,15 @@ class ComposerStaticInitd997e137705c65f636038aabfe5ec79c
         ),
         'App\\Controllers\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/controllers',
+            0 => __DIR__ . '/../..' . '/Controllers',
         ),
         'App\\Config\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/config',
+            0 => __DIR__ . '/../..' . '/Config',
         ),
         'App\\Classes\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/classes',
+            0 => __DIR__ . '/../..' . '/Classes',
         ),
     );
 

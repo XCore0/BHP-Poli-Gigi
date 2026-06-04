@@ -213,7 +213,7 @@ $rows = $stmtData->fetchAll();
 <script>
 function exportStokLaporan(type) {
   const params = new URLSearchParams(window.location.search);
-  const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+  const url = new URL('/api/export.php', window.location.origin);
   url.searchParams.set('type', type);
   url.searchParams.set('page', 'stok');
   const tglMulai = document.querySelector('[name="tgl_mulai"]')?.value || '';

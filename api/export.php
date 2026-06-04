@@ -1,7 +1,7 @@
 <?php
 /**
  * Export Endpoint — BHP Poli Gigi
- * URL: /BHP-Poli-Gigi/api/export.php
+ * URL: /api/export.php
  *
  * Query params:
  *   type  = pdf | excel

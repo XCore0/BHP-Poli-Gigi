@@ -1,7 +1,7 @@
 <?php
 /**
  * REST API — BHP Poli Gigi
- * URL: /BHP-Poli-Gigi/api/index.php
+ * URL: /api/index.php
  *
  * Cara pakai di Postman:
  *   1. POST ?resource=login  { email, password }  → dapat session cookie

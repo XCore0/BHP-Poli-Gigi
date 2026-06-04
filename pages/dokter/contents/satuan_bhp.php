@@ -179,7 +179,7 @@ if (!function_exists('satBadgeColor')) {
 </style>
 
 <script>
-const SATUAN_PROCESS_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
+const SATUAN_PROCESS_URL = '/Process/bhp_process.php';
 
 /* â”€â”€ Modal open / close â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function openSatuanModal(id = '', nama = '') {

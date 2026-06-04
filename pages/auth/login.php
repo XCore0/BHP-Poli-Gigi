@@ -17,9 +17,9 @@ $auth = new Auth();
 if ($auth->isLoggedIn()) {
     $role = $auth->getRole();
     switch ($role) {
-        case 'admin':        header('Location: /BHP-Poli-Gigi/pages/admin/index.php'); exit();
-        case 'dokter':       header('Location: /BHP-Poli-Gigi/pages/dokter/index.php'); exit();
-        case 'kepala_klinik': header('Location: /BHP-Poli-Gigi/pages/kepala_klinik/index.php'); exit();
+        case 'admin':        header('Location: /Pages/admin/index.php'); exit();
+        case 'dokter':       header('Location: /Pages/dokter/index.php'); exit();
+        case 'kepala_klinik': header('Location: /Pages/kepala_klinik/index.php'); exit();
     }
 }
 
@@ -49,7 +49,7 @@ $prevEmail = htmlspecialchars($_POST['email'] ?? '');
   <meta name="description" content="Login ke sistem manajemen inventaris BHP Poli Gigi Klinik Pratama">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/BHP-Poli-Gigi/assets/css/login.css">
+  <link rel="stylesheet" href="/assets/css/login.css">
 </head>
 
 <body class="m-0 p-0 bg-white">
@@ -188,7 +188,7 @@ $prevEmail = htmlspecialchars($_POST['email'] ?? '');
             </div>
 
             <!-- Form Login -->
-            <form method="POST" action="/BHP-Poli-Gigi/process/login_process.php" class="space-y-6" id="login-form" novalidate>
+            <form method="POST" action="/Process/login_process.php" class="space-y-6" id="login-form" novalidate>
 
               <!-- Email Field -->
               <div class="space-y-2">
@@ -259,6 +259,6 @@ $prevEmail = htmlspecialchars($_POST['email'] ?? '');
     </div>
   </div>
 
-  <script src="/BHP-Poli-Gigi/assets/js/login.js"></script>
+  <script src="/assets/js/login.js"></script>
 </body>
 </html>

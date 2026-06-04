@@ -390,7 +390,7 @@ if (session_status() === PHP_SESSION_NONE) {
 </style>
 
 <script>
-  const BHP_URL = '/BHP-Poli-Gigi/process/bhp_process.php';
+  const BHP_URL = '/Process/bhp_process.php';
 
   /* ── Helper: sync dropdown text color ──────── */
   function syncSelectColor(el) {
@@ -474,7 +474,7 @@ if (session_status() === PHP_SESSION_NONE) {
     btn.textContent = 'Menyimpan...';
     try {
       const fd = new FormData(this);
-      const res = await fetch('/BHP-Poli-Gigi/process/bhp_process.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+      const res = await fetch('/Process/bhp_process.php', { method: 'POST', body: fd, credentials: 'same-origin' });
       const json = await res.json();
       if (json.success) {
         showToastBhp(json.message, 'success');
@@ -525,7 +525,7 @@ if (session_status() === PHP_SESSION_NONE) {
     const params = new URLSearchParams(window.location.search);
     const keyword = document.querySelector('[name="keyword"]')?.value   || params.get('keyword')     || '';
     const idKat   = document.querySelector('[name="id_kategori"]')?.value || params.get('id_kategori') || '';
-    const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+    const url = new URL('/api/export.php', window.location.origin);
     url.searchParams.set('type', type);
     url.searchParams.set('page', 'bhp');
     if (keyword) url.searchParams.set('keyword', keyword);

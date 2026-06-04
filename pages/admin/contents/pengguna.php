@@ -896,7 +896,7 @@ if ($export === 'excel' || $export === 'pdf') {
     const kat = document.querySelector('select[name="log_kategori"]') ? document.querySelector('select[name="log_kategori"]').value : '';
     const role = document.querySelector('select[name="log_role"]') ? document.querySelector('select[name="log_role"]').value : '';
     
-    const url = `/BHP-Poli-Gigi/api/export.php?page=log&type=${format}&log_keyword=${encodeURIComponent(keyword)}&log_kategori=${encodeURIComponent(kat)}&log_role=${encodeURIComponent(role)}`;
+    const url = `/api/export.php?page=log&type=${format}&log_keyword=${encodeURIComponent(keyword)}&log_kategori=${encodeURIComponent(kat)}&log_role=${encodeURIComponent(role)}`;
     window.location.href = url;
   }
 
@@ -1082,7 +1082,7 @@ if ($export === 'excel' || $export === 'pdf') {
     data.append('action', 'add');
 
     try {
-      const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
+      const res  = await fetch('/Process/user_process.php', { method: 'POST', body: data });
       const json = await res.json();
       if (json.success) {
         showToast(json.message, 'success');
@@ -1106,7 +1106,7 @@ if ($export === 'excel' || $export === 'pdf') {
     data.append('action', 'toggle_status');
     data.append('id', id);
     try {
-      const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
+      const res  = await fetch('/Process/user_process.php', { method: 'POST', body: data });
       const json = await res.json();
       if (json.success) {
         const isAktif   = json.new_status === 'aktif';
@@ -1131,7 +1131,7 @@ if ($export === 'excel' || $export === 'pdf') {
       data.append('action', 'delete');
       data.append('id', id);
       try {
-        const res  = await fetch('/BHP-Poli-Gigi/process/user_process.php', { method: 'POST', body: data });
+        const res  = await fetch('/Process/user_process.php', { method: 'POST', body: data });
         const json = await res.json();
         if (json.success) {
           const row = document.getElementById('row-' + id);
@@ -1144,7 +1144,7 @@ if ($export === 'excel' || $export === 'pdf') {
     });
   }
 function exportPengguna(type) {
-  const url = new URL('/BHP-Poli-Gigi/api/export.php', window.location.origin);
+  const url = new URL('/api/export.php', window.location.origin);
   url.searchParams.set('type', type);
   url.searchParams.set('page', 'pengguna');
   window.location.href = url.toString();

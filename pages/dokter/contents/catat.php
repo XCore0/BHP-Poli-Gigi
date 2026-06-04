@@ -446,7 +446,7 @@ function submitPemakaian(e){
   const txtBtn=document.getElementById('txtBtnSimpan');
   btn.disabled=true;
   txtBtn.textContent = 'Menyimpan...';
-  fetch('/BHP-Poli-Gigi/process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
+  fetch('/Process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
   .then(r=>r.json()).then(res=>{
     if(res.success){
       showToastCatat(res.message,true);
@@ -469,7 +469,7 @@ function editPemakaianForm(id) {
   fd.append('action', 'get_pemakaian_detail');
   fd.append('id', id);
 
-  fetch('/BHP-Poli-Gigi/process/pemakaian_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+  fetch('/Process/pemakaian_process.php', { method: 'POST', body: fd, credentials: 'same-origin' })
     .then(r => r.json())
     .then(res => {
       if (res.success) {
@@ -582,7 +582,7 @@ function deletePemakaian(id,btn){
     const orig=btn.innerHTML;
     btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin text-[11px]"></i>';
     const fd=new FormData();fd.append('action','delete_pemakaian');fd.append('id',id);
-    fetch('/BHP-Poli-Gigi/process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
+    fetch('/Process/pemakaian_process.php',{method:'POST',body:fd,credentials:'same-origin'})
     .then(r=>r.json()).then(res=>{
       if(res.success){
         const row=document.querySelector(`.riwayat-row[data-id="${id}"]`);
