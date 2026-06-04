@@ -131,7 +131,6 @@ $today    = date('Y-m-d');
                       <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nama BHP</th>
                       <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-20">Stok</th>
                       <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-28">Jumlah Pakai</th>
-                      <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-28">Kondisi</th>
                       <th class="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center w-16">Aksi</th>
                     </tr>
                   </thead>
@@ -394,12 +393,6 @@ function renderTableBhp(){
         </div>
       </td>
       <td class="px-4 py-3 text-center">
-        <select onchange="itemsBhp[${idx}].kondisi=this.value" class="border border-slate-200 bg-slate-50 rounded-lg h-7 pl-2 pr-6 text-[11px] text-slate-600 font-medium outline-none focus:border-brand-500 appearance-none">
-        <option value="sisa" ${item.kondisi==='sisa'?'selected':''}>Sisa</option>
-          <option value="habis" ${item.kondisi==='habis'?'selected':''}>Habis</option>
-        </select>
-      </td>
-      <td class="px-4 py-3 text-center">
         <button type="button" onclick="hapusItem(${idx})" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors flex items-center justify-center mx-auto"><i class="far fa-trash-alt text-[12px]"></i></button>
       </td>
     </tr>`).join('');
@@ -413,7 +406,7 @@ function tambahItemBhp(){
   const opt=sel.options[sel.selectedIndex];
   // Cek duplikat
   if(itemsBhp.find(x=>x.id_bhp===id)){showToastCatat('BHP ini sudah ditambahkan.',false);return;}
-  itemsBhp.push({id_bhp:id,nama:opt.dataset.nama||opt.text,satuan:opt.dataset.satuan||'',stok:opt.dataset.stok||0,jumlah:jml,kondisi:'sisa'});
+  itemsBhp.push({id_bhp:id,nama:opt.dataset.nama||opt.text,satuan:opt.dataset.satuan||'',stok:opt.dataset.stok||0,jumlah:jml,kondisi:'habis'});
   renderTableBhp();
   sel.value='';
   document.getElementById('inputJmlCatat').value=1;
