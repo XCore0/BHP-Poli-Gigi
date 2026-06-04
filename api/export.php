@@ -40,11 +40,44 @@ $db      = Database::getInstance()->getConnection();
 $type    = strtolower(trim($_GET['type'] ?? 'pdf'));
 $page    = strtolower(trim($_GET['page'] ?? 'bhp'));
 
+// ── Indonesian Month Helpers ─────────────────────────────────
+function getIndonesianMonthName(int $month): string {
+    $months = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+    return $months[$month] ?? '';
+}
+
+function getIndonesianDateString(string $dateStr): string {
+    if (!$dateStr || $dateStr === '-') return '-';
+    $time = strtotime($dateStr);
+    if (!$time) return $dateStr;
+    $d = date('d', $time);
+    $m = (int)date('m', $time);
+    $y = date('Y', $time);
+    return $d . ' ' . getIndonesianMonthName($m) . ' ' . $y;
+}
+
 // ── Filter params ────────────────────────────────────────────
-$tglMulai = $_GET['tgl_mulai'] ?? date('Y-m-01');
-$tglAkhir = $_GET['tgl_akhir'] ?? date('Y-m-d');
+if (isset($_GET['bulan']) && !empty($_GET['bulan'])) {
+    $bulanSelected = $_GET['bulan'];
+    $tglMulai = $bulanSelected . '-01';
+    $tglAkhir = date('Y-m-t', strtotime($tglMulai));
+} else {
+    $tglMulai = $_GET['tgl_mulai'] ?? date('Y-m-01');
+    $tglAkhir = $_GET['tgl_akhir'] ?? date('Y-m-d');
+    $bulanSelected = date('Y-m', strtotime($tglMulai));
+}
 $keyword  = trim($_GET['keyword'] ?? '');
 $idKat    = (int)($_GET['id_kategori'] ?? 0);
+
+// Format month and period string for header/subtitle
+$pStart = explode('-', $tglMulai);
+$pEnd = explode('-', $tglAkhir);
+$namaBulanIndo = getIndonesianMonthName((int)$pStart[1]) . ' ' . $pStart[0];
+$periodeStr = (int)$pStart[2] . ' ' . getIndonesianMonthName((int)$pStart[1]) . ' ' . $pStart[0] . ' s/d ' . (int)$pEnd[2] . ' ' . getIndonesianMonthName((int)$pEnd[1]) . ' ' . $pEnd[0];
 
 // ═══════════════════════════════════════════════════════════════
 // FUNGSI PENGAMBIL DATA
@@ -164,6 +197,16 @@ function fetchPenggunaData(PDO $db): array
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// Fetch Kepala Klinik
+$stmtKepala = $db->query("SELECT Nama_lengkap FROM user WHERE Role = 'kepala_klinik' AND Status_akun = 'aktif' LIMIT 1");
+$kepalaKlinik = $stmtKepala->fetchColumn() ?: 'Isan Hadi';
+
+// Fetch logged in user details
+$currentUser = $auth->getCurrentUser();
+$namaPembuat = $currentUser['nama'] ?? 'Petugas / Dokter';
+$rolePembuat = $currentUser['role'] ?? 'petugas';
+$labelPembuat = ($rolePembuat === 'dokter') ? 'Dokter Gigi' : (($rolePembuat === 'admin') ? 'Administrator' : 'Petugas');
+
 // ═══════════════════════════════════════════════════════════════
 // KONFIGURASI PER PAGE
 // ═══════════════════════════════════════════════════════════════
@@ -178,7 +221,7 @@ $configs = [
     ],
     'stok' => [
         'title'   => 'Laporan Stok Masuk BHP',
-        'subtitle'=> "Periode: $tglMulai s/d $tglAkhir",
+        'subtitle'=> "Bulan: $namaBulanIndo | Periode: $periodeStr",
         'headers' => ['No', 'Tgl Terima', 'Kode BHP', 'Nama BHP', 'Jumlah', 'Satuan', 'Tgl Kadaluarsa', 'Catatan', 'Dicatat Oleh'],
         'keys'    => ['#', 'tanggal_terima', 'Kode_bhp', 'Nama_bhp', 'jumlah', 'Nama_satuan', 'tgl_kadaluarsa', 'catatan', 'nama_user'],
         'data_fn' => fn() => fetchStokData($db, $keyword, $tglMulai, $tglAkhir),
@@ -186,7 +229,7 @@ $configs = [
     ],
     'laporan' => [
         'title'   => 'Laporan Pemakaian BHP',
-        'subtitle'=> "Periode: $tglMulai s/d $tglAkhir",
+        'subtitle'=> "Bulan: $namaBulanIndo | Periode: $periodeStr",
         'headers' => ['No', 'Tanggal', 'Nama BHP', 'Jumlah', 'Satuan', 'Kondisi', 'Pasien', 'Unit Tindakan', 'Dokter'],
         'keys'    => ['#', 'tanggal', 'Nama_bhp', 'jumlah', 'Nama_satuan', 'kondisi', 'nama_pasien', 'unit_tindakan', 'nama_dokter'],
         'data_fn' => fn() => fetchLaporanData($db, $keyword, $tglMulai, $tglAkhir),
@@ -346,6 +389,22 @@ if ($type === 'excel') {
         'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
     ]);
 
+    if ($page === 'laporan' || $page === 'stok') {
+        $ttdStartRow = $totalRow + 2;
+        $colLabelRightIndex = max(1, $colCount - 2);
+        $colLabelRight = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colLabelRightIndex);
+        
+        $sheet->setCellValue("B{$ttdStartRow}", "Mengetahui,");
+        $sheet->setCellValue("B" . ($ttdStartRow + 1), "Kepala Klinik");
+        $sheet->setCellValue("B" . ($ttdStartRow + 5), $kepalaKlinik);
+        $sheet->getStyle("B" . ($ttdStartRow + 5))->getFont()->setUnderline(true)->setBold(true);
+        
+        $sheet->setCellValue("{$colLabelRight}{$ttdStartRow}", "Dicetak Oleh,");
+        $sheet->setCellValue("{$colLabelRight}" . ($ttdStartRow + 1), $labelPembuat);
+        $sheet->setCellValue("{$colLabelRight}" . ($ttdStartRow + 5), $namaPembuat);
+        $sheet->getStyle("{$colLabelRight}" . ($ttdStartRow + 5))->getFont()->setUnderline(true)->setBold(true);
+    }
+
     // ── Download ───────────────────────────────────────────
     $filename = $cfg['filename'] . '_' . date('Ymd_His') . '.xlsx';
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -418,8 +477,10 @@ if ($type === 'pdf') {
     $totalData = count($data);
 
     // Khusus laporan pemakaian — gunakan template formal
-    if ($page === 'laporan') {
-        $periodeStr = date('d M Y', strtotime($tglMulai)) . ' s/d ' . date('d M Y', strtotime($tglAkhir));
+    // Khusus laporan pemakaian & stok masuk — gunakan template formal dengan tanda tangan
+    $isFormal = ($page === 'laporan' || $page === 'stok');
+    if ($isFormal) {
+        $keywordOrAll = $keyword !== '' ? htmlspecialchars($keyword) : '(semua)';
         $html = <<<HTML
 <!DOCTYPE html>
 <html lang="id">
@@ -493,7 +554,8 @@ if ($type === 'pdf') {
 
   <!-- JUDUL -->
   <div class="doc-title">
-    <h2>Laporan Pemakaian Bahan Habis Pakai (BHP)</h2>
+    <h2>{$cfg['title']}</h2>
+    <h3 style="font-size:10px; font-weight:normal; text-align:center; margin-top:2px;">Bulan: {$namaBulanIndo}</h3>
     <span class="underline"></span>
   </div>
   <p class="doc-meta">Periode: <strong>{$periodeStr}</strong> &nbsp;&nbsp; Dicetak: <strong>{$now}</strong></p>
@@ -501,8 +563,8 @@ if ($type === 'pdf') {
   <!-- SUMMARY -->
   <div class="summary-row">
     <div class="summary-cell">Total Catatan<strong>{$totalData} record</strong></div>
-    <div class="summary-cell">Filter Keyword<strong><?= $keyword ?: '(semua)' ?></strong></div>
-    <div class="summary-cell">Dicetak Oleh<strong><?= htmlspecialchars($auth->getCurrentUser()['nama'] ?? 'Sistem') ?></strong></div>
+    <div class="summary-cell">Filter Keyword<strong>{$keywordOrAll}</strong></div>
+    <div class="summary-cell">Dicetak Oleh<strong>{$namaPembuat} ({$labelPembuat})</strong></div>
   </div>
 
   <!-- TABEL DATA -->
@@ -515,14 +577,14 @@ if ($type === 'pdf') {
   <div class="ttd-section">
     <div class="ttd-box">
       <div class="label">Mengetahui,<br>Kepala Klinik</div>
-      <div class="line">( _________________________ )</div>
+      <div style="margin-top: 52px; font-weight: bold;">( {$kepalaKlinik} )</div>
     </div>
     <div class="ttd-box">
       <div class="label">&nbsp;</div>
     </div>
     <div class="ttd-box">
-      <div class="label">Dicetak Oleh,<br>Petugas / Dokter</div>
-      <div class="line">( _________________________ )</div>
+      <div class="label">Dicetak Oleh,<br>{$labelPembuat}</div>
+      <div style="margin-top: 52px; font-weight: bold;">( {$namaPembuat} )</div>
     </div>
   </div>
 

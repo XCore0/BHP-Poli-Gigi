@@ -11,9 +11,18 @@ $uid  = (int)($user['id'] ?? 0);
 $db = Database::getInstance()->getConnection();
 
 // ── Filter & Search ───────────────────────────────────────────
-$tglMulai = $_GET['tgl_mulai'] ?? date('Y-m-01');
-$tglAkhir = $_GET['tgl_akhir'] ?? date('Y-m-d');
+$bulanSelected = $_GET['bulan'] ?? date('Y-m');
+$tglMulai = $bulanSelected . '-01';
+$tglAkhir = date('Y-m-t', strtotime($tglMulai));
 $keyword  = trim($_GET['keyword'] ?? '');
+
+$monthsIndo = [
+    '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+    '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+    '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+];
+$bulanParts = explode('-', $bulanSelected);
+$namaBulanIndo = ($monthsIndo[$bulanParts[1]] ?? '') . ' ' . $bulanParts[0];
 
 // ── Pagination Constants ──────────────────────────────────────
 $limit1 = 10;
@@ -156,7 +165,7 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
         <div>
           <h1 class="font-bold text-white text-xl sm:text-2xl leading-tight">Laporan Pemakaian BHP</h1>
           <p class="text-white/80 text-[13px] mt-0.5">
-            Periode <?= date('d M Y', strtotime($tglMulai)) ?> – <?= date('d M Y', strtotime($tglAkhir)) ?>
+            Bulan <?= htmlspecialchars($namaBulanIndo) ?> &nbsp;|&nbsp; Periode: <?= date('d', strtotime($tglMulai)) ?> – <?= date('d', strtotime($tglAkhir)) ?> <?= htmlspecialchars($namaBulanIndo) ?>
           </p>
         </div>
       </div>
@@ -221,18 +230,19 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
     <!-- Filter -->
     <form method="GET" action="" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col sm:flex-row items-start sm:items-end gap-3 mb-4">
       <input type="hidden" name="page" value="laporan">
-      <div class="flex items-center gap-2 flex-1">
-        <input type="date" name="tgl_mulai" value="<?= htmlspecialchars($tglMulai) ?>"
-          class="h-10 px-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium text-slate-600 outline-none focus:border-brand-500 transition-colors">
-        <span class="text-slate-300 font-bold">—</span>
-        <input type="date" name="tgl_akhir" value="<?= htmlspecialchars($tglAkhir) ?>"
-          class="h-10 px-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium text-slate-600 outline-none focus:border-brand-500 transition-colors">
+      <div class="flex flex-col gap-1 flex-1 sm:max-w-[200px]">
+        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-plex mb-1">Pilih Bulan</label>
+        <input type="month" name="bulan" value="<?= htmlspecialchars($bulanSelected) ?>"
+          class="h-10 px-3 border border-slate-200 bg-slate-50 rounded-xl text-sm font-medium text-slate-600 outline-none focus:border-brand-500 transition-colors w-full">
       </div>
-      <div class="relative flex-1 sm:max-w-[240px]">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-        <input type="text" name="keyword" value="<?= htmlspecialchars($keyword) ?>"
-          placeholder="Cari pasien atau BHP..."
-          class="w-full h-10 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400 font-medium text-slate-700">
+      <div class="flex flex-col gap-1 flex-1 sm:max-w-[240px]">
+        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-plex mb-1">Pencarian</label>
+        <div class="relative w-full">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" name="keyword" value="<?= htmlspecialchars($keyword) ?>"
+            placeholder="Cari pasien atau BHP..."
+            class="w-full h-10 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400 font-medium text-slate-700">
+        </div>
       </div>
       <button type="submit" class="h-10 px-5 rounded-xl text-sm font-semibold text-white whitespace-nowrap"
         style="background:linear-gradient(135deg,#008D5B 0%,#00B47A 100%);">
@@ -549,16 +559,14 @@ $totalPasienCount = count(array_unique(array_filter(array_column($riwayatDetail,
 <script>
 function exportLaporan(type) {
   const params = new URLSearchParams(window.location.search);
-  const tglMulai = document.querySelector('[name="tgl_mulai"]')?.value || params.get('tgl_mulai') || '';
-  const tglAkhir = document.querySelector('[name="tgl_akhir"]')?.value || params.get('tgl_akhir') || '';
-  const keyword  = document.querySelector('[name="keyword"]')?.value  || params.get('keyword')  || '';
+  const bulan   = document.querySelector('[name="bulan"]')?.value   || params.get('bulan') || '';
+  const keyword = document.querySelector('[name="keyword"]')?.value || params.get('keyword') || '';
 
   const url = new URL('/api/export.php', window.location.origin);
   url.searchParams.set('type', type);
   url.searchParams.set('page', 'laporan');
-  if (tglMulai) url.searchParams.set('tgl_mulai', tglMulai);
-  if (tglAkhir) url.searchParams.set('tgl_akhir', tglAkhir);
-  if (keyword)  url.searchParams.set('keyword', keyword);
+  if (bulan)   url.searchParams.set('bulan', bulan);
+  if (keyword) url.searchParams.set('keyword', keyword);
 
   window.location.href = url.toString();
 }

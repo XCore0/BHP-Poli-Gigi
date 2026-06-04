@@ -4,8 +4,9 @@ use App\Config\Database;
 $db = Database::getInstance()->getConnection();
 
 // ── Filter ─────────────────────────────────────────────────────
-$tglMulai = $_GET['tgl_mulai'] ?? date('Y-m-01');
-$tglAkhir = $_GET['tgl_akhir'] ?? date('Y-m-d');
+$bulanSelected = $_GET['bulan'] ?? date('Y-m');
+$tglMulai = $bulanSelected . '-01';
+$tglAkhir = date('Y-m-t', strtotime($tglMulai));
 $keyword  = trim($_GET['keyword'] ?? '');
 
 // ── Pagination ─────────────────────────────────────────────────
@@ -62,14 +63,9 @@ $rows = $stmtData->fetchAll();
       <input type="hidden" name="page" value="<?= htmlspecialchars($_GET['page'] ?? 'stock') ?>">
       <div class="flex flex-col md:flex-row items-start md:items-end gap-4 w-full xl:w-auto">
         <div class="w-full md:w-auto">
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 font-plex">Filter Tanggal</label>
-          <div class="flex items-center gap-2">
-            <input type="date" name="tgl_mulai" value="<?= htmlspecialchars($tglMulai) ?>"
-              class="w-full md:w-[150px] border border-slate-200 bg-slate-50 rounded-xl h-11 px-3.5 text-sm font-medium text-slate-600 outline-none focus:border-brand-500 transition-colors">
-            <div class="w-4 h-[1px] bg-slate-300"></div>
-            <input type="date" name="tgl_akhir" value="<?= htmlspecialchars($tglAkhir) ?>"
-              class="w-full md:w-[150px] border border-slate-200 bg-slate-50 rounded-xl h-11 px-3.5 text-sm font-medium text-slate-600 outline-none focus:border-brand-500 transition-colors">
-          </div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 font-plex">Pilih Bulan</label>
+          <input type="month" name="bulan" value="<?= htmlspecialchars($bulanSelected) ?>"
+            class="w-full md:w-[200px] border border-slate-200 bg-slate-50 rounded-xl h-11 px-3.5 text-sm font-medium text-slate-600 outline-none focus:border-brand-500 transition-colors">
         </div>
         <div class="w-full md:w-[250px]">
           <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 font-plex">Pencarian</label>
@@ -216,12 +212,10 @@ function exportStokLaporan(type) {
   const url = new URL('/api/export.php', window.location.origin);
   url.searchParams.set('type', type);
   url.searchParams.set('page', 'stok');
-  const tglMulai = document.querySelector('[name="tgl_mulai"]')?.value || '';
-  const tglAkhir = document.querySelector('[name="tgl_akhir"]')?.value || '';
-  const keyword  = document.querySelector('[name="keyword"]')?.value  || '';
-  if (tglMulai) url.searchParams.set('tgl_mulai', tglMulai);
-  if (tglAkhir) url.searchParams.set('tgl_akhir', tglAkhir);
-  if (keyword)  url.searchParams.set('keyword', keyword);
+  const bulan   = document.querySelector('[name="bulan"]')?.value   || params.get('bulan') || '';
+  const keyword = document.querySelector('[name="keyword"]')?.value || params.get('keyword') || '';
+  if (bulan)   url.searchParams.set('bulan', bulan);
+  if (keyword) url.searchParams.set('keyword', keyword);
   window.location.href = url.toString();
 }
 </script>
