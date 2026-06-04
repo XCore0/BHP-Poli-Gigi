@@ -475,8 +475,9 @@ if ($type === 'pdf') {
     // ── HTML template ──────────────────────────────────────
     $subtitle = !empty($cfg['subtitle']) ? "<p class='subtitle'>{$cfg['subtitle']}</p>" : '';
     $totalData = count($data);
+    $colCount = count($cfg['headers']);
+    $colRemaining = max(1, $colCount - 3);
 
-    // Khusus laporan pemakaian — gunakan template formal
     // Khusus laporan pemakaian & stok masuk — gunakan template formal dengan tanda tangan
     $isFormal = ($page === 'laporan' || $page === 'stok');
     if ($isFormal) {
@@ -509,11 +510,6 @@ if ($type === 'pdf') {
   .doc-title h2 { font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; }
   .doc-title .underline { display:block; width:200px; height:2px; background:#006B47; margin:4px auto 0; }
   .doc-meta { text-align:center; font-size:8px; color:#64748b; margin-bottom:12px; }
-
-  /* SUMMARY */
-  .summary-row { display:table; width:100%; margin-bottom:10px; }
-  .summary-cell { display:table-cell; width:33.3%; padding:6px 8px; font-size:8px; border:1px solid #e2e8f0; background:#f8fafc; }
-  .summary-cell strong { display:block; font-size:11px; color:#006B47; }
 
   /* TABEL */
   table { width:100%; border-collapse:collapse; margin-top:4px; }
@@ -558,19 +554,18 @@ if ($type === 'pdf') {
     <h3 style="font-size:10px; font-weight:normal; text-align:center; margin-top:2px;">Bulan: {$namaBulanIndo}</h3>
     <span class="underline"></span>
   </div>
-  <p class="doc-meta">Periode: <strong>{$periodeStr}</strong> &nbsp;&nbsp; Dicetak: <strong>{$now}</strong></p>
-
-  <!-- SUMMARY -->
-  <div class="summary-row">
-    <div class="summary-cell">Total Catatan<strong>{$totalData} record</strong></div>
-    <div class="summary-cell">Filter Keyword<strong>{$keywordOrAll}</strong></div>
-    <div class="summary-cell">Dicetak Oleh<strong>{$namaPembuat} ({$labelPembuat})</strong></div>
-  </div>
+  <p class="doc-meta">Periode: <strong>{$periodeStr}</strong> &nbsp;&nbsp; Dicetak: <strong>{$now}</strong> &nbsp;&nbsp; Dicetak Oleh: <strong>{$namaPembuat} ({$labelPembuat})</strong></p>
 
   <!-- TABEL DATA -->
   <table>
     <thead><tr>{$headerCells}</tr></thead>
-    <tbody>{$rows}</tbody>
+    <tbody>
+      {$rows}
+      <tr style="background:#f8fafc; font-weight:bold;">
+        <td colspan="3" style="text-align:right; font-weight:bold; border:1px solid #e2e8f0; padding:5px 6px;">Total Data:</td>
+        <td colspan="{$colRemaining}" style="text-align:left; font-weight:bold; border:1px solid #e2e8f0; padding:5px 6px; padding-left:12px;">{$totalData} record</td>
+      </tr>
+    </tbody>
   </table>
 
   <!-- TANDA TANGAN -->
